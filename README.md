@@ -84,9 +84,9 @@ import io.github.imfangs.dify.client.model.DifyConfig;
 DifyConfig config = new DifyConfig();
 config.setBaseUrl("https://api.dify.ai");
 config.setApiKey("your-api-key");
-config.setConnectTimeout(30);
-config.setReadTimeout(30);
-config.setWriteTimeout(30);
+config.setConnectTimeout(5000);
+config.setReadTimeout(60000);
+config.setWriteTimeout(30000);
 
 // 使用配置创建客户端
 DifyClient client = DifyClientFactory.createClient(config);
