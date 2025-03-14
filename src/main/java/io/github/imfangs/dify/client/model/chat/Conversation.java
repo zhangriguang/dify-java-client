@@ -1,0 +1,48 @@
+package io.github.imfangs.dify.client.model.chat;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Data;
+
+import java.util.Map;
+
+/**
+ * 对话会话
+ */
+@Data
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class Conversation {
+    /**
+     * 会话 ID
+     */
+    private String id;
+
+    /**
+     * 会话名称
+     */
+    private String name;
+
+    /**
+     * 用户输入参数
+     */
+    private Map<String, Object> inputs;
+
+    /**
+     * 会话状态
+     */
+    private String status;
+
+    /**
+     * 开场白
+     */
+    private String introduction;
+
+    /**
+     * 创建时间
+     */
+    private Long createdAt;
+
+    /**
+     * 更新时间
+     */
+    private Long updatedAt;
+}
