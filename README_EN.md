@@ -7,34 +7,44 @@ English | [简体中文](README.md)
 
 Dify Java Client is a Java client library for interacting with the [Dify](https://dify.ai) platform. It provides complete support for Dify Application APIs and Knowledge Base APIs, enabling Java developers to easily integrate Dify's generative AI capabilities into their applications.
 
-## What is Dify?
-
-[Dify](https://dify.ai) is an open-source Large Language Model (LLM) application development platform. It combines the concepts of Backend as a Service and LLMOps, allowing developers to quickly build production-ready generative AI applications. Dify covers the core technology stack needed to build native generative AI applications, including:
-
-- RAG Pipeline: Securely build data channels between private data and large language models, providing highly reliable indexing and retrieval tools
-- Prompt IDE: Thoughtfully designed, user-friendly prompt development tools for prompt engineers
-- LLM Agent: Customized agents that autonomously call a series of tools to complete complex tasks
-- Workflow: Orchestrate AI workflows for more stable and controllable outputs
-- Knowledge Base Management: Create and manage knowledge bases, supporting multiple data sources and retrieval methods
-
 ## Features
 
-Dify Java Client supports the following features:
+Dify Java Client provides the following core features:
 
-### Application API Calls
+### 1. Multiple Application Types Support
 
-- **Text Generation Applications**: Call text generation applications via `DifyCompletionClient`
-- **Chat Assistants**: Call conversational applications via `DifyChatClient`
-- **Agent**: Support for Agent mode in conversational applications
-- **Chatflow**: Call workflow-orchestrated conversational applications via `DifyChatflowClient`
-- **Workflow**: Call workflow applications via `DifyWorkflowClient`
+- **Chat Applications**: Interact with conversational applications via `DifyChatClient`, supporting conversation management, message feedback, and more
+- **Completion Applications**: Call text generation applications via `DifyCompletionClient`
+- **Chatflow Applications**: Call workflow-orchestrated conversational applications via `DifyChatflowClient`
+- **Workflow Applications**: Call workflow applications via `DifyWorkflowClient`
+- **Knowledge Base Management**: Manage knowledge bases, documents, and retrieval via `DifyDatasetsClient`
 
-### Knowledge Base API Calls
+### 2. Rich Interaction Modes
+
+- **Blocking Mode**: Synchronous API calls, waiting for complete responses
+- **Streaming Mode**: Receive real-time generated content through callbacks, supporting typewriter effects
+- **File Processing**: Support for file uploads, speech-to-text, text-to-speech, and other multimedia functions
+
+### 3. Complete Conversation Management
+
+- Create and manage conversations
+- Retrieve message history
+- Rename conversations
+- Message feedback (like/dislike)
+- Get suggested questions
+
+### 4. Full Knowledge Base Support
 
 - Create and manage knowledge bases
 - Upload and manage documents
-- Manage document segments
-- Retrieve knowledge base content
+- Document segment management
+- Semantic retrieval
+
+### 5. Flexible Configuration Options
+
+- Custom connection timeout
+- Custom read/write timeout
+- Custom HTTP client
 
 ## Installation
 
@@ -56,152 +66,423 @@ implementation 'io.github.imfangs:dify-java-client:1.0.0'
 
 ## Quick Start
 
-### Creating a Client
+### Creating Clients
 
 ```java
-import io.github.imfangs.dify.client.DifyClient;
-import io.github.imfangs.dify.client.DifyClientFactory;
-
 // Create a complete Dify client
-DifyClient client = DifyClientFactory.createClient("https://api.dify.ai", "your-api-key");
+DifyClient client = DifyClientFactory.createClient("https://api.dify.ai/v1", "your-api-key");
 
 // Create specific types of clients
-DifyChatClient chatClient = DifyClientFactory.createChatClient("https://api.dify.ai", "your-api-key");
-DifyCompletionClient completionClient = DifyClientFactory.createCompletionClient("https://api.dify.ai", "your-api-key");
-DifyChatflowClient chatflowClient = DifyClientFactory.createChatWorkflowClient("https://api.dify.ai", "your-api-key");
-DifyWorkflowClient workflowClient = DifyClientFactory.createWorkflowClient("https://api.dify.ai", "your-api-key");
-DifyDatasetsClient datasetsClient = DifyClientFactory.createDatasetsClient("https://api.dify.ai", "your-api-key");
+DifyChatClient chatClient = DifyClientFactory.createChatClient("https://api.dify.ai/v1", "your-api-key");
+DifyCompletionClient completionClient = DifyClientFactory.createCompletionClient("https://api.dify.ai/v1", "your-api-key");
+DifyChatflowClient chatflowClient = DifyClientFactory.createChatWorkflowClient("https://api.dify.ai/v1", "your-api-key");
+DifyWorkflowClient workflowClient = DifyClientFactory.createWorkflowClient("https://api.dify.ai/v1", "your-api-key");
+DifyDatasetsClient datasetsClient = DifyClientFactory.createDatasetsClient("https://api.dify.ai/v1", "your-api-key");
+
+// Create client with custom configuration
+DifyConfig config = DifyConfig.builder()
+    .baseUrl("https://api.dify.ai/v1")
+    .apiKey("your-api-key")
+    .connectTimeout(5000)
+    .readTimeout(60000)
+    .writeTimeout(30000)
+    .build();
+
+DifyClient clientWithConfig = DifyClientFactory.createClient(config);
 ```
 
-### Creating a Client with Configuration
+## Usage Examples
+
+### 1. Chat Applications
+
+#### Blocking Mode
 
 ```java
-import io.github.imfangs.dify.client.DifyClient;
-import io.github.imfangs.dify.client.DifyClientFactory;
-import io.github.imfangs.dify.client.model.DifyConfig;
-
-// Create configuration
-DifyConfig config = new DifyConfig();
-config.setBaseUrl("https://api.dify.ai");
-config.setApiKey("your-api-key");
-config.setConnectTimeout(5000);
-config.setReadTimeout(60000);
-config.setWriteTimeout(30000);
-
-// Create client with configuration
-DifyClient client = DifyClientFactory.createClient(config);
-```
-
-### Chat Application Example
-
-```java
-import io.github.imfangs.dify.client.DifyChatClient;
-import io.github.imfangs.dify.client.DifyClientFactory;
-import io.github.imfangs.dify.client.callback.ChatStreamCallback;
-import io.github.imfangs.dify.client.model.chat.ChatMessage;
-import io.github.imfangs.dify.client.model.chat.ChatMessageResponse;
-
 // Create chat client
-DifyChatClient chatClient = DifyClientFactory.createChatClient("https://api.dify.ai", "your-api-key");
+DifyChatClient chatClient = DifyClientFactory.createChatClient("https://api.dify.ai/v1", "your-api-key");
 
 // Create chat message
-ChatMessage message = new ChatMessage();
-message.setQuery("Hello, please introduce yourself");
-message.setUser("user-123");
+ChatMessage message = ChatMessage.builder()
+    .query("Hello, please introduce yourself")
+    .user("user-123")
+    .responseMode(ResponseMode.BLOCKING)
+    .build();
 
-// Blocking mode call
+// Send message and get response
 ChatMessageResponse response = chatClient.sendChatMessage(message);
 System.out.println("Reply: " + response.getAnswer());
+System.out.println("Conversation ID: " + response.getConversationId());
+System.out.println("Message ID: " + response.getMessageId());
+```
 
-// Streaming mode call
+#### Streaming Mode
+
+```java
+// Create chat message
+ChatMessage message = ChatMessage.builder()
+    .query("Please tell me a short story")
+    .user("user-123")
+    .responseMode(ResponseMode.STREAMING)
+    .build();
+
+// Send streaming message
 chatClient.sendChatMessageStream(message, new ChatStreamCallback() {
     @Override
-    public void onMessage(String message) {
-        System.out.println("Received message: " + message);
+    public void onMessage(MessageEvent event) {
+        System.out.println("Received message chunk: " + event.getAnswer());
     }
 
     @Override
-    public void onError(Throwable throwable) {
-        System.err.println("Error occurred: " + throwable.getMessage());
+    public void onMessageEnd(MessageEndEvent event) {
+        System.out.println("Message ended, complete message ID: " + event.getMessageId());
     }
 
     @Override
-    public void onComplete() {
-        System.out.println("Stream reply completed");
+    public void onError(ErrorEvent event) {
+        System.err.println("Error: " + event.getMessage());
+    }
+
+    @Override
+    public void onException(Throwable throwable) {
+        System.err.println("Exception: " + throwable.getMessage());
     }
 });
 ```
 
-### Text Generation Application Example
+#### Conversation Management
 
 ```java
-import io.github.imfangs.dify.client.DifyCompletionClient;
-import io.github.imfangs.dify.client.DifyClientFactory;
-import io.github.imfangs.dify.client.callback.CompletionStreamCallback;
-import io.github.imfangs.dify.client.model.completion.CompletionRequest;
-import io.github.imfangs.dify.client.model.completion.CompletionResponse;
+// Get conversation history messages
+MessageListResponse messages = chatClient.getMessages(conversationId, "user-123", null, 10);
 
-// Create text generation client
-DifyCompletionClient completionClient = DifyClientFactory.createCompletionClient("https://api.dify.ai", "your-api-key");
+// Get conversation list
+ConversationListResponse conversations = chatClient.getConversations("user-123", null, 10, "-updated_at");
 
-// Create text generation request
-CompletionRequest request = new CompletionRequest();
-request.getInputs().put("text", "Write a short article about artificial intelligence");
-request.setUser("user-123");
+// Rename conversation
+Conversation renamedConversation = chatClient.renameConversation(conversationId, "New Conversation Name", false, "user-123");
 
-// Blocking mode call
+// Delete conversation
+SimpleResponse deleteResponse = chatClient.deleteConversation(conversationId, "user-123");
+```
+
+#### Message Feedback
+
+```java
+// Send message feedback (like)
+SimpleResponse feedbackResponse = chatClient.feedbackMessage(messageId, "like", "user-123", "This is a great answer");
+
+// Get suggested questions
+SuggestedQuestionsResponse suggestedQuestions = chatClient.getSuggestedQuestions(messageId, "user-123");
+```
+
+#### Voice Conversion
+
+```java
+// Speech to text
+AudioToTextResponse textResponse = chatClient.audioToText(audioFile, "user-123");
+System.out.println("Converted text: " + textResponse.getText());
+
+// Text to speech
+byte[] audioData = chatClient.textToAudio(null, "This is a test text", "user-123");
+```
+
+### 2. Completion Applications
+
+#### Blocking Mode
+
+```java
+// Create completion client
+DifyCompletionClient completionClient = DifyClientFactory.createCompletionClient("https://api.dify.ai/v1", "your-api-key");
+
+// Create request
+Map<String, Object> inputs = new HashMap<>();
+inputs.put("content", "eggplant");
+
+CompletionRequest request = CompletionRequest.builder()
+    .inputs(inputs)
+    .responseMode(ResponseMode.BLOCKING)
+    .user("user-123")
+    .build();
+
+// Send request and get response
 CompletionResponse response = completionClient.sendCompletionMessage(request);
-System.out.println("Generated text: " + response.getText());
+System.out.println("Generated text: " + response.getAnswer());
+```
 
-// Streaming mode call
+#### Streaming Mode
+
+```java
+// Create request
+Map<String, Object> inputs = new HashMap<>();
+inputs.put("content", "eggplant");
+
+CompletionRequest request = CompletionRequest.builder()
+    .inputs(inputs)
+    .responseMode(ResponseMode.STREAMING)
+    .user("user-123")
+    .build();
+
+// Send streaming request
 completionClient.sendCompletionMessageStream(request, new CompletionStreamCallback() {
     @Override
-    public void onMessage(String message) {
-        System.out.println("Received message: " + message);
+    public void onMessage(MessageEvent event) {
+        System.out.println("Received message chunk: " + event.getAnswer());
     }
 
     @Override
-    public void onError(Throwable throwable) {
-        System.err.println("Error occurred: " + throwable.getMessage());
+    public void onMessageEnd(MessageEndEvent event) {
+        System.out.println("Message ended, complete message ID: " + event.getMessageId());
     }
 
     @Override
     public void onComplete() {
-        System.out.println("Stream generation completed");
+        System.out.println("Completed");
+    }
+
+    @Override
+    public void onError(ErrorEvent event) {
+        System.err.println("Error: " + event.getMessage());
+    }
+
+    @Override
+    public void onException(Throwable throwable) {
+        System.err.println("Exception: " + throwable.getMessage());
     }
 });
 ```
 
-### Knowledge Base Operations Example
+#### Stop Generation
 
 ```java
-import io.github.imfangs.dify.client.DifyDatasetsClient;
-import io.github.imfangs.dify.client.DifyClientFactory;
-import io.github.imfangs.dify.client.model.datasets.CreateDatasetRequest;
-import io.github.imfangs.dify.client.model.datasets.DatasetResponse;
-import io.github.imfangs.dify.client.model.datasets.DatasetListResponse;
+// Stop text generation
+SimpleResponse stopResponse = completionClient.stopCompletion(taskId, "user-123");
+```
 
-// Create knowledge base client
-DifyDatasetsClient datasetsClient = DifyClientFactory.createDatasetsClient("https://api.dify.ai", "your-api-key");
+### 3. Workflow Applications
+
+#### Blocking Mode
+
+```java
+// Create workflow client
+DifyWorkflowClient workflowClient = DifyClientFactory.createWorkflowClient("https://api.dify.ai/v1", "your-api-key");
+
+// Create workflow request
+Map<String, Object> inputs = new HashMap<>();
+inputs.put("content", "Please introduce AI application scenarios");
+
+WorkflowRunRequest request = WorkflowRunRequest.builder()
+    .inputs(inputs)
+    .responseMode(ResponseMode.BLOCKING)
+    .user("user-123")
+    .build();
+
+// Run workflow and get response
+WorkflowRunResponse response = workflowClient.runWorkflow(request);
+System.out.println("Workflow execution ID: " + response.getTaskId());
+
+// Output results
+if (response.getData() != null) {
+    for (Map.Entry<String, Object> entry : response.getData().getOutputs().entrySet()) {
+        System.out.println(entry.getKey() + ": " + entry.getValue());
+    }
+}
+```
+
+#### Streaming Mode
+
+```java
+// Create workflow request
+Map<String, Object> inputs = new HashMap<>();
+inputs.put("content", "Please explain the basic principles of machine learning in detail");
+
+WorkflowRunRequest request = WorkflowRunRequest.builder()
+    .inputs(inputs)
+    .responseMode(ResponseMode.STREAMING)
+    .user("user-123")
+    .build();
+
+// Run workflow streaming request
+workflowClient.runWorkflowStream(request, new WorkflowStreamCallback() {
+    @Override
+    public void onWorkflowStarted(WorkflowStartedEvent event) {
+        System.out.println("Workflow started: " + event);
+    }
+
+    @Override
+    public void onNodeStarted(NodeStartedEvent event) {
+        System.out.println("Node started: " + event);
+    }
+
+    @Override
+    public void onNodeFinished(NodeFinishedEvent event) {
+        System.out.println("Node finished: " + event);
+    }
+
+    @Override
+    public void onWorkflowFinished(WorkflowFinishedEvent event) {
+        System.out.println("Workflow finished: " + event);
+    }
+
+    @Override
+    public void onError(ErrorEvent event) {
+        System.err.println("Error: " + event.getMessage());
+    }
+
+    @Override
+    public void onException(Throwable throwable) {
+        System.err.println("Exception: " + throwable.getMessage());
+    }
+});
+```
+
+#### Workflow Management
+
+```java
+// Stop workflow
+WorkflowStopResponse stopResponse = workflowClient.stopWorkflow(taskId, "user-123");
+
+// Get workflow execution status
+WorkflowRunStatusResponse statusResponse = workflowClient.getWorkflowRun(workflowRunId);
+
+// Get workflow logs
+WorkflowLogsResponse logsResponse = workflowClient.getWorkflowLogs(null, null, 1, 10);
+```
+
+### 4. Knowledge Base Management
+
+#### Create and Manage Knowledge Bases
+
+```java
+// Create datasets client
+DifyDatasetsClient datasetsClient = DifyClientFactory.createDatasetsClient("https://api.dify.ai/v1", "your-api-key");
 
 // Create knowledge base
-CreateDatasetRequest createRequest = new CreateDatasetRequest();
-createRequest.setName("Test Knowledge Base");
-createRequest.setDescription("This is a test knowledge base");
+CreateDatasetRequest createRequest = CreateDatasetRequest.builder()
+    .name("Test Knowledge Base-" + System.currentTimeMillis())
+    .description("This is a test knowledge base")
+    .indexingTechnique("high_quality")
+    .permission("only_me")
+    .provider("vendor")
+    .build();
+
 DatasetResponse dataset = datasetsClient.createDataset(createRequest);
 System.out.println("Created knowledge base ID: " + dataset.getId());
 
 // Get knowledge base list
 DatasetListResponse datasetList = datasetsClient.getDatasets(1, 10);
 System.out.println("Total knowledge bases: " + datasetList.getTotal());
-datasetList.getData().forEach(ds -> {
-    System.out.println("Knowledge base name: " + ds.getName());
+```
+
+#### Document Management
+
+```java
+// Create document by text
+CreateDocumentByTextRequest docRequest = CreateDocumentByTextRequest.builder()
+    .name("Test Document-" + System.currentTimeMillis())
+    .text("This is the content of a test document.\nThis is the second line.\nThis is the third line.")
+    .indexingTechnique("high_quality")
+    .build();
+
+DocumentResponse docResponse = datasetsClient.createDocumentByText(datasetId, docRequest);
+System.out.println("Created document ID: " + docResponse.getDocument().getId());
+
+// Get document list
+DocumentListResponse docList = datasetsClient.getDocuments(datasetId, null, 1, 10);
+System.out.println("Total documents: " + docList.getTotal());
+
+// Delete document
+SimpleResponse deleteResponse = datasetsClient.deleteDocument(datasetId, documentId);
+```
+
+#### Knowledge Base Retrieval
+
+```java
+// Create retrieval request
+RetrievalModel retrievalModel = new RetrievalModel();
+retrievalModel.setTopK(3);
+retrievalModel.setScoreThreshold(0.5f);
+
+RetrieveRequest retrieveRequest = RetrieveRequest.builder()
+    .query("What is artificial intelligence")
+    .retrievalModel(retrievalModel)
+    .build();
+
+// Send retrieval request
+RetrieveResponse retrieveResponse = datasetsClient.retrieveDataset(datasetId, retrieveRequest);
+
+// Process retrieval results
+System.out.println("Retrieval query: " + retrieveResponse.getQuery().getContent());
+System.out.println("Number of retrieval results: " + retrieveResponse.getRecords().size());
+retrieveResponse.getRecords().forEach(record -> {
+    System.out.println("Score: " + record.getScore());
+    System.out.println("Content: " + record.getSegment().getContent());
 });
 ```
 
-## More Examples
+## API Reference
 
-For more usage examples, please refer to the [example code](https://github.com/imfangs/dify-java-client/tree/main/src/test/java/io/github/imfangs/dify/client).
+### Client Types
+
+| Client Type | Description | Main Features |
+|-------------|-------------|---------------|
+| `DifyClient` | Complete client | Supports all API features |
+| `DifyChatClient` | Chat application client | Conversations, conversation management, message feedback |
+| `DifyCompletionClient` | Text generation application client | Text generation, stop generation |
+| `DifyChatflowClient` | Workflow-orchestrated chat application client | Workflow-orchestrated conversations |
+| `DifyWorkflowClient` | Workflow application client | Execute workflows, workflow management |
+| `DifyDatasetsClient` | Knowledge base client | Knowledge base management, document management, retrieval |
+
+### Response Modes
+
+| Mode | Enum Value | Description |
+|------|------------|-------------|
+| Blocking Mode | `ResponseMode.BLOCKING` | Synchronous call, waiting for complete response |
+| Streaming Mode | `ResponseMode.STREAMING` | Receive real-time generated content through callbacks |
+
+### Event Types
+
+| Event Type | Description |
+|------------|-------------|
+| `MessageEvent` | Message event, containing generated text chunk |
+| `MessageEndEvent` | Message end event, containing complete message ID |
+| `MessageFileEvent` | File message event, containing file information |
+| `TtsMessageEvent` | Text-to-speech event |
+| `TtsMessageEndEvent` | Text-to-speech end event |
+| `MessageReplaceEvent` | Message replacement event |
+| `AgentMessageEvent` | Agent message event |
+| `AgentThoughtEvent` | Agent thought event |
+| `WorkflowStartedEvent` | Workflow started event |
+| `NodeStartedEvent` | Node started event |
+| `NodeFinishedEvent` | Node finished event |
+| `WorkflowFinishedEvent` | Workflow finished event |
+| `ErrorEvent` | Error event |
+| `PingEvent` | Ping event |
+
+## Advanced Configuration
+
+### Custom HTTP Client
+
+```java
+// Create custom configuration
+DifyConfig config = DifyConfig.builder()
+    .baseUrl("https://api.dify.ai/v1")
+    .apiKey("your-api-key")
+    .connectTimeout(5000)  // Connection timeout (milliseconds)
+    .readTimeout(60000)    // Read timeout (milliseconds)
+    .writeTimeout(30000)   // Write timeout (milliseconds)
+    .build();
+
+// Create client with custom configuration
+DifyClient client = DifyClientFactory.createClient(config);
+```
+
+## More Documentation
+
+- [Chat Application API Details](docs/chat-api.md)
+- [Completion Application API Details](docs/completion-api.md)
+- [Workflow Application API Details](docs/workflow-api.md)
+- [Knowledge Base API Details](docs/datasets-api.md)
+- [Events and Callbacks Details](docs/events-callbacks.md)
 
 ## Contributing
 
