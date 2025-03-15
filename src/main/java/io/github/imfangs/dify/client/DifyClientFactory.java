@@ -12,6 +12,20 @@ import okhttp3.OkHttpClient;
 public class DifyClientFactory {
 
     /**
+     * 从配置创建HTTP客户端
+     *
+     * @param config 配置
+     * @return HTTP客户端
+     */
+    private static OkHttpClient createHttpClient(DifyConfig config) {
+        return HttpClientUtils.createClient(
+                config.getConnectTimeout(),
+                config.getReadTimeout(),
+                config.getWriteTimeout()
+        );
+    }
+
+    /**
      * 创建完整的Dify客户端
      *
      * @param baseUrl 基础URL
@@ -41,12 +55,7 @@ public class DifyClientFactory {
      * @return Dify客户端
      */
     public static DifyClient createClient(DifyConfig config) {
-        OkHttpClient httpClient = HttpClientUtils.createClient(
-                config.getConnectTimeout(),
-                config.getReadTimeout(),
-                config.getWriteTimeout()
-        );
-        return new DefaultDifyClient(config.getBaseUrl(), config.getApiKey(), httpClient);
+        return new DefaultDifyClient(config.getBaseUrl(), config.getApiKey(), createHttpClient(config));
     }
 
     /**
@@ -79,12 +88,7 @@ public class DifyClientFactory {
      * @return 对话型应用客户端
      */
     public static DifyChatClient createChatClient(DifyConfig config) {
-        OkHttpClient httpClient = HttpClientUtils.createClient(
-                config.getConnectTimeout(),
-                config.getReadTimeout(),
-                config.getWriteTimeout()
-        );
-        return createClient(config.getBaseUrl(), config.getApiKey(), httpClient);
+        return createClient(config);
     }
 
     /**
@@ -117,12 +121,7 @@ public class DifyClientFactory {
      * @return 工作流编排对话型应用客户端
      */
     public static DifyChatflowClient createChatWorkflowClient(DifyConfig config) {
-        OkHttpClient httpClient = HttpClientUtils.createClient(
-                config.getConnectTimeout(),
-                config.getReadTimeout(),
-                config.getWriteTimeout()
-        );
-        return createClient(config.getBaseUrl(), config.getApiKey(), httpClient);
+        return createClient(config);
     }
 
     /**
@@ -155,12 +154,7 @@ public class DifyClientFactory {
      * @return 文本生成型应用客户端
      */
     public static DifyCompletionClient createCompletionClient(DifyConfig config) {
-        OkHttpClient httpClient = HttpClientUtils.createClient(
-                config.getConnectTimeout(),
-                config.getReadTimeout(),
-                config.getWriteTimeout()
-        );
-        return createClient(config.getBaseUrl(), config.getApiKey(), httpClient);
+        return createClient(config);
     }
 
     /**
@@ -193,12 +187,7 @@ public class DifyClientFactory {
      * @return Workflow应用客户端
      */
     public static DifyWorkflowClient createWorkflowClient(DifyConfig config) {
-        OkHttpClient httpClient = HttpClientUtils.createClient(
-                config.getConnectTimeout(),
-                config.getReadTimeout(),
-                config.getWriteTimeout()
-        );
-        return createClient(config.getBaseUrl(), config.getApiKey(), httpClient);
+        return createClient(config);
     }
 
     /**
@@ -231,11 +220,6 @@ public class DifyClientFactory {
      * @return 知识库客户端
      */
     public static DifyDatasetsClient createDatasetsClient(DifyConfig config) {
-        OkHttpClient httpClient = HttpClientUtils.createClient(
-                config.getConnectTimeout(),
-                config.getReadTimeout(),
-                config.getWriteTimeout()
-        );
-        return new DefaultDifyDatasetsClient(config.getBaseUrl(), config.getApiKey(), httpClient);
+        return new DefaultDifyDatasetsClient(config.getBaseUrl(), config.getApiKey(), createHttpClient(config));
     }
 }
