@@ -61,6 +61,33 @@ public class DifyClientFactory {
     }
 
     /**
+     * 创建对话型应用客户端
+     *
+     * @param baseUrl    基础URL
+     * @param apiKey     API密钥
+     * @param httpClient HTTP客户端
+     * @return 对话型应用客户端
+     */
+    public static DifyChatClient createChatClient(String baseUrl, String apiKey, OkHttpClient httpClient) {
+        return createClient(baseUrl, apiKey, httpClient);
+    }
+
+    /**
+     * 使用配置创建对话型应用客户端
+     *
+     * @param config 配置
+     * @return 对话型应用客户端
+     */
+    public static DifyChatClient createChatClient(DifyConfig config) {
+        OkHttpClient httpClient = HttpClientUtils.createClient(
+                config.getConnectTimeout(),
+                config.getReadTimeout(),
+                config.getWriteTimeout()
+        );
+        return createClient(config.getBaseUrl(), config.getApiKey(), httpClient);
+    }
+
+    /**
      * 创建工作流编排对话型应用客户端
      *
      * @param baseUrl 基础URL
@@ -69,6 +96,33 @@ public class DifyClientFactory {
      */
     public static DifyChatflowClient createChatWorkflowClient(String baseUrl, String apiKey) {
         return createClient(baseUrl, apiKey);
+    }
+
+    /**
+     * 创建工作流编排对话型应用客户端
+     *
+     * @param baseUrl    基础URL
+     * @param apiKey     API密钥
+     * @param httpClient HTTP客户端
+     * @return 工作流编排对话型应用客户端
+     */
+    public static DifyChatflowClient createChatWorkflowClient(String baseUrl, String apiKey, OkHttpClient httpClient) {
+        return createClient(baseUrl, apiKey, httpClient);
+    }
+
+    /**
+     * 使用配置创建工作流编排对话型应用客户端
+     *
+     * @param config 配置
+     * @return 工作流编排对话型应用客户端
+     */
+    public static DifyChatflowClient createChatWorkflowClient(DifyConfig config) {
+        OkHttpClient httpClient = HttpClientUtils.createClient(
+                config.getConnectTimeout(),
+                config.getReadTimeout(),
+                config.getWriteTimeout()
+        );
+        return createClient(config.getBaseUrl(), config.getApiKey(), httpClient);
     }
 
     /**
@@ -83,6 +137,33 @@ public class DifyClientFactory {
     }
 
     /**
+     * 创建文本生成型应用客户端
+     *
+     * @param baseUrl    基础URL
+     * @param apiKey     API密钥
+     * @param httpClient HTTP客户端
+     * @return 文本生成型应用客户端
+     */
+    public static DifyCompletionClient createCompletionClient(String baseUrl, String apiKey, OkHttpClient httpClient) {
+        return createClient(baseUrl, apiKey, httpClient);
+    }
+
+    /**
+     * 使用配置创建文本生成型应用客户端
+     *
+     * @param config 配置
+     * @return 文本生成型应用客户端
+     */
+    public static DifyCompletionClient createCompletionClient(DifyConfig config) {
+        OkHttpClient httpClient = HttpClientUtils.createClient(
+                config.getConnectTimeout(),
+                config.getReadTimeout(),
+                config.getWriteTimeout()
+        );
+        return createClient(config.getBaseUrl(), config.getApiKey(), httpClient);
+    }
+
+    /**
      * 创建Workflow应用客户端
      *
      * @param baseUrl 基础URL
@@ -91,6 +172,33 @@ public class DifyClientFactory {
      */
     public static DifyWorkflowClient createWorkflowClient(String baseUrl, String apiKey) {
         return createClient(baseUrl, apiKey);
+    }
+
+    /**
+     * 创建Workflow应用客户端
+     *
+     * @param baseUrl    基础URL
+     * @param apiKey     API密钥
+     * @param httpClient HTTP客户端
+     * @return Workflow应用客户端
+     */
+    public static DifyWorkflowClient createWorkflowClient(String baseUrl, String apiKey, OkHttpClient httpClient) {
+        return createClient(baseUrl, apiKey, httpClient);
+    }
+
+    /**
+     * 使用配置创建Workflow应用客户端
+     *
+     * @param config 配置
+     * @return Workflow应用客户端
+     */
+    public static DifyWorkflowClient createWorkflowClient(DifyConfig config) {
+        OkHttpClient httpClient = HttpClientUtils.createClient(
+                config.getConnectTimeout(),
+                config.getReadTimeout(),
+                config.getWriteTimeout()
+        );
+        return createClient(config.getBaseUrl(), config.getApiKey(), httpClient);
     }
 
     /**
