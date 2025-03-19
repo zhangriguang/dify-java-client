@@ -41,7 +41,7 @@ public class DefaultDifyClient extends DifyBaseClientImpl implements DifyClient 
     private static final String META_PATH = "/meta";
     private static final String STOP_PATH = "/stop";
     private static final String FEEDBACKS_PATH = "/feedbacks";
-    private static final String SUGGESTED_QUESTIONS_PATH = "/suggested-questions";
+    private static final String SUGGESTED_QUESTIONS_PATH = "/suggested";
     private static final String NAME_PATH = "/name";
 
     // 文本生成型应用相关路径

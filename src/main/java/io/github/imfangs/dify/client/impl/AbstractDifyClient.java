@@ -264,16 +264,16 @@ public abstract class AbstractDifyClient {
     /**
      * 构建URL查询参数
      *
-     * @param baseUrl 基础URL
+     * @param path 请求路径
      * @param params 参数映射
      * @return 完整URL
      */
-    protected String buildUrlWithParams(String baseUrl, Map<String, Object> params) {
+    protected String buildUrlWithParams(String path, Map<String, Object> params) {
         if (params == null || params.isEmpty()) {
-            return baseUrl;
+            return baseUrl + path;
         }
 
-        StringBuilder urlBuilder = new StringBuilder(baseUrl);
+        StringBuilder urlBuilder = new StringBuilder(baseUrl + path);
         boolean isFirstParam = true;
 
         for (Map.Entry<String, Object> entry : params.entrySet()) {

@@ -267,6 +267,7 @@ public class DifyChatClientTest {
 
     /**
      * 测试获取建议问题
+     * 注意：应用中需要开启对应功能配置
      */
     @Test
     public void testGetSuggestedQuestions() throws Exception {
@@ -294,6 +295,7 @@ public class DifyChatClientTest {
     /**
      * 测试语音转文字
      * 注意：此测试需要有效的音频文件
+     * 注意：应用中需要开启对应功能配置
      */
     @Test
     public void testAudioToText() throws Exception {
@@ -315,6 +317,7 @@ public class DifyChatClientTest {
 
     /**
      * 测试文字转语音
+     * 注意：应用中需要开启对应功能配置
      */
     @Test
     public void testTextToAudio() throws Exception {
