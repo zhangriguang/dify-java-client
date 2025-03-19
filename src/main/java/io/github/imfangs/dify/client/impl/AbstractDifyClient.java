@@ -252,6 +252,10 @@ public abstract class AbstractDifyClient {
                     } else if (errorJson.containsKey("message")) {
                         errorMessage = (String) errorJson.get("message");
                     }
+
+                    if (errorJson.containsKey("params")) {
+                        errorMessage += "【" + errorJson.get("params") + "】";
+                    }
                 }
             }
         } catch (Exception e) {
@@ -270,10 +274,10 @@ public abstract class AbstractDifyClient {
      */
     protected String buildUrlWithParams(String path, Map<String, Object> params) {
         if (params == null || params.isEmpty()) {
-            return baseUrl + path;
+            return path;
         }
 
-        StringBuilder urlBuilder = new StringBuilder(baseUrl + path);
+        StringBuilder urlBuilder = new StringBuilder(path);
         boolean isFirstParam = true;
 
         for (Map.Entry<String, Object> entry : params.entrySet()) {

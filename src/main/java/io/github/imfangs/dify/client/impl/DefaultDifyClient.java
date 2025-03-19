@@ -142,7 +142,7 @@ public class DefaultDifyClient extends DifyBaseClientImpl implements DifyClient 
         params.put("limit", limit);
 
         String url = buildUrlWithParams(MESSAGES_PATH, params);
-        Request request = createGetRequest(url.substring(baseUrl.length())); // 移除baseUrl前缀
+        Request request = createGetRequest(url);
         return executeRequest(request, MessageListResponse.class);
     }
 
@@ -156,7 +156,7 @@ public class DefaultDifyClient extends DifyBaseClientImpl implements DifyClient 
         params.put("sort_by", sortBy);
 
         String url = buildUrlWithParams(CONVERSATIONS_PATH, params);
-        Request request = createGetRequest(url.substring(baseUrl.length())); // 移除baseUrl前缀
+        Request request = createGetRequest(url);
         return executeRequest(request, ConversationListResponse.class);
     }
 
@@ -310,7 +310,7 @@ public class DefaultDifyClient extends DifyBaseClientImpl implements DifyClient 
         params.put("limit", limit);
 
         String url = buildUrlWithParams(WORKFLOWS_LOGS_PATH, params);
-        Request request = createGetRequest(url.substring(baseUrl.length())); // 移除baseUrl前缀
+        Request request = createGetRequest(url);
         return executeRequest(request, WorkflowLogsResponse.class);
     }
 

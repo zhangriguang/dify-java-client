@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  */
 public class DifyDatasetsClientTest {
     private static final String BASE_URL = DifyTestConfig.getBaseUrl();
-    private static final String API_KEY = DifyTestConfig.getChatApiKey();
+    private static final String API_KEY = DifyTestConfig.getDatasetsApiKey();
     private static final String USER_ID = "test-user-" + System.currentTimeMillis();
 
     private DifyDatasetsClient datasetsClient;
@@ -127,6 +127,7 @@ public class DifyDatasetsClientTest {
                 .name("测试文档-" + System.currentTimeMillis())
                 .text("这是一个测试文档的内容。\n这是第二行内容。\n这是第三行内容。")
                 .indexingTechnique("high_quality")
+                .docForm("text_model")
                 .build();
 
         // 发送请求
@@ -208,6 +209,7 @@ public class DifyDatasetsClientTest {
                     .name("检索测试文档-" + System.currentTimeMillis())
                     .text("人工智能（Artificial Intelligence，简称AI）是计算机科学的一个分支，它企图了解智能的实质，并生产出一种新的能以人类智能相似的方式做出反应的智能机器。人工智能是对人的意识、思维的信息过程的模拟。人工智能不是人的智能，但能像人那样思考、也可能超过人的智能。")
                     .indexingTechnique("high_quality")
+                    .docForm("text_model")
                     .build();
 
             DocumentResponse docResponse = datasetsClient.createDocumentByText(testDatasetId, createRequest);

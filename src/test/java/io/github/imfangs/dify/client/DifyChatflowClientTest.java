@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class DifyChatflowClientTest {
     private static final String BASE_URL = DifyTestConfig.getBaseUrl();
-    private static final String API_KEY = DifyTestConfig.getChatApiKey();
+    private static final String API_KEY = DifyTestConfig.getChatflowApiKey();
     private static final String USER_ID = "test-user-" + System.currentTimeMillis();
 
     private DifyChatflowClient chatWorkflowClient;

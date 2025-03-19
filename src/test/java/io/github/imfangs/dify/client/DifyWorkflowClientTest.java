@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class DifyWorkflowClientTest {
     private static final String BASE_URL = DifyTestConfig.getBaseUrl();
-    private static final String API_KEY = DifyTestConfig.getChatApiKey();
+    private static final String API_KEY = DifyTestConfig.getWorkflowApiKey();
     private static final String USER_ID = "test-user-" + System.currentTimeMillis();
 
     private DifyWorkflowClient workflowClient;
@@ -46,7 +46,7 @@ public class DifyWorkflowClientTest {
     public void testRunWorkflow() throws Exception {
         // 创建工作流请求
         Map<String, Object> inputs = new HashMap<>();
-        inputs.put("content", "请介绍一下人工智能的应用场景");
+        inputs.put("query", "请介绍一下人工智能的应用场景");
 
         WorkflowRunRequest request = WorkflowRunRequest.builder()
                 .inputs(inputs)
@@ -78,7 +78,7 @@ public class DifyWorkflowClientTest {
     public void testRunWorkflowStream() throws Exception {
         // 创建工作流请求
         Map<String, Object> inputs = new HashMap<>();
-        inputs.put("content", "请详细介绍一下机器学习的基本原理");
+        inputs.put("query", "请详细介绍一下机器学习的基本原理");
 
         WorkflowRunRequest request = WorkflowRunRequest.builder()
                 .inputs(inputs)
@@ -167,7 +167,7 @@ public class DifyWorkflowClientTest {
     public void testStopWorkflow() throws Exception {
         // 创建工作流请求
         Map<String, Object> inputs = new HashMap<>();
-        inputs.put("content", "请写一篇长文章，描述人工智能的未来发展");
+        inputs.put("query", "请写一篇长文章，描述人工智能的未来发展");
 
         WorkflowRunRequest request = WorkflowRunRequest.builder()
                 .inputs(inputs)
@@ -258,7 +258,7 @@ public class DifyWorkflowClientTest {
     public void testGetWorkflowRun() throws Exception {
         // 创建工作流请求
         Map<String, Object> inputs = new HashMap<>();
-        inputs.put("content", "请简要介绍一下深度学习");
+        inputs.put("query", "请简要介绍一下深度学习");
 
         WorkflowRunRequest request = WorkflowRunRequest.builder()
                 .inputs(inputs)
@@ -270,14 +270,14 @@ public class DifyWorkflowClientTest {
         WorkflowRunResponse runResponse = workflowClient.runWorkflow(request);
         assertNotNull(runResponse);
         System.out.println(runResponse);
-        assertNotNull(runResponse.getTaskId(), "工作流执行ID不应为空");
+        assertNotNull(runResponse.getWorkflowRunId(), "工作流执行ID不应为空");
 
         // 获取工作流执行情况
         WorkflowRunStatusResponse statusResponse = workflowClient.getWorkflowRun(runResponse.getWorkflowRunId());
 
         // 验证响应
         assertNotNull(statusResponse);
-        assertEquals(runResponse.getTaskId(), statusResponse.getId(), "工作流执行ID应匹配");
+        assertEquals(runResponse.getWorkflowRunId(), statusResponse.getId(), "工作流执行ID应匹配");
         System.out.println("工作流执行状态: " + statusResponse.getStatus());
         System.out.println("工作流执行详情: " + statusResponse);
     }

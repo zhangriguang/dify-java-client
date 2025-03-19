@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class DifyCompletionClientTest {
     private static final String BASE_URL = DifyTestConfig.getBaseUrl();
-    private static final String API_KEY = DifyTestConfig.getChatApiKey();
+    private static final String API_KEY = DifyTestConfig.getCompletionApiKey();
     private static final String USER_ID = "test-user-" + System.currentTimeMillis();
 
     private DifyCompletionClient completionClient;
@@ -55,7 +55,7 @@ public class DifyCompletionClientTest {
     public void testSendCompletionMessage() throws Exception {
         // 创建请求
         Map<String, Object> inputs = new HashMap<>();
-        inputs.put("content", "茄子");
+        inputs.put("query", "茄子");
 
         CompletionRequest request = CompletionRequest.builder()
                 .inputs(inputs)
@@ -81,7 +81,7 @@ public class DifyCompletionClientTest {
     public void testSendCompletionMessageStream() throws Exception {
         // 创建请求
         Map<String, Object> inputs = new HashMap<>();
-        inputs.put("content", "茄子");
+        inputs.put("query", "茄子");
 
         CompletionRequest request = CompletionRequest.builder()
                 .inputs(inputs)
