@@ -82,7 +82,7 @@ public class JsonUtils {
      */
     public static Map<String, Object> jsonToMap(String json) {
         try {
-            return OBJECT_MAPPER.readValue(json, new TypeReference<>() {
+            return OBJECT_MAPPER.readValue(json, new TypeReference<Map<String, Object>>() {
             });
         } catch (IOException e) {
             log.error("Failed to convert JSON to Map", e);

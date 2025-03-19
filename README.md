@@ -54,14 +54,14 @@ Dify Java Client 提供以下核心功能：
 <dependency>
     <groupId>io.github.imfangs</groupId>
     <artifactId>dify-java-client</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 </dependency>
 ```
 
 ### Gradle
 
 ```groovy
-implementation 'io.github.imfangs:dify-java-client:1.0.1'
+implementation 'io.github.imfangs:dify-java-client:1.0.2'
 ```
 
 ## 快速开始

@@ -103,7 +103,7 @@ public class DefaultDifyDatasetsClient extends AbstractDifyClient implements Dif
         String path = DATASETS_PATH + "/" + datasetId + DOCUMENT_CREATE_BY_FILE_PATH;
 
         // 读取输入流内容
-        byte[] bytes = inputStream.readAllBytes();
+        byte[] bytes = readAllBytes(inputStream);
 
         // 构建multipart请求
         MultipartBody.Builder multipartBuilder = new MultipartBody.Builder()
@@ -252,6 +252,36 @@ public class DefaultDifyDatasetsClient extends AbstractDifyClient implements Dif
      */
     private String buildSegmentPath(String datasetId, String documentId, String segmentId) {
         return buildDocumentPath(datasetId, documentId) + SEGMENTS_PATH + "/" + segmentId;
+    }
+
+    /**
+     * 读取输入流的所有字节 (Java 8兼容方法)
+     *
+     * @param inputStream 输入流
+     * @return 字节数组
+     * @throws IOException IO异常
+     */
+    private byte[] readAllBytes(InputStream inputStream) throws IOException {
+        try {
+            // 创建缓冲区
+            byte[] buffer = new byte[8192];
+            int bytesRead;
+            java.io.ByteArrayOutputStream output = new java.io.ByteArrayOutputStream();
+            
+            // 读取数据直到输入流结束
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                output.write(buffer, 0, bytesRead);
+            }
+            
+            return output.toByteArray();
+        } finally {
+            // 确保关闭输入流
+            try {
+                inputStream.close();
+            } catch (IOException e) {
+                // 忽略关闭异常
+            }
+        }
     }
 
 }
