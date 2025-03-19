@@ -49,3 +49,6 @@ nbdist/
 /.vscode/
 
 .DS_Store
+
+# Test configuration
+src/test/resources/dify-test-config.properties

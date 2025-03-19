@@ -1,5 +1,6 @@
 package io.github.imfangs.dify.client;
 
+import io.github.imfangs.dify.client.config.DifyTestConfig;
 import io.github.imfangs.dify.client.model.DifyConfig;
 import io.github.imfangs.dify.client.model.chat.AppInfoResponse;
 import io.github.imfangs.dify.client.model.chat.AppMetaResponse;
@@ -15,12 +16,11 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * Dify 基础客户端测试类
- * 注意：这只是示例代码，实际运行需要替换为有效的 API 密钥和 URL
+ * 注意：运行测试前，请确保已经正确配置了 dify-test-config.properties 文件
  */
 public class DifyBaseClientTest {
-    // 替换为实际的 API 密钥和 URL
-    private static final String API_KEY = "your-api-key";
-    private static final String BASE_URL = "https://api.dify.ai/v1";
+    private static final String BASE_URL = DifyTestConfig.getBaseUrl();
+    private static final String API_KEY = DifyTestConfig.getChatApiKey();
     private static final String USER_ID = "test-user-" + System.currentTimeMillis();
 
     /**

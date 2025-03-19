@@ -1,6 +1,7 @@
 package io.github.imfangs.dify.client;
 
 import io.github.imfangs.dify.client.callback.WorkflowStreamCallback;
+import io.github.imfangs.dify.client.config.DifyTestConfig;
 import io.github.imfangs.dify.client.enums.ResponseMode;
 import io.github.imfangs.dify.client.event.*;
 import io.github.imfangs.dify.client.model.workflow.*;
@@ -19,12 +20,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Dify Workflow应用客户端测试类
- * 注意：这些测试需要有效的API密钥才能通过
+ * 注意：运行测试前，请确保已经正确配置了 dify-test-config.properties 文件
  */
 public class DifyWorkflowClientTest {
-    // 测试配置，实际使用时需要替换为有效的值
-    private static final String API_KEY = "your-api-key";
-    private static final String BASE_URL = "https://api.dify.ai/v1";
+    private static final String BASE_URL = DifyTestConfig.getBaseUrl();
+    private static final String API_KEY = DifyTestConfig.getChatApiKey();
     private static final String USER_ID = "test-user-" + System.currentTimeMillis();
 
     private DifyWorkflowClient workflowClient;
