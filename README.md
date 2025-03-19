@@ -2,6 +2,7 @@
 
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.imfangs/dify-java-client.svg)](https://search.maven.org/search?q=g:io.github.imfangs%20AND%20a:dify-java-client)
 [![License](https://img.shields.io/github/license/imfangs/dify-java-client)](https://github.com/imfangs/dify-java-client/blob/main/LICENSE)
+[![Java](https://img.shields.io/badge/Java-8%2B-blue)](https://www.java.com)
 
 [English](README_EN.md) | 简体中文
 
@@ -47,6 +48,11 @@ Dify Java Client 提供以下核心功能：
 - 自定义HTTP客户端
 
 ## 安装
+
+### 系统要求
+
+- Java 8 或更高版本
+- Maven 3.x 或 Gradle 4.x 以上
 
 ### Maven
 

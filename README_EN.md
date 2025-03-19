@@ -2,6 +2,7 @@
 
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.imfangs/dify-java-client.svg)](https://search.maven.org/search?q=g:io.github.imfangs%20AND%20a:dify-java-client)
 [![License](https://img.shields.io/github/license/imfangs/dify-java-client)](https://github.com/imfangs/dify-java-client/blob/main/LICENSE)
+[![Java](https://img.shields.io/badge/Java-8%2B-blue)](https://www.java.com)
 
 English | [简体中文](README.md)
 
@@ -47,6 +48,11 @@ Dify Java Client provides the following core features:
 - Custom HTTP client
 
 ## Installation
+
+### System Requirements
+
+- Java 8 or higher
+- Maven 3.x or Gradle 4.x+
 
 ### Maven
 
