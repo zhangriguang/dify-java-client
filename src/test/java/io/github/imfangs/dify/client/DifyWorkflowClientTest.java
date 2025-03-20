@@ -118,6 +118,11 @@ public class DifyWorkflowClientTest {
             }
 
             @Override
+            public void onWorkflowTextChunk(WorkflowTextChunkEvent event) {
+                System.out.println("工作流DDL执行过程: " + event);
+            }
+
+            @Override
             public void onTtsMessage(TtsMessageEvent event) {
                 System.out.println("收到TTS消息: " + event);
             }
