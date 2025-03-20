@@ -26,6 +26,24 @@ public class JsonUtils {
     }
 
     /**
+     * 判断字符串是否是合法的JSON格式
+     *
+     * @param jsonString 要检查的字符串
+     * @return 如果是合法的JSON返回true，否则返回false
+     */
+    public static boolean isValidJson(String jsonString) {
+        if (jsonString == null || jsonString.trim().isEmpty()) {
+            return false;
+        }
+        try {
+            OBJECT_MAPPER.readTree(jsonString);
+            return true;
+        } catch (JsonProcessingException e) {
+            return false;
+        }
+    }
+
+    /**
      * 将对象转换为JSON字符串
      *
      * @param obj 要转换的对象
