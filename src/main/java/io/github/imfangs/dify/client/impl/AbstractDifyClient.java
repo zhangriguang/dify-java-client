@@ -238,7 +238,7 @@ public abstract class AbstractDifyClient {
 
         try {
             // 尝试解析错误响应体为JSON
-            if (message != null && !message.isEmpty()) {
+            if (message != null && !message.isEmpty() && JsonUtils.isValidJson(message)) {
                 Map<String, Object> errorJson = JsonUtils.fromJson(message, Map.class);
                 if (errorJson != null) {
                     if (errorJson.containsKey("error_code")) {
@@ -254,7 +254,7 @@ public abstract class AbstractDifyClient {
                     }
 
                     if (errorJson.containsKey("params")) {
-                        errorMessage += "【" + errorJson.get("params") + "】";
+                        errorMessage += " 【" + errorJson.get("params") + "】";
                     }
                 }
             }
