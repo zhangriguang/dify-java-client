@@ -2,14 +2,18 @@ package io.github.imfangs.dify.client.model.file;
 
 import io.github.imfangs.dify.client.enums.FileTransferMethod;
 import io.github.imfangs.dify.client.enums.FileType;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 文件信息
  */
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class FileInfo {
     /**
      * 文件类型

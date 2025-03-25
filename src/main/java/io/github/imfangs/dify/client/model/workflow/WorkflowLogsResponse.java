@@ -1,6 +1,9 @@
 package io.github.imfangs.dify.client.model.workflow;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -8,6 +11,9 @@ import java.util.List;
  * 工作流日志响应
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class WorkflowLogsResponse {
     /**
      * 当前页码
@@ -38,6 +44,9 @@ public class WorkflowLogsResponse {
      * 工作流日志项
      */
     @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class WorkflowLogItem {
         /**
          * 标识
@@ -79,6 +88,9 @@ public class WorkflowLogsResponse {
      * 工作流执行信息
      */
     @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class WorkflowRunInfo {
         /**
          * 标识
@@ -130,6 +142,9 @@ public class WorkflowLogsResponse {
      * 终端用户
      */
     @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class EndUser {
         /**
          * 标识

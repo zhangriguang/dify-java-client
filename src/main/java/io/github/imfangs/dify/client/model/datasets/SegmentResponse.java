@@ -1,6 +1,9 @@
 package io.github.imfangs.dify.client.model.datasets;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -8,6 +11,9 @@ import java.util.List;
  * 分段响应
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class SegmentResponse {
     /**
      * 分段列表
@@ -23,6 +29,9 @@ public class SegmentResponse {
      * 分段信息
      */
     @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class SegmentInfo {
         /**
          * 分段ID

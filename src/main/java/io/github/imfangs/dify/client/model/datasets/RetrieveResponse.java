@@ -1,6 +1,9 @@
 package io.github.imfangs.dify.client.model.datasets;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -8,6 +11,9 @@ import java.util.List;
  * 检索响应
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class RetrieveResponse {
     /**
      * 查询信息
@@ -23,6 +29,9 @@ public class RetrieveResponse {
      * 查询信息
      */
     @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class QueryInfo {
         /**
          * 内容
@@ -34,6 +43,9 @@ public class RetrieveResponse {
      * 记录
      */
     @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Record {
         /**
          * 分段信息
@@ -55,6 +67,9 @@ public class RetrieveResponse {
      * 分段信息
      */
     @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class SegmentInfo {
         /**
          * 分段ID
@@ -171,6 +186,9 @@ public class RetrieveResponse {
      * 文档信息
      */
     @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class DocumentInfo {
         /**
          * 文档ID

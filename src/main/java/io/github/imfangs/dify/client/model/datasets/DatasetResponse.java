@@ -1,11 +1,17 @@
 package io.github.imfangs.dify.client.model.datasets;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 知识库响应
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class DatasetResponse {
     /**
      * 知识库ID

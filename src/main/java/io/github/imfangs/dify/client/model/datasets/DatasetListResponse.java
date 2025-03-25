@@ -1,6 +1,9 @@
 package io.github.imfangs.dify.client.model.datasets;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -8,6 +11,9 @@ import java.util.List;
  * 知识库列表响应
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class DatasetListResponse {
     /**
      * 知识库列表
@@ -38,6 +44,9 @@ public class DatasetListResponse {
      * 知识库信息
      */
     @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class DatasetInfo {
         /**
          * 知识库ID

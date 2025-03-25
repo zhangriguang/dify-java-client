@@ -14,9 +14,9 @@ import java.util.Map;
  * 对话消息请求
  */
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class ChatMessage {
     /**
      * 用户输入/提问内容

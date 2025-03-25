@@ -2,8 +2,10 @@ package io.github.imfangs.dify.client.model.completion;
 
 import io.github.imfangs.dify.client.enums.ResponseMode;
 import io.github.imfangs.dify.client.model.file.FileInfo;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.Map;
@@ -13,6 +15,8 @@ import java.util.Map;
  */
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CompletionRequest {
     /**
      * 输入参数，允许传入 App 定义的各变量值

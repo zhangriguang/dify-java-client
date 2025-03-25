@@ -1,11 +1,17 @@
 package io.github.imfangs.dify.client.model.datasets;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 上传文件响应
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class UploadFileResponse {
     /**
      * 文件ID

@@ -1,7 +1,10 @@
 package io.github.imfangs.dify.client.model.chat;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Map;
 
@@ -9,6 +12,9 @@ import java.util.Map;
  * 对话消息响应（阻塞模式）
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ChatMessageResponse {
     /**
@@ -55,6 +61,9 @@ public class ChatMessageResponse {
      * 模型用量信息
      */
     @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Usage {
         /**

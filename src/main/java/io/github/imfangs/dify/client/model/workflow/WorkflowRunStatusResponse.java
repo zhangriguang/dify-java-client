@@ -1,11 +1,17 @@
 package io.github.imfangs.dify.client.model.workflow;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 工作流执行状态响应
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class WorkflowRunStatusResponse {
     /**
      * 工作流执行 ID

@@ -1,7 +1,10 @@
 package io.github.imfangs.dify.client.model.chat;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.Map;
@@ -10,6 +13,9 @@ import java.util.Map;
  * 消息列表响应
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MessageListResponse {
     /**
@@ -31,6 +37,9 @@ public class MessageListResponse {
      * 消息
      */
     @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Message {
         /**
@@ -88,6 +97,9 @@ public class MessageListResponse {
      * 消息文件
      */
     @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class MessageFile {
         /**
@@ -115,6 +127,9 @@ public class MessageListResponse {
      * 反馈信息
      */
     @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Feedback {
         /**
@@ -127,6 +142,9 @@ public class MessageListResponse {
      * Agent 思考内容
      */
     @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class AgentThought {
         /**

@@ -1,6 +1,9 @@
 package io.github.imfangs.dify.client.model.datasets;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -8,6 +11,9 @@ import java.util.List;
  * 文档嵌入状态响应
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class IndexingStatusResponse {
     /**
      * 状态列表
@@ -18,6 +24,9 @@ public class IndexingStatusResponse {
      * 嵌入状态
      */
     @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class IndexingStatus {
         /**
          * 文档ID

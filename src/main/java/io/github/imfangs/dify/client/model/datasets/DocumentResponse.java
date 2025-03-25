@@ -1,11 +1,17 @@
 package io.github.imfangs.dify.client.model.datasets;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 文档响应
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class DocumentResponse {
     /**
      * 文档信息
@@ -21,6 +27,9 @@ public class DocumentResponse {
      * 文档信息
      */
     @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Document {
         /**
          * 文档ID
@@ -127,6 +136,9 @@ public class DocumentResponse {
      * 数据源信息
      */
     @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class DataSourceInfo {
         /**
          * 上传文件ID

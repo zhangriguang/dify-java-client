@@ -1,6 +1,9 @@
 package io.github.imfangs.dify.client.model.workflow;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Map;
 
@@ -8,6 +11,9 @@ import java.util.Map;
  * Workflow 执行响应（阻塞模式）
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class WorkflowRunResponse {
     /**
      * Workflow 执行 ID
@@ -28,6 +34,9 @@ public class WorkflowRunResponse {
      * Workflow 执行数据
      */
     @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class WorkflowRunData {
         /**
          * Workflow 执行 ID

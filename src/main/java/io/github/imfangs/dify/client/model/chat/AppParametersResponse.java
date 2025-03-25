@@ -1,7 +1,10 @@
 package io.github.imfangs.dify.client.model.chat;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.Map;
@@ -10,6 +13,9 @@ import java.util.Map;
  * 应用参数响应
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AppParametersResponse {
 
@@ -62,6 +68,9 @@ public class AppParametersResponse {
      * 启用回答后给出推荐问题
      */
     @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class SuggestedQuestionsAfterAnswer {
         /**
@@ -74,6 +83,9 @@ public class AppParametersResponse {
      * 语音转文本
      */
     @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class SpeechToText {
         /**
@@ -86,6 +98,9 @@ public class AppParametersResponse {
      * 引用和归属
      */
     @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class RetrieverResource {
         /**
@@ -98,6 +113,9 @@ public class AppParametersResponse {
      * 标记回复
      */
     @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class AnnotationReply {
         /**
@@ -110,6 +128,9 @@ public class AppParametersResponse {
      * 文件上传配置
      */
     @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class FileUpload {
         /**
@@ -121,6 +142,9 @@ public class AppParametersResponse {
          * 图片设置
          */
         @Data
+        @Builder
+        @NoArgsConstructor
+        @AllArgsConstructor
         @JsonIgnoreProperties(ignoreUnknown = true)
         public static class Image {
             /**
@@ -144,6 +168,9 @@ public class AppParametersResponse {
      * 系统参数
      */
     @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class SystemParameters {
         /**
