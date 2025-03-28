@@ -484,11 +484,37 @@ DifyClient client = DifyClientFactory.createClient(config);
 
 ## 更多文档
 
-- [对话型应用API详解](docs/chat-api.md)
-- [文本生成应用API详解](docs/completion-api.md)
-- [工作流应用API详解](docs/workflow-api.md)
-- [知识库API详解](docs/datasets-api.md)
-- [事件和回调详解](docs/events-callbacks.md)
+- [对话型应用 API 示例](src/test/java/io/github/imfangs/dify/client/DifyChatClientTest.java)
+    - 消息发送（阻塞/流式）
+    - 会话管理
+    - 消息反馈
+    - 语音转换
+    - 建议问题
+
+- [文本生成应用 API 示例](src/test/java/io/github/imfangs/dify/client/DifyCompletionClientTest.java)
+    - 文本生成（阻塞/流式）
+    - 停止生成
+    - 文件处理
+    - 文字转语音
+
+- [工作流应用 API 示例](src/test/java/io/github/imfangs/dify/client/DifyWorkflowClientTest.java)
+    - 工作流执行（阻塞/流式）
+    - 停止工作流
+    - 工作流状态
+    - 工作流日志
+
+- [知识库 API 示例](src/test/java/io/github/imfangs/dify/client/DifyDatasetsClientTest.java)
+    - 知识库管理
+    - 文档管理
+    - 语义检索
+
+- [事件和回调示例](src/test/java/io/github/imfangs/dify/client/DifyChatflowClientTest.java)
+    - 消息事件
+    - 文件事件
+    - TTS事件
+    - 工作流事件
+    - 错误处理
+
 
 ## 贡献
 

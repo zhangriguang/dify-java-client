@@ -484,11 +484,36 @@ DifyClient client = DifyClientFactory.createClient(config);
 
 ## More Documentation
 
-- [Chat Application API Details](docs/chat-api.md)
-- [Completion Application API Details](docs/completion-api.md)
-- [Workflow Application API Details](docs/workflow-api.md)
-- [Knowledge Base API Details](docs/datasets-api.md)
-- [Events and Callbacks Details](docs/events-callbacks.md)
+- [Chat Application API Examples](src/test/java/io/github/imfangs/dify/client/DifyChatClientTest.java)
+    - Message sending (blocking/streaming)
+    - Conversation management
+    - Message feedback
+    - Voice conversion
+    - Suggested questions
+
+- [Completion Application API Examples](src/test/java/io/github/imfangs/dify/client/DifyCompletionClientTest.java)
+    - Text generation (blocking/streaming)
+    - Stop generation
+    - File processing
+    - Text to speech
+
+- [Workflow Application API Examples](src/test/java/io/github/imfangs/dify/client/DifyWorkflowClientTest.java)
+    - Workflow execution (blocking/streaming)
+    - Stop workflow
+    - Workflow status
+    - Workflow logs
+
+- [Knowledge Base API Examples](src/test/java/io/github/imfangs/dify/client/DifyDatasetsClientTest.java)
+    - Knowledge base management
+    - Document management
+    - Semantic retrieval
+
+- [Events and Callbacks Examples](src/test/java/io/github/imfangs/dify/client/DifyChatflowClientTest.java)
+    - Message events
+    - File events
+    - TTS events
+    - Workflow events
+    - Error handling
 
 ## Contributing
 
