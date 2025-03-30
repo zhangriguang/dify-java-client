@@ -2,14 +2,20 @@ package io.github.imfangs.dify.client;
 
 import io.github.imfangs.dify.client.callback.WorkflowStreamCallback;
 import io.github.imfangs.dify.client.config.DifyTestConfig;
+import io.github.imfangs.dify.client.enums.FileTransferMethod;
+import io.github.imfangs.dify.client.enums.FileType;
 import io.github.imfangs.dify.client.enums.ResponseMode;
 import io.github.imfangs.dify.client.event.*;
+import io.github.imfangs.dify.client.model.file.FileInfo;
+import io.github.imfangs.dify.client.model.file.FileUploadResponse;
 import io.github.imfangs.dify.client.model.workflow.*;
 import io.github.imfangs.dify.client.util.JsonUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -317,4 +323,54 @@ public class DifyWorkflowClientTest {
         assertNotNull(appInfo);
         System.out.println("应用信息: " + appInfo);
     }
+
+    @Test
+    public void testRunWorkflowWithFile() throws Exception {
+        // 上传文件
+        File file = new File("path/to/your/file.txt");
+        if (!file.exists()) {
+            System.out.println("文件不存在，跳过测试");
+            return;
+        }
+
+        FileUploadResponse uploadResponse = workflowClient.uploadFile(file, USER_ID);
+        assertNotNull(uploadResponse);
+        assertNotNull(uploadResponse.getId(), "上传文件ID不应为空");
+        System.out.println(uploadResponse);
+
+        // 创建文件信息
+        FileInfo fileInfo = FileInfo.builder()
+                .type(FileType.DOCUMENT)
+                .transferMethod(FileTransferMethod.LOCAL_FILE)
+                .uploadFileId(uploadResponse.getId())
+                .build();
+
+        // 创建工作流请求，需要在开始节点增加两个参数，例: query: 文本, file: 类型选择文件列表
+        Map<String, Object> inputs = new HashMap<>();
+        inputs.put("query", "你好，请分析这个文件的内容");
+        inputs.put("file", Collections.singletonList(fileInfo));
+
+        WorkflowRunRequest request = WorkflowRunRequest.builder()
+                .inputs(inputs)
+                .responseMode(ResponseMode.BLOCKING)
+                .user(USER_ID)
+                .build();
+
+        // 执行工作流并获取响应
+        WorkflowRunResponse response = workflowClient.runWorkflow(request);
+
+        // 验证响应
+        System.out.println(JsonUtils.toJson(response));
+        assertNotNull(response);
+        assertNotNull(response.getTaskId());
+        System.out.println("工作流执行ID: " + response.getTaskId());
+
+        // 输出结果
+        if (response.getData() != null) {
+            for (Map.Entry<String, Object> entry : response.getData().getOutputs().entrySet()) {
+                System.out.println(entry.getKey() + ": " + entry.getValue());
+            }
+        }
+    }
+
 }
