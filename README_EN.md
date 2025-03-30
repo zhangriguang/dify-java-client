@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/github/license/imfangs/dify-java-client)](https://github.com/imfangs/dify-java-client/blob/main/LICENSE)
 [![Java](https://img.shields.io/badge/Java-8%2B-blue)](https://www.java.com)
 
-English | [简体中文](README.md)
+English | [简体中文](README.md) | [日本語](README_JP.md)
 
 Dify Java Client is a Java client library for interacting with the [Dify](https://dify.ai) platform. It provides complete support for Dify Application APIs and Knowledge Base APIs, enabling Java developers to easily integrate Dify's generative AI capabilities into their applications.
 
