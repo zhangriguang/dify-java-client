@@ -2,15 +2,25 @@ package io.github.imfangs.dify.client;
 
 import io.github.imfangs.dify.client.callback.ChatflowStreamCallback;
 import io.github.imfangs.dify.client.config.DifyTestConfig;
+import io.github.imfangs.dify.client.enums.FileTransferMethod;
+import io.github.imfangs.dify.client.enums.FileType;
 import io.github.imfangs.dify.client.enums.ResponseMode;
 import io.github.imfangs.dify.client.event.*;
 import io.github.imfangs.dify.client.model.chat.AppInfoResponse;
 import io.github.imfangs.dify.client.model.chat.ChatMessage;
 import io.github.imfangs.dify.client.model.chat.ChatMessageResponse;
+import io.github.imfangs.dify.client.model.completion.CompletionRequest;
+import io.github.imfangs.dify.client.model.completion.CompletionResponse;
+import io.github.imfangs.dify.client.model.file.FileInfo;
+import io.github.imfangs.dify.client.model.file.FileUploadResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -164,6 +174,49 @@ public class DifyChatflowClientTest {
         // 验证响应
         assertFalse(responseBuilder.toString().isEmpty(), "响应不应为空");
         System.out.println("完整响应: " + responseBuilder.toString());
+    }
+
+    @Test
+    public void testSendChatMessageWithFile() throws Exception {
+        // 上传文件
+        File file = new File("path/to/your/file.txt");
+        if (!file.exists()) {
+            System.out.println("文件不存在，跳过测试");
+            return;
+        }
+
+        FileUploadResponse uploadResponse = chatWorkflowClient.uploadFile(file, USER_ID);
+        assertNotNull(uploadResponse);
+        assertNotNull(uploadResponse.getId(), "上传文件ID不应为空");
+        System.out.println(uploadResponse);
+
+        // 创建文件信息
+        FileInfo fileInfo = FileInfo.builder()
+                .type(FileType.DOCUMENT)
+                .transferMethod(FileTransferMethod.LOCAL_FILE)
+                .uploadFileId(uploadResponse.getId())
+                .build();
+
+        // 方式2: 通过input方式传递文件信息, 需要在开始节点增加参数: file(名字随意)
+        // Map<String, Object> inputs = new HashMap<>();
+        // inputs.put("file", Collections.singletonList(fileInfo));
+
+        // 创建聊天消息
+        ChatMessage message = ChatMessage.builder()
+                .query("你好，请分析这个文件的内容")
+                // .inputs(inputs)
+                .user(USER_ID)
+                .responseMode(ResponseMode.BLOCKING)
+                .files(Collections.singletonList(fileInfo))
+                .build();
+
+        // 发送消息并获取响应
+        ChatMessageResponse response = chatWorkflowClient.sendChatMessage(message);
+
+        // 验证响应
+        assertNotNull(response);
+        assertNotNull(response.getAnswer(), "回答不应为空");
+        System.out.println("文件分析结果: " + response.getAnswer());
     }
 
     /**
