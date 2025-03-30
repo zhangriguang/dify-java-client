@@ -122,12 +122,24 @@ public class DifyDatasetsClientTest {
             return;
         }
 
+        RetrievalModel retrievalModel = new RetrievalModel();
+        retrievalModel.setSearchMethod("hybrid_search");
+        retrievalModel.setRerankingEnable(false);
+        retrievalModel.setTopK(2);
+        retrievalModel.setScoreThresholdEnabled(false);
+
         // 创建文档请求
         CreateDocumentByTextRequest request = CreateDocumentByTextRequest.builder()
                 .name("测试文档-" + System.currentTimeMillis())
                 .text("这是一个测试文档的内容。\n这是第二行内容。\n这是第三行内容。")
-                .indexingTechnique("high_quality")
+                .indexingTechnique("economy")
                 .docForm("text_model")
+                // 1.1.3 invalid_param (400) - Must not be null! 【doc_language】
+                .docLanguage("Chinese")
+                // 1.1.3 invalid_param (400) - Must not be null! 【retrieval_model】
+                .retrievalModel(retrievalModel)
+                // 没有这里的设置，会500报错，服务器内部错误
+                .processRule(ProcessRule.builder().mode("automatic").build())
                 .build();
 
         // 发送请求
@@ -205,11 +217,24 @@ public class DifyDatasetsClientTest {
 
         // 先创建一个文档
         if (testDocumentId == null) {
+
+            RetrievalModel retrievalModel = new RetrievalModel();
+            retrievalModel.setSearchMethod("hybrid_search");
+            retrievalModel.setRerankingEnable(false);
+            retrievalModel.setTopK(2);
+            retrievalModel.setScoreThresholdEnabled(false);
+
             CreateDocumentByTextRequest createRequest = CreateDocumentByTextRequest.builder()
                     .name("检索测试文档-" + System.currentTimeMillis())
                     .text("人工智能（Artificial Intelligence，简称AI）是计算机科学的一个分支，它企图了解智能的实质，并生产出一种新的能以人类智能相似的方式做出反应的智能机器。人工智能是对人的意识、思维的信息过程的模拟。人工智能不是人的智能，但能像人那样思考、也可能超过人的智能。")
                     .indexingTechnique("high_quality")
                     .docForm("text_model")
+                    // 1.1.3 invalid_param (400) - Must not be null! 【doc_language】
+                    .docLanguage("Chinese")
+                    // 1.1.3 invalid_param (400) - Must not be null! 【retrieval_model】
+                    .retrievalModel(retrievalModel)
+                    // 没有这里的设置，会500报错，服务器内部错误
+                    .processRule(ProcessRule.builder().mode("automatic").build())
                     .build();
 
             DocumentResponse docResponse = datasetsClient.createDocumentByText(testDatasetId, createRequest);
