@@ -1,12 +1,11 @@
 package io.github.imfangs.dify.client.model.completion;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.github.imfangs.dify.client.model.common.Metadata;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Map;
 
 /**
  * 文本生成响应（阻塞模式）
@@ -20,7 +19,7 @@ public class CompletionResponse {
     /**
      * 消息唯一 ID
      */
-    private String id;
+    private String messageId;
 
     /**
      * App 模式，固定为 chat
@@ -35,42 +34,10 @@ public class CompletionResponse {
     /**
      * 元数据
      */
-    private Map<String, Object> metadata;
-
-    /**
-     * 模型用量信息
-     */
-    private Usage usage;
-
-    /**
-     * 引用和归属分段列表
-     */
-    private Object retrieverResources;
+    private Metadata metadata;
 
     /**
      * 消息创建时间戳
      */
     private Long createdAt;
-
-    /**
-     * 模型用量信息
-     */
-    @Data
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class Usage {
-        /**
-         * 提示 tokens
-         */
-        private Integer promptTokens;
-
-        /**
-         * 完成 tokens
-         */
-        private Integer completionTokens;
-
-        /**
-         * 总 tokens
-         */
-        private Integer totalTokens;
-    }
 }
