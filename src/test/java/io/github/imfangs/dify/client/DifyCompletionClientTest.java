@@ -8,7 +8,10 @@ import io.github.imfangs.dify.client.enums.ResponseMode;
 import io.github.imfangs.dify.client.event.*;
 import io.github.imfangs.dify.client.model.chat.AppInfoResponse;
 import io.github.imfangs.dify.client.model.chat.AppParametersResponse;
+import io.github.imfangs.dify.client.model.common.Metadata;
+import io.github.imfangs.dify.client.model.common.RetrieverResource;
 import io.github.imfangs.dify.client.model.common.SimpleResponse;
+import io.github.imfangs.dify.client.model.common.Usage;
 import io.github.imfangs.dify.client.model.completion.CompletionRequest;
 import io.github.imfangs.dify.client.model.completion.CompletionResponse;
 import io.github.imfangs.dify.client.model.file.FileInfo;
@@ -20,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -69,9 +73,29 @@ public class DifyCompletionClientTest {
         // 验证响应
         System.out.println(response);
         assertNotNull(response);
-        assertNotNull(response.getId());
+        assertNotNull(response.getMessageId());
         assertNotNull(response.getAnswer());
         System.out.println("生成的文本: " + response.getAnswer());
+
+        // 获取模型用量信息
+        Metadata metadata = response.getMetadata();
+        if (metadata != null) {
+            Usage usage = metadata.getUsage();
+            if (usage != null) {
+                System.out.println("总 tokens: " + usage.getTotalTokens());
+                System.out.println("总价格: " + usage.getTotalPrice());
+            }
+
+            // 获取引用资源
+            List<RetrieverResource> resources = metadata.getRetrieverResources();
+            if (resources != null && !resources.isEmpty()) {
+                for (RetrieverResource resource : resources) {
+                    System.out.println("数据集: " + resource.getDatasetName());
+                    System.out.println("文档: " + resource.getDocumentName());
+                    System.out.println("内容: " + resource.getContent());
+                }
+            }
+        }
     }
 
     /**

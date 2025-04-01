@@ -5,12 +5,16 @@ import io.github.imfangs.dify.client.config.DifyTestConfig;
 import io.github.imfangs.dify.client.enums.ResponseMode;
 import io.github.imfangs.dify.client.event.*;
 import io.github.imfangs.dify.client.model.chat.*;
+import io.github.imfangs.dify.client.model.common.Metadata;
+import io.github.imfangs.dify.client.model.common.RetrieverResource;
 import io.github.imfangs.dify.client.model.common.SimpleResponse;
+import io.github.imfangs.dify.client.model.common.Usage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -58,6 +62,26 @@ public class DifyChatClientTest {
         assertNotNull(response.getMessageId());
         assertNotNull(response.getAnswer());
         System.out.println("回复: " + response.getAnswer());
+
+        // 获取模型用量信息
+        Metadata metadata = response.getMetadata();
+        if (metadata != null) {
+            Usage usage = metadata.getUsage();
+            if (usage != null) {
+                System.out.println("总 tokens: " + usage.getTotalTokens());
+                System.out.println("总价格: " + usage.getTotalPrice());
+            }
+
+            // 获取引用资源
+            List<RetrieverResource> resources = metadata.getRetrieverResources();
+            if (resources != null && !resources.isEmpty()) {
+                for (RetrieverResource resource : resources) {
+                    System.out.println("数据集: " + resource.getDatasetName());
+                    System.out.println("文档: " + resource.getDocumentName());
+                    System.out.println("内容: " + resource.getContent());
+                }
+            }
+        }
     }
 
     /**
