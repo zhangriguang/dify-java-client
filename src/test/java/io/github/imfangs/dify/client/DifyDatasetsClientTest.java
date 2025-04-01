@@ -9,6 +9,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -150,6 +151,54 @@ public class DifyDatasetsClientTest {
         assertNotNull(response.getDocument());
         assertNotNull(response.getDocument().getId());
         assertEquals(request.getName(), response.getDocument().getName());
+
+        // 保存文档ID用于后续测试
+        testDocumentId = response.getDocument().getId();
+        System.out.println("创建测试文档成功，ID: " + testDocumentId);
+    }
+
+    /**
+     * 测试通过文件创建文档
+     */
+    @Test
+    public void testCreateDocumentByFile() throws IOException {
+        // 跳过测试如果没有测试知识库
+        if (testDatasetId == null) {
+            System.out.println("跳过测试，因为没有测试知识库");
+            return;
+        }
+
+        File file = new File("/tmp/file.txt");
+        if (!file.exists()) {
+            System.out.println("文件不存在，跳过测试");
+            return;
+        }
+
+        RetrievalModel retrievalModel = new RetrievalModel();
+        retrievalModel.setSearchMethod("hybrid_search");
+        retrievalModel.setRerankingEnable(false);
+        retrievalModel.setTopK(2);
+        retrievalModel.setScoreThresholdEnabled(false);
+
+        // 创建文档请求
+        CreateDocumentByFileRequest request = CreateDocumentByFileRequest.builder()
+                .indexingTechnique("economy")
+                .docForm("text_model")
+                // 1.1.3 invalid_param (400) - Must not be null! 【doc_language】
+                .docLanguage("Chinese")
+                // 1.1.3 invalid_param (400) - Must not be null! 【retrieval_model】
+                .retrievalModel(retrievalModel)
+                // 没有这里的设置，会500报错，服务器内部错误
+                .processRule(ProcessRule.builder().mode("automatic").build())
+                .build();
+
+        // 发送请求
+        DocumentResponse response = datasetsClient.createDocumentByFile(testDatasetId, request, file);
+
+        // 验证响应
+        assertNotNull(response);
+        assertNotNull(response.getDocument());
+        assertNotNull(response.getDocument().getId());
 
         // 保存文档ID用于后续测试
         testDocumentId = response.getDocument().getId();
