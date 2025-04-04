@@ -28,7 +28,6 @@ import java.util.function.Consumer;
 public class DefaultDifyClient extends DifyBaseClientImpl implements DifyClient {
 
     // 流式响应相关常量
-    private static final String DONE_MARKER = "[DONE]";
     private static final String DATA_PREFIX = "data:";
 
     // API 路径常量
@@ -405,10 +404,6 @@ public class DefaultDifyClient extends DifyBaseClientImpl implements DifyClient 
     private boolean processStreamLine(String line, BaseStreamCallback callback, EventProcessor eventProcessor) {
         if (line.startsWith(DATA_PREFIX)) {
             String data = line.substring(DATA_PREFIX.length()).trim();
-            if (DONE_MARKER.equals(data)) {
-                callback.onComplete();
-                return false; // 结束处理
-            }
 
             try {
                 // 解析事件类型

@@ -165,6 +165,7 @@ public class DifyChatflowClientTest {
             public void onPing(PingEvent event) {
                 System.out.println("心跳: " + event);
             }
+
         });
 
         // 等待流式响应完成

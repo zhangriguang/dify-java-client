@@ -33,9 +33,4 @@ public interface BaseStreamCallback {
     default void onException(Throwable throwable) {
     }
 
-    /**
-     * 完成事件
-     */
-    default void onComplete() {
-    }
 }

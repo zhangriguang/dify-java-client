@@ -138,13 +138,6 @@ public class DifyWorkflowClientTest {
                 System.out.println("TTS消息结束: " + event);
             }
 
-
-            @Override
-            public void onComplete() {
-                System.out.println("完成");
-                latch.countDown();
-            }
-
             @Override
             public void onError(ErrorEvent event) {
                 System.out.println("错误事件: " + event);
@@ -223,11 +216,6 @@ public class DifyWorkflowClientTest {
             @Override
             public void onTtsMessageEnd(TtsMessageEndEvent event) {
                 // 不处理
-            }
-
-            @Override
-            public void onComplete() {
-                // 不应该到达这里，因为我们会提前停止
             }
 
             @Override
