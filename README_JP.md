@@ -241,11 +241,6 @@ completionClient.sendCompletionMessageStream(request, new CompletionStreamCallba
     }
 
     @Override
-    public void onComplete() {
-        System.out.println("完了");
-    }
-
-    @Override
     public void onError(ErrorEvent event) {
         System.err.println("エラー: " + event.getMessage());
     }
