@@ -350,4 +350,39 @@ public class DifyDatasetsClientTest {
         assertNotNull(response);
         assertNotNull(response.getData());
     }
+
+    /**
+     * 测试新增修改删除元数据
+     */
+    @Test
+    public void testMetadata() throws IOException, DifyApiException {
+        // 跳过测试如果没有测试知识库
+        if (testDatasetId == null) {
+            System.out.println("跳过测试，因为没有测试知识库");
+            return;
+        }
+
+        // 创建元数据请求
+        CreateMetadataRequest createRequest = CreateMetadataRequest.builder().name("test").type("string").build();
+
+        // 发送请求
+        MetadataResponse createResponse = datasetsClient.createMetadata(testDatasetId, createRequest);
+
+        // 验证响应
+        assertNotNull(createResponse);
+        assertNotNull(createResponse.getId());
+        assertNotNull(createResponse.getType());
+        assertNotNull(createResponse.getName());
+        assertEquals(createRequest.getName(), createResponse.getName());
+
+        // 更新元数据
+        UpdateMetadataRequest updateRequest = UpdateMetadataRequest.builder().name("test2").build();
+        MetadataResponse updateResponse = datasetsClient.updateMetadata(testDatasetId, createResponse.getId(), updateRequest);
+        assertEquals(updateRequest.getName(), updateResponse.getName());
+
+        // 删除元数据
+        String deleteResponse = datasetsClient.deleteMetadata(testDatasetId, createResponse.getId());
+        // 验证响应
+        assertNotNull(deleteResponse);
+    }
 }
