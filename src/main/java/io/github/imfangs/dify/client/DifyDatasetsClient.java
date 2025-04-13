@@ -212,4 +212,39 @@ public interface DifyDatasetsClient {
      * @throws DifyApiException API异常
      */
     RetrieveResponse retrieveDataset(String datasetId, RetrieveRequest request) throws IOException, DifyApiException;
+
+
+    /**
+     * 新增元数据
+     *
+     * @param datasetId  知识库ID
+     * @param request    新增元数据请求
+     * @return 元数据信息
+     * @throws IOException IO异常
+     * @throws DifyApiException API异常
+     */
+    MetadataResponse createMetadata(String datasetId, CreateMetadataRequest request) throws IOException, DifyApiException;
+
+    /**
+     * 更新元数据
+     *
+     * @param datasetId  知识库ID
+     * @param metadataId  元数据 ID
+     * @param request    更新元数据请求
+     * @return 元数据信息
+     * @throws IOException IO异常
+     * @throws DifyApiException API异常
+     */
+    MetadataResponse updateMetadata(String datasetId, String metadataId, UpdateMetadataRequest request) throws IOException, DifyApiException;
+
+    /**
+     * 删除元数据
+     *
+     * @param datasetId  知识库ID
+     * @param metadataId 文档ID
+     * @return 响应
+     * @throws IOException IO异常
+     * @throws DifyApiException API异常
+     */
+    String deleteMetadata(String datasetId, String metadataId) throws IOException, DifyApiException;
 }

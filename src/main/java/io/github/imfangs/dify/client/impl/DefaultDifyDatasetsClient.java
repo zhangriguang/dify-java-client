@@ -31,6 +31,7 @@ public class DefaultDifyDatasetsClient extends AbstractDifyClient implements Dif
     private static final String INDEXING_STATUS_PATH = "/indexing-status";
     private static final String UPLOAD_FILE_PATH = "/upload-file";
     private static final String RETRIEVE_PATH = "/retrieve";
+    private static final String METADATA_PATH = "/metadata";
 
     /**
      * 构造函数
@@ -192,6 +193,24 @@ public class DefaultDifyDatasetsClient extends AbstractDifyClient implements Dif
     public RetrieveResponse retrieveDataset(String datasetId, RetrieveRequest request) throws IOException, DifyApiException {
         String path = DATASETS_PATH + "/" + datasetId + RETRIEVE_PATH;
         return executePost(path, request, RetrieveResponse.class);
+    }
+
+    @Override
+    public MetadataResponse createMetadata(String datasetId, CreateMetadataRequest request) throws IOException, DifyApiException {
+        String path = DATASETS_PATH + "/" + datasetId + METADATA_PATH;
+        return executePost(path, request, MetadataResponse.class);
+    }
+
+    @Override
+    public MetadataResponse updateMetadata(String datasetId, String metadataId, UpdateMetadataRequest request) throws IOException, DifyApiException {
+        String path = DATASETS_PATH + "/" + datasetId + METADATA_PATH + "/" + metadataId;
+        return executePatch(path, request, MetadataResponse.class);
+    }
+
+    @Override
+    public String deleteMetadata(String datasetId, String metadataId) throws IOException, DifyApiException {
+        String path = DATASETS_PATH + "/" + datasetId + METADATA_PATH + "/" + metadataId;
+        return executeDelete(path, null, String.class);
     }
 
     /**
