@@ -31,6 +31,7 @@ public class DefaultDifyClient extends DifyBaseClientImpl implements DifyClient 
 
     // 流式响应相关常量
     private static final String DATA_PREFIX = "data:";
+    private static final String PING_EVENT = "event: ping";
 
     // API 路径常量
     // 对话型应用相关路径
@@ -421,8 +422,8 @@ public class DefaultDifyClient extends DifyBaseClientImpl implements DifyClient 
                 log.error("解析事件数据失败: {}", data, e);
                 callback.onException(e);
             }
-        }else if ("event: ping".equalsIgnoreCase(line)){
-            // 心跳事件与dify API文档中描述不一致，返回的不是data开头
+        } else if (PING_EVENT.equalsIgnoreCase(line)) {
+            // 心跳事件与 Dify API 文档中描述不一致，返回的不是data开头
             PingEvent pingEvent = new PingEvent();
             pingEvent.setEvent(EventType.PING.getValue());
             callback.onPing(pingEvent);
