@@ -137,6 +137,58 @@ public class AppParametersResponse {
          * 图片设置
          */
         private Image image;
+        /**
+         * 允许的文件类型
+         */
+        private List<String> allowedFileTypes;
+        /**
+         * 允许的文件扩展名
+         */
+        private List<String> allowedFileExtensions;
+        /**
+         * 传递方式列表
+         */
+        private List<String> allowedFileUploadMethods;
+        /**
+         * 文件数量限制
+         */
+        private Integer numberLimits;
+        /**
+         * 文件上传配置
+         */
+        private FileUploadConfig fileUploadConfig;
+
+        @Data
+        @Builder
+        @NoArgsConstructor
+        @AllArgsConstructor
+        @JsonIgnoreProperties(ignoreUnknown = true)
+        public static class FileUploadConfig {
+            /**
+             * 文件大小限制 (MB)
+             */
+            private Integer fileSizeLimit;
+            /**
+             * 批量上传数量限制
+             */
+            private Integer batchCountLimit;
+            /**
+             * 图片文件大小限制 (MB)
+             */
+            private Integer imageFileSizeLimit;
+            /**
+             * 视频文件大小限制 (MB)
+             */
+            private Integer videoFileSizeLimit;
+            /**
+             * 音频文件大小限制 (MB)
+             */
+            private Integer audioFileSizeLimit;
+            /**
+             * 工作流文件上传数量限制
+             */
+            private Integer workflowFileUploadLimit;
+        }
 
         /**
          * 图片设置
