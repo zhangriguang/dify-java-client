@@ -51,6 +51,10 @@ public class MessageListResponse {
          * 会话 ID
          */
         private String conversationId;
+        /**
+         * 父消息ID
+         */
+        private String parentMessageId;
 
         /**
          * 用户输入参数
@@ -91,6 +95,16 @@ public class MessageListResponse {
          * 创建时间
          */
         private Long createdAt;
+
+        /**
+         * 状态
+         */
+        private String status;
+
+        /**
+         * 错误信息
+         */
+        private String error;
     }
 
     /**
