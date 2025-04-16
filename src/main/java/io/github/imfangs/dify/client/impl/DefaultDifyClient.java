@@ -2,8 +2,10 @@ package io.github.imfangs.dify.client.impl;
 
 import io.github.imfangs.dify.client.DifyClient;
 import io.github.imfangs.dify.client.callback.*;
+import io.github.imfangs.dify.client.enums.EventType;
 import io.github.imfangs.dify.client.enums.ResponseMode;
 import io.github.imfangs.dify.client.event.BaseEvent;
+import io.github.imfangs.dify.client.event.PingEvent;
 import io.github.imfangs.dify.client.exception.DifyApiException;
 import io.github.imfangs.dify.client.model.chat.*;
 import io.github.imfangs.dify.client.model.common.SimpleResponse;
@@ -29,6 +31,7 @@ public class DefaultDifyClient extends DifyBaseClientImpl implements DifyClient 
 
     // 流式响应相关常量
     private static final String DATA_PREFIX = "data:";
+    private static final String PING_EVENT = "event: ping";
 
     // API 路径常量
     // 对话型应用相关路径
@@ -419,6 +422,11 @@ public class DefaultDifyClient extends DifyBaseClientImpl implements DifyClient 
                 log.error("解析事件数据失败: {}", data, e);
                 callback.onException(e);
             }
+        } else if (PING_EVENT.equalsIgnoreCase(line)) {
+            // 心跳事件与 Dify API 文档中描述不一致，返回的不是data开头
+            PingEvent pingEvent = new PingEvent();
+            pingEvent.setEvent(EventType.PING.getValue());
+            callback.onPing(pingEvent);
         }
         return true; // 继续处理
     }
