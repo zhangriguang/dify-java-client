@@ -1,6 +1,7 @@
 package io.github.imfangs.dify.client.model.chat;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -120,11 +121,31 @@ public class MessageListResponse {
          * 文件 ID
          */
         private String id;
+        /**
+         * 文件名
+         */
+        @JsonProperty("filename")
+        private String fileName;
 
         /**
          * 文件类型
          */
         private String type;
+
+        /**
+         * 文件 MIME 类型
+         */
+        private String mimeType;
+
+        /**
+         * 文件上传方式 remote_url/local_file
+         */
+        private String transferMethod;
+
+        /**
+         * 文件大小 字节
+         */
+        private Long size;
 
         /**
          * 文件 URL
