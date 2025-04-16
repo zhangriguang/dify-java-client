@@ -63,6 +63,10 @@ public class DifyBaseClientTest {
     public void testUploadFile() throws Exception {
         try (DifyClient client = DifyClientFactory.createClient(BASE_URL, API_KEY)) {
             File file = new File("path/to/your/file.txt");
+            if (!file.exists()) {
+                System.out.println("文件不存在，跳过测试");
+                return;
+            }
             FileUploadResponse response = client.uploadFile(file, USER_ID);
             System.out.println("文件上传响应: " + response);
         }
@@ -75,6 +79,10 @@ public class DifyBaseClientTest {
     public void testUploadFileWithRequest() throws Exception {
         try (DifyClient client = DifyClientFactory.createClient(BASE_URL, API_KEY)) {
             File file = new File("path/to/your/file.txt");
+            if (!file.exists()) {
+                System.out.println("文件不存在，跳过测试");
+                return;
+            }
             FileUploadRequest request = FileUploadRequest.builder()
                     .user(USER_ID)
                     .build();
