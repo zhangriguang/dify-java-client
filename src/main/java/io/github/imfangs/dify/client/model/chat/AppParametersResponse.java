@@ -1,6 +1,7 @@
 package io.github.imfangs.dify.client.model.chat;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -138,6 +139,10 @@ public class AppParametersResponse {
          */
         private Image image;
         /**
+         * 是否启用文件上传功能
+         */
+        private Boolean enabled;
+        /**
          * 允许的文件类型
          */
         private List<String> allowedFileTypes;
@@ -155,7 +160,9 @@ public class AppParametersResponse {
         private Integer numberLimits;
         /**
          * 文件上传配置
+         * dify该字段返回为驼峰命名 导致 获取数据失败
          */
+        @JsonProperty("fileUploadConfig")
         private FileUploadConfig fileUploadConfig;
 
         @Data

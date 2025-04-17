@@ -7,6 +7,7 @@ import io.github.imfangs.dify.client.model.chat.AppMetaResponse;
 import io.github.imfangs.dify.client.model.chat.AppParametersResponse;
 import io.github.imfangs.dify.client.model.file.FileUploadRequest;
 import io.github.imfangs.dify.client.model.file.FileUploadResponse;
+import okhttp3.MediaType;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -63,6 +64,10 @@ public class DifyBaseClientTest {
     public void testUploadFile() throws Exception {
         try (DifyClient client = DifyClientFactory.createClient(BASE_URL, API_KEY)) {
             File file = new File("path/to/your/file.txt");
+            if (!file.exists()) {
+                System.out.println("文件不存在，跳过测试");
+                return;
+            }
             FileUploadResponse response = client.uploadFile(file, USER_ID);
             System.out.println("文件上传响应: " + response);
         }
@@ -75,8 +80,14 @@ public class DifyBaseClientTest {
     public void testUploadFileWithRequest() throws Exception {
         try (DifyClient client = DifyClientFactory.createClient(BASE_URL, API_KEY)) {
             File file = new File("path/to/your/file.txt");
+            if (!file.exists()) {
+                System.out.println("文件不存在，跳过测试");
+                return;
+            }
             FileUploadRequest request = FileUploadRequest.builder()
                     .user(USER_ID)
+                    // 不传默认为application/octet-stream
+                    .mediaType(MediaType.parse("text/plain"))
                     .build();
 
             FileUploadResponse response = client.uploadFile(request, file);
@@ -95,6 +106,8 @@ public class DifyBaseClientTest {
 
             FileUploadRequest request = FileUploadRequest.builder()
                     .user(USER_ID)
+                    // 不传默认为application/octet-stream
+                    .mediaType(MediaType.parse("text/plain"))
                     .build();
 
             FileUploadResponse response = client.uploadFile(request, inputStream, "test-file.txt");
