@@ -58,7 +58,7 @@ public class DifyBaseClientImpl extends AbstractDifyClient implements DifyBaseCl
     public FileUploadResponse uploadFile(FileUploadRequest request, File file) throws IOException, DifyApiException {
         RequestBody requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
-                .addFormDataPart("file", file.getName(), RequestBody.create(OCTET_STREAM, file))
+                .addFormDataPart("file", file.getName(), RequestBody.create(request.getMediaType(), file))
                 .addFormDataPart("user", request.getUser())
                 .build();
         return uploadFile(requestBody);
@@ -69,7 +69,7 @@ public class DifyBaseClientImpl extends AbstractDifyClient implements DifyBaseCl
         RequestBody fileBody = new RequestBody() {
             @Override
             public MediaType contentType() {
-                return OCTET_STREAM;
+                return request.getMediaType();
             }
 
             @Override
