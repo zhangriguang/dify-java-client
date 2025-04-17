@@ -7,6 +7,7 @@ import io.github.imfangs.dify.client.model.chat.AppMetaResponse;
 import io.github.imfangs.dify.client.model.chat.AppParametersResponse;
 import io.github.imfangs.dify.client.model.file.FileUploadRequest;
 import io.github.imfangs.dify.client.model.file.FileUploadResponse;
+import okhttp3.MediaType;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -85,6 +86,8 @@ public class DifyBaseClientTest {
             }
             FileUploadRequest request = FileUploadRequest.builder()
                     .user(USER_ID)
+                    // 不传默认为application/octet-stream
+                    .mediaType(MediaType.parse("text/plain"))
                     .build();
 
             FileUploadResponse response = client.uploadFile(request, file);
@@ -103,6 +106,8 @@ public class DifyBaseClientTest {
 
             FileUploadRequest request = FileUploadRequest.builder()
                     .user(USER_ID)
+                    // 不传默认为application/octet-stream
+                    .mediaType(MediaType.parse("text/plain"))
                     .build();
 
             FileUploadResponse response = client.uploadFile(request, inputStream, "test-file.txt");
