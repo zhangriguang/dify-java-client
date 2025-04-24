@@ -523,3 +523,7 @@ This project is licensed under the [Apache License 2.0](LICENSE).
 - [Dify Website](https://dify.ai)
 - [Dify Documentation](https://docs.dify.ai)
 - [Dify GitHub](https://github.com/langgenius/dify)
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=imfangs/dify-java-client&type=Date)](https://www.star-history.com/#imfangs/dify-java-client&Date)

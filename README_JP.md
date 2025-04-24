@@ -523,3 +523,7 @@ DifyClient client = DifyClientFactory.createClient(config);
 - [Dify ウェブサイト](https://dify.ai)
 - [Dify ドキュメント](https://docs.dify.ai)
 - [Dify GitHub](https://github.com/langgenius/dify) 
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=imfangs/dify-java-client&type=Date)](https://www.star-history.com/#imfangs/dify-java-client&Date)
