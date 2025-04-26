@@ -54,7 +54,7 @@ public class DifyChatflowClientTest {
     public void testSendChatMessage() throws Exception {
         // 创建聊天消息
         ChatMessage message = ChatMessage.builder()
-                .query("你好，请介绍一下自己")
+                .query("介绍一下自己")
                 .user(USER_ID)
                 .responseMode(ResponseMode.BLOCKING)
                 .build();
@@ -67,6 +67,16 @@ public class DifyChatflowClientTest {
         assertNotNull(response.getMessageId());
         assertNotNull(response.getAnswer());
         System.out.println("回复: " + response.getAnswer());
+
+        // 测试历史会话，需要开启记忆+记忆窗口功能
+        message.setConversationId(response.getConversationId());
+        message.setQuery("我上一步问了什么?");
+        response = chatWorkflowClient.sendChatMessage(message);
+        assertNotNull(response);
+        assertNotNull(response.getMessageId());
+        assertNotNull(response.getAnswer());
+        System.out.println("回复: " + response.getAnswer());
+
     }
 
     /**
