@@ -165,6 +165,21 @@ public interface DifyDatasetsClient {
      */
     SegmentListResponse getSegments(String datasetId, String documentId, String keyword, String status) throws IOException, DifyApiException;
 
+
+    /**
+     * 查询文档分段
+     * @param datasetId 知识库ID    
+     * @param documentId 文档ID
+     * @param keyword 关键词
+     * @param status 状态
+     * @param page 页码
+     * @param limit 每页数量
+     * @return 分段列表
+     * @throws IOException IO异常
+     * @throws DifyApiException API异常
+     */
+    SegmentListResponse getSegments(String datasetId, String documentId, String keyword, String status, Integer page, Integer limit) throws IOException, DifyApiException;
+
     /**
      * 删除文档分段
      *

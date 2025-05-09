@@ -162,9 +162,16 @@ public class DefaultDifyDatasetsClient extends AbstractDifyClient implements Dif
 
     @Override
     public SegmentListResponse getSegments(String datasetId, String documentId, String keyword, String status) throws IOException, DifyApiException {
+       return getSegments(datasetId, documentId, keyword, status, null, null);
+    }
+
+    @Override
+    public SegmentListResponse getSegments(String datasetId, String documentId, String keyword, String status, Integer page, Integer limit) throws IOException, DifyApiException {
         Map<String, Object> queryParams = new HashMap<>();
         addIfNotEmpty(queryParams, "keyword", keyword);
         addIfNotEmpty(queryParams, "status", status);
+        addIfNotNull(queryParams, "page", page);
+        addIfNotNull(queryParams, "limit", limit);
 
         String path = buildDocumentPath(datasetId, documentId) + SEGMENTS_PATH;
         String url = buildUrlWithParams(path, queryParams);
