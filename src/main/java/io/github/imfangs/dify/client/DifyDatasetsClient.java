@@ -122,11 +122,10 @@ public interface DifyDatasetsClient {
      *
      * @param datasetId  知识库ID
      * @param documentId 文档ID
-     * @return 响应
      * @throws IOException IO异常
      * @throws DifyApiException API异常
      */
-    SimpleResponse deleteDocument(String datasetId, String documentId) throws IOException, DifyApiException;
+    void deleteDocument(String datasetId, String documentId) throws IOException, DifyApiException;
 
     /**
      * 获取知识库文档列表
@@ -172,11 +171,10 @@ public interface DifyDatasetsClient {
      * @param datasetId  知识库ID
      * @param documentId 文档ID
      * @param segmentId  分段ID
-     * @return 响应
      * @throws IOException IO异常
      * @throws DifyApiException API异常
      */
-    SimpleResponse deleteSegment(String datasetId, String documentId, String segmentId) throws IOException, DifyApiException;
+    void deleteSegment(String datasetId, String documentId, String segmentId) throws IOException, DifyApiException;
 
     /**
      * 更新文档分段

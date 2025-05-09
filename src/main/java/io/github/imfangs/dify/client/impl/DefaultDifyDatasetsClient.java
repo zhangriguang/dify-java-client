@@ -137,9 +137,9 @@ public class DefaultDifyDatasetsClient extends AbstractDifyClient implements Dif
     }
 
     @Override
-    public SimpleResponse deleteDocument(String datasetId, String documentId) throws IOException, DifyApiException {
+    public void deleteDocument(String datasetId, String documentId) throws IOException, DifyApiException {
         String path = buildDocumentPath(datasetId, documentId);
-        return executeDelete(path, null, SimpleResponse.class);
+        executeDelete(path, null, Object.class);
     }
 
     @Override
@@ -172,9 +172,9 @@ public class DefaultDifyDatasetsClient extends AbstractDifyClient implements Dif
     }
 
     @Override
-    public SimpleResponse deleteSegment(String datasetId, String documentId, String segmentId) throws IOException, DifyApiException {
+    public void deleteSegment(String datasetId, String documentId, String segmentId) throws IOException, DifyApiException {
         String path = buildSegmentPath(datasetId, documentId, segmentId);
-        return executeDelete(path, null, SimpleResponse.class);
+        executeDelete(path, null, Object.class);
     }
 
     @Override
