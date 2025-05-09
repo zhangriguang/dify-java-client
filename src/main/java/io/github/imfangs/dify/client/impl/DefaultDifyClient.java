@@ -55,6 +55,10 @@ public class DefaultDifyClient extends DifyBaseClientImpl implements DifyClient 
     private static final String WORKFLOWS_TASKS_PATH = "/workflows/tasks";
     private static final String WORKFLOWS_LOGS_PATH = "/workflows/logs";
 
+    //标注应用相关路径
+    private static final String APPS_ANNOTATIONS_PATH = "/apps/annotations";
+    private static final String APPS_ANNOTATIONS_REPLY_PATH = "/apps/annotations-reply";
+
     /**
      * 构造函数
      *
@@ -319,10 +323,10 @@ public class DefaultDifyClient extends DifyBaseClientImpl implements DifyClient 
     /**
      * 执行流式请求
      *
-     * @param path 请求路径
-     * @param body 请求体
+     * @param path          请求路径
+     * @param body          请求体
      * @param lineProcessor 行处理器，返回false表示停止处理
-     * @param errorHandler 错误处理器
+     * @param errorHandler  错误处理器
      */
     private void executeStreamRequest(String path, Object body, LineProcessor lineProcessor, Consumer<Exception> errorHandler) {
         // 创建请求
@@ -399,8 +403,8 @@ public class DefaultDifyClient extends DifyBaseClientImpl implements DifyClient 
     /**
      * 处理流式数据行
      *
-     * @param line 数据行
-     * @param callback 回调接口
+     * @param line           数据行
+     * @param callback       回调接口
      * @param eventProcessor 事件处理器
      * @return 是否继续处理
      */
@@ -439,9 +443,117 @@ public class DefaultDifyClient extends DifyBaseClientImpl implements DifyClient 
         /**
          * 处理事件
          *
-         * @param data 事件数据
+         * @param data      事件数据
          * @param eventType 事件类型
          */
         void process(String data, String eventType);
+    }
+
+    /**
+     * 获取标注列表
+     *
+     * @param page  页码
+     * @param limit 每页数量
+     * @return 响应
+     * @throws IOException      IO异常
+     * @throws DifyApiException API异常
+     */
+    @Override
+    public AnnotationListResponse getAnnotations(Integer page, Integer limit) throws IOException, DifyApiException {
+        log.debug("获取标注列表: page={}, limit={}", page, limit);
+        Map<String, Object> params = new HashMap<>(2);
+        params.put("page", page);
+        params.put("limit", limit);
+        String url = buildUrlWithParams(APPS_ANNOTATIONS_PATH, params);
+        Request request = createGetRequest(url);
+        return executeRequest(request, AnnotationListResponse.class);
+    }
+
+    /**
+     * 创建标注
+     *
+     * @param question 问题
+     * @param answer   答案内容
+     * @return 标注
+     * @throws IOException      IO异常
+     * @throws DifyApiException API异常
+     */
+    @Override
+    public Annotation saveAnnotation(String question, String answer) throws IOException, DifyApiException {
+        log.debug("创建标注: question={}, answer={}", question, answer);
+        Map<String, String> body = new HashMap<>(2);
+        body.put("question", question);
+        body.put("answer", answer);
+        return executePost(APPS_ANNOTATIONS_PATH, body, Annotation.class);
+    }
+
+    /**
+     * 更新标注
+     *
+     * @param annotationId 标注 ID
+     * @param question     问题
+     * @param answer       答案内容
+     * @return 标注
+     * @throws IOException      IO异常
+     * @throws DifyApiException API异常
+     */
+    @Override
+    public Annotation updateAnnotation(String annotationId, String question, String answer) throws IOException, DifyApiException {
+        log.debug("更新标注: annotationId={}, question={}, answer={}", annotationId, question, answer);
+        Map<String, String> body = new HashMap<>(2);
+        body.put("question", question);
+        body.put("answer", answer);
+        return executePatch(APPS_ANNOTATIONS_PATH + "/" + annotationId, body, Annotation.class);
+    }
+
+    /**
+     * 删除标注
+     *
+     * @param annotationId 标注 ID
+     * @return 响应
+     * @throws IOException      IO异常
+     * @throws DifyApiException API异常
+     */
+    @Override
+    public SimpleResponse deleteAnnotation(String annotationId) throws IOException, DifyApiException {
+        log.debug("删除标注: annotationId={}", annotationId);
+        Map<String, String> body = new HashMap<>(1);
+        return executeDelete(APPS_ANNOTATIONS_PATH + "/" + annotationId, body, SimpleResponse.class);
+    }
+
+    /**
+     * 标注回复初始设置
+     *
+     * @param action                动作，只能是 'enable' 或 'disable'
+     * @param embeddingProviderName 指定的嵌入模型提供商, 必须先在系统内设定好接入的模型，对应的是provider字段
+     * @param embeddingModelName    指定的嵌入模型，对应的是model字段
+     * @param scoreThreshold        相似度阈值，当相似度大于该阈值时，系统会自动回复，否则不回复
+     * @return 标注回复
+     * @throws IOException      IO异常
+     * @throws DifyApiException API异常
+     */
+    @Override
+    public AnnotationReply annotationReply(String action, String embeddingProviderName, String embeddingModelName, Integer scoreThreshold) throws IOException, DifyApiException {
+        log.debug("标注回复初始设置: action={}, embeddingProviderName={}, embeddingModelName={}, scoreThreshold={}", action, embeddingProviderName, embeddingModelName, scoreThreshold);
+        Map<String, Object> body = new HashMap<>(3);
+        body.put("embeddingProviderName", embeddingProviderName);
+        body.put("embeddingModelName", embeddingModelName);
+        body.put("scoreThreshold", scoreThreshold);
+        return executePost(APPS_ANNOTATIONS_REPLY_PATH + "/" + action, body, AnnotationReply.class);
+    }
+
+    /**
+     * 查询标注回复初始设置任务状态
+     *
+     * @param action 动作，只能是 'enable' 或 'disable'，并且必须和标注回复初始设置接口的动作一致
+     * @param jobId  任务 ID，从标注回复初始设置接口返回的 jobId
+     * @return 标注回复
+     * @throws IOException      IO异常
+     * @throws DifyApiException API异常
+     */
+    @Override
+    public AnnotationReply getAnnotationReply(String action, String jobId) throws IOException, DifyApiException {
+        log.debug("查询标注回复初始设置任务状态: action={}, jobId={}", action, jobId);
+        return executeGet(APPS_ANNOTATIONS_REPLY_PATH + "/" + action + "/status/" + jobId, AnnotationReply.class);
     }
 }
