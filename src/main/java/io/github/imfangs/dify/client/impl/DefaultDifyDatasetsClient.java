@@ -19,11 +19,13 @@ import java.util.Map;
  * 提供知识库相关的操作
  */
 @Slf4j
-public class DefaultDifyDatasetsClient extends AbstractDifyClient implements DifyDatasetsClient {
+public class DefaultDifyDatasetsClient extends AbstractDifyClient implements DifyDatasetsClient { 
+   
     // API 路径常量
     private static final String DATASETS_PATH = "/datasets";
     private static final String DOCUMENTS_PATH = "/documents";
     private static final String SEGMENTS_PATH = "/segments";
+    private static final String CHILD_CHUNKS_PATH = "/child_chunks";
     private static final String DOCUMENT_CREATE_BY_TEXT_PATH = "/document/create-by-text";
     private static final String DOCUMENT_CREATE_BY_FILE_PATH = "/document/create-by-file";
     private static final String UPDATE_BY_TEXT_PATH = "/update-by-text";
@@ -191,6 +193,30 @@ public class DefaultDifyDatasetsClient extends AbstractDifyClient implements Dif
     }
 
     @Override
+    public ChildChunkResponse createChildChunk(String datasetId, String docummentId,  String segmentId, SaveChildChunkRequest request) throws IOException, DifyApiException {
+        String path = buildSegmentPath(datasetId, docummentId, segmentId) + CHILD_CHUNKS_PATH;
+        return executePost(path, request, ChildChunkResponse.class);
+    }
+
+    @Override
+    public ChildChunkListResponse getChildChunks(String datasetId, String docummentId, String segmentId, String keyword, Integer page, Integer limit) throws IOException, DifyApiException {
+        String path = buildSegmentPath(datasetId, docummentId, segmentId) + CHILD_CHUNKS_PATH;
+        return executeGet(path, ChildChunkListResponse.class);
+    }
+
+    @Override
+    public void deleteChildChunks(String datasetId, String docummentId, String segmentId, String childChunkId) throws IOException, DifyApiException {
+        String path = buildChildChunkPath(datasetId, docummentId, segmentId, childChunkId);
+        executeDelete(path, null, Object.class);
+    }
+
+    @Override
+    public ChildChunkResponse updateChildChunk(String datasetId, String docummentId, String segmentId, String childChunkId, SaveChildChunkRequest request) throws IOException, DifyApiException {
+        String path = buildChildChunkPath(datasetId, docummentId, segmentId, childChunkId);
+        return executePatch(path, request, ChildChunkResponse.class);
+    }
+
+    @Override
     public UploadFileResponse getUploadFile(String datasetId, String documentId) throws IOException, DifyApiException {
         String path = buildDocumentPath(datasetId, documentId) + UPLOAD_FILE_PATH;
         return executeGet(path, UploadFileResponse.class);
@@ -278,6 +304,11 @@ public class DefaultDifyDatasetsClient extends AbstractDifyClient implements Dif
      */
     private String buildSegmentPath(String datasetId, String documentId, String segmentId) {
         return buildDocumentPath(datasetId, documentId) + SEGMENTS_PATH + "/" + segmentId;
+    }
+
+    
+    private String buildChildChunkPath(String datasetId, String docummentId, String segmentId, String childChunkId) {
+        return buildSegmentPath(datasetId, docummentId, segmentId) + CHILD_CHUNKS_PATH + "/" + childChunkId;
     }
 
     /**

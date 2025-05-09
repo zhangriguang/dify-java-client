@@ -182,6 +182,8 @@ public interface DifyDatasetsClient {
 
     /**
      * 删除文档分段
+     * 
+     * 注意：官方文档写的返回 { "result": "success" } ，实际返回的是空
      *
      * @param datasetId  知识库ID
      * @param documentId 文档ID
@@ -203,6 +205,60 @@ public interface DifyDatasetsClient {
      * @throws DifyApiException API异常
      */
     SegmentResponse updateSegment(String datasetId, String documentId, String segmentId, UpdateSegmentRequest request) throws IOException, DifyApiException;
+
+
+    /**
+     * 创建子分段
+     * @param datasetId 知识库ID
+     * @param docummentId 文档ID
+     * @param segmentId 分段ID
+     * @param request 子分段请求
+     * @return 子分段信息
+     * @throws IOException IO异常
+     * @throws DifyApiException API异常
+     */
+    ChildChunkResponse createChildChunk(String datasetId, String docummentId,  String segmentId, SaveChildChunkRequest request) throws IOException, DifyApiException;
+
+    /**
+     * 获取子分段
+     * @param datasetId 知识库ID
+     * @param docummentId 文档ID
+     * @param segmentId 分段ID
+     * @param keyword 关键词
+     * @param page 页码
+     * @param limit 每页数量
+     * @return 子分段列表
+     * @throws IOException IO异常
+     * @throws DifyApiException API异常
+     */
+    ChildChunkListResponse getChildChunks(String datasetId, String docummentId, String segmentId, String keyword, Integer page, Integer limit) throws IOException, DifyApiException;
+
+
+    /**
+     * 删除子分段
+     * @param datasetId 知识库ID
+     * @param docummentId
+     * @param segmentId
+     * @param childChunkId
+     * @throws IOException IO异常
+     * @throws DifyApiException API异常
+     */
+    void deleteChildChunks(String datasetId, String docummentId, String segmentId, String childChunkId) throws IOException, DifyApiException;
+
+
+    /**
+     * 更新子分段
+     * @param datasetId 知识库ID
+     * @param docummentId 文档ID 
+     * @param segmentId 分段ID
+     * @param childChunkId 子分段ID
+     * @param request 子分段请求
+     * @return 子分段信息
+     * @throws IOException IO异常
+     * @throws DifyApiException API异常
+     */
+    ChildChunkResponse updateChildChunk(String datasetId, String docummentId, String segmentId, String childChunkId, SaveChildChunkRequest request) throws IOException, DifyApiException;
+
 
     /**
      * 获取上传文件
