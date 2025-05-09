@@ -155,9 +155,9 @@ public class DefaultDifyDatasetsClient extends AbstractDifyClient implements Dif
     }
 
     @Override
-    public SegmentResponse createSegments(String datasetId, String documentId, CreateSegmentsRequest request) throws IOException, DifyApiException {
+    public SegmentListResponse createSegments(String datasetId, String documentId, CreateSegmentsRequest request) throws IOException, DifyApiException {
         String path = buildDocumentPath(datasetId, documentId) + SEGMENTS_PATH;
-        return executePost(path, request, SegmentResponse.class);
+        return executePost(path, request, SegmentListResponse.class);
     }
 
     @Override

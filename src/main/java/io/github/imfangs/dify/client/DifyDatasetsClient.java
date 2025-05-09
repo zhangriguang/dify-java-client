@@ -150,7 +150,7 @@ public interface DifyDatasetsClient {
      * @throws IOException IO异常
      * @throws DifyApiException API异常
      */
-    SegmentResponse createSegments(String datasetId, String documentId, CreateSegmentsRequest request) throws IOException, DifyApiException;
+    SegmentListResponse createSegments(String datasetId, String documentId, CreateSegmentsRequest request) throws IOException, DifyApiException;
 
     /**
      * 查询文档分段
