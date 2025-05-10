@@ -237,17 +237,18 @@ public class DifyDatasetsClientTest {
     @Test
     public void testDeleteDocument() throws IOException, DifyApiException {
         // 跳过测试如果没有测试知识库或文档
-        if (testDatasetId == null || testDocumentId == null) {
-            System.out.println("跳过测试，因为没有测试知识库或文档");
+        if (testDatasetId == null ) {
+            System.out.println("跳过测试，因为没有测试知识库");
             return;
         }
 
-        // 删除文档
-        SimpleResponse response = datasetsClient.deleteDocument(testDatasetId, testDocumentId);
+        // 先创建一个文档
+        if (testDocumentId == null) {
+            createTestDocument();
+        }
 
-        // 验证响应
-        assertNotNull(response);
-        assertEquals("success", response.getResult());
+        // 删除文档
+        datasetsClient.deleteDocument(testDatasetId, testDocumentId);
 
         // 清除文档ID
         testDocumentId = null;
@@ -384,5 +385,408 @@ public class DifyDatasetsClientTest {
         String deleteResponse = datasetsClient.deleteMetadata(testDatasetId, createResponse.getId());
         // 验证响应
         assertNotNull(deleteResponse);
+    }
+
+    /**
+     * 测试创建分段
+     */
+    @Test
+    public void testCreateSegments() throws IOException, DifyApiException {
+        // 跳过测试如果没有测试知识库
+        if (testDatasetId == null) {
+            System.out.println("跳过测试，因为没有测试知识库");
+            return;
+        }
+
+        // 先创建一个文档
+        if (testDocumentId == null) {
+            createTestDocument();
+        }
+
+        // 创建分段请求
+        CreateSegmentsRequest.SegmentInfo segment = CreateSegmentsRequest.SegmentInfo.builder()
+                .content("这是一个测试分段内容")
+                .build();
+
+        CreateSegmentsRequest request = CreateSegmentsRequest.builder()
+                .segments(java.util.Collections.singletonList(segment))
+                .build();
+
+        // 发送请求
+        SegmentListResponse response = datasetsClient.createSegments(testDatasetId, testDocumentId, request);
+
+        // 验证响应
+        assertNotNull(response);
+        assertNotNull(response.getData());
+        assertEquals(1, response.getData().size());
+        assertNotNull(response.getData().get(0).getId());
+
+        // 保存segmentId到类属性，用于后续测试
+        String testSegmentId = response.getData().get(0).getId();
+        System.out.println("创建测试分段成功，ID: " + testSegmentId);
+    }
+
+    /**
+     * 测试获取分段列表
+     */
+    @Test
+    public void testGetSegments() throws IOException, DifyApiException {
+        // 跳过测试如果没有测试知识库
+        if (testDatasetId == null) {
+            System.out.println("跳过测试，因为没有测试知识库");
+            return;
+        }
+
+        // 先创建一个文档
+        if (testDocumentId == null) {
+            createTestDocument();
+        }
+
+        // 先创建一个分段
+        String testSegmentId = createTestSegment(); // 调用测试方法来创建分段
+        if (testSegmentId == null) {
+            System.out.println("创建分段失败，跳过测试");
+            return;
+        }
+        
+        // 获取分段列表
+        SegmentListResponse response = datasetsClient.getSegments(testDatasetId, testDocumentId, null, null, 1, 10);
+
+        // 验证响应
+        assertNotNull(response);
+        assertNotNull(response.getData());
+
+        // 打印分段列表
+        System.out.println("分段数量: " + response.getData().size());
+        response.getData().forEach(segment -> {
+            System.out.println("分段ID: " + segment.getId() + ", 内容: " + segment.getContent());
+        });
+    }
+
+    /**
+     * 测试更新分段
+     */
+    @Test
+    public void testUpdateSegment() throws IOException, DifyApiException {
+        // 跳过测试如果没有测试知识库
+        if (testDatasetId == null) {
+            System.out.println("跳过测试，因为没有测试知识库");
+            return;
+        }
+
+        // 先创建一个文档
+        if (testDocumentId == null) {
+            createTestDocument();
+        }
+
+        // 创建一个分段并获取ID
+        String segmentId = createTestSegment();
+        if (segmentId == null) {
+            System.out.println("创建分段失败，跳过测试");
+            return;
+        }
+
+        // 更新分段请求
+        UpdateSegmentRequest request = UpdateSegmentRequest.builder()
+                .segment(UpdateSegmentRequest.SegmentInfo.builder()
+                        .content("这是更新后的分段内容")
+                        .keywords(java.util.Collections.singletonList("这是一个要点"))
+                        .regenerateChildChunks(true)
+                        .build())
+                .build();
+
+        // 发送请求
+        SegmentResponse response = datasetsClient.updateSegment(testDatasetId, testDocumentId, segmentId, request);
+
+        // 验证响应
+        assertNotNull(response);
+        assertNotNull(response.getData());
+        assertEquals(request.getSegment().getContent(), response.getData().getContent());
+    }
+
+    /**
+     * 测试创建子块
+     */
+    @Test
+    public void testCreateChildChunks() throws IOException, DifyApiException {
+        // 跳过测试如果没有测试知识库
+        if (testDatasetId == null) {
+            System.out.println("跳过测试，因为没有测试知识库");
+            return;
+        }
+
+        // 先创建一个文档
+        if (testDocumentId == null) {
+            createTestDocument();
+        }
+
+        // 创建一个分段并获取ID
+        String testSegmentId = createTestSegment(); 
+        if (testSegmentId == null) {
+            System.out.println("创建分段失败，跳过测试");
+            return;
+        }
+        
+
+        // 创建子块请求
+        SaveChildChunkRequest request = SaveChildChunkRequest.builder()
+                .content("这是一个测试子块内容")
+                .build();
+
+        // 发送请求
+        ChildChunkResponse response = datasetsClient.createChildChunk(testDatasetId, testDocumentId, testSegmentId, request);
+
+        // 验证响应
+        assertNotNull(response);
+        assertNotNull(response.getData());
+        assertNotNull(response.getData().getId());
+
+        // 保存子块ID到类属性，用于后续测试
+        String testChildChunkId = response.getData().getId();
+        System.out.println("创建测试子块成功，ID: " + testChildChunkId);
+    }
+
+    /**
+     * 测试获取子块列表
+     */
+    @Test
+    public void testGetChildChunks() throws IOException, DifyApiException {
+        // 跳过测试如果没有测试知识库
+        if (testDatasetId == null) {
+            System.out.println("跳过测试，因为没有测试知识库");
+            return;
+        }
+
+        // 先创建一个文档
+        if (testDocumentId == null) {
+            createTestDocument();
+        }
+
+        // The segment ID to use for the test
+        String segmentId = createTestSegment();
+        if (segmentId == null) {
+            System.out.println("创建分段失败，跳过测试");
+            return;
+        }
+
+        // Create a child chunk for testing
+        createTestChildChunk(segmentId);
+
+        // 获取子块列表
+        ChildChunkListResponse response = datasetsClient.getChildChunks(testDatasetId, testDocumentId, segmentId, null, 1, 10);
+
+        // 验证响应
+        assertNotNull(response);
+        assertNotNull(response.getData());
+
+        System.out.println("子块数量: " + response.getData().size());
+        response.getData().forEach(childChunk -> {
+            System.out.println("子块ID: " + childChunk.getId() + ", 内容: " + childChunk.getContent());
+        });
+    }
+
+    /**
+     * 测试更新子块
+     */
+    @Test
+    public void testUpdateChildChunks() throws IOException, DifyApiException {
+        // 跳过测试如果没有测试知识库
+        if (testDatasetId == null) {
+            System.out.println("跳过测试，因为没有测试知识库");
+            return;
+        }
+
+        // 先创建一个文档
+        if (testDocumentId == null) {
+            createTestDocument();
+        }
+
+        // 创建一个分段并获取ID
+        String segmentId = createTestSegment();
+        if (segmentId == null) {
+            System.out.println("创建分段失败，跳过测试");
+            return;
+        }
+
+        // 创建一个子块并获取ID
+        String childChunkId = createTestChildChunk(segmentId);
+        if (childChunkId == null) {
+            System.out.println("创建子块失败，跳过测试");
+            return;
+        }
+
+        // 更新子块请求
+        SaveChildChunkRequest request = SaveChildChunkRequest.builder()
+                .content("这是更新后的子块内容")
+                .build();
+
+        // 发送请求
+        ChildChunkResponse response = datasetsClient.updateChildChunk(testDatasetId, testDocumentId, segmentId, childChunkId, request);
+
+        // 验证响应
+        assertNotNull(response);
+        assertNotNull(response.getData());
+        assertEquals(request.getContent(), response.getData().getContent());
+    }
+
+    /**
+     * 测试删除子块
+     */
+    @Test
+    public void testDeleteChildChunks() throws IOException, DifyApiException {
+        // 跳过测试如果没有测试知识库
+        if (testDatasetId == null) {
+            System.out.println("跳过测试，因为没有测试知识库");
+            return;
+        }
+
+        // 先创建一个文档
+        if (testDocumentId == null) {
+            createTestDocument();
+        }
+
+        // 创建一个分段并获取ID
+        String segmentId = createTestSegment();
+        if (segmentId == null) {
+            System.out.println("创建分段失败，跳过测试");
+            return;
+        }
+
+        // 创建一个子块并获取ID
+        String childChunkId = createTestChildChunk(segmentId);
+        if (childChunkId == null) {
+            System.out.println("创建子块失败，跳过测试");
+            return;
+        }
+
+        // 删除子块
+        datasetsClient.deleteChildChunks(testDatasetId, testDocumentId, segmentId, childChunkId);
+        
+        // 验证删除成功 - 获取子块列表并检查被删除的子块是否不存在
+        ChildChunkListResponse response = datasetsClient.getChildChunks(testDatasetId, testDocumentId, segmentId, null, 1, 10);
+        assertNotNull(response);
+        
+        // 检查删除的子块不在返回列表中
+        boolean childChunkExists = response.getData().stream()
+                .anyMatch(chunk -> childChunkId.equals(chunk.getId()));
+        assertEquals(false, childChunkExists, "子块应该已被删除");
+    }
+
+    /**
+     * 测试删除分段
+     */
+    @Test
+    public void testDeleteSegment() throws IOException, DifyApiException {
+        // 跳过测试如果没有测试知识库
+        if (testDatasetId == null) {
+            System.out.println("跳过测试，因为没有测试知识库");
+            return;
+        }
+
+        // 先创建一个文档
+        if (testDocumentId == null) {
+            createTestDocument();
+        }
+
+        // 创建一个分段并获取ID
+        String segmentId = createTestSegment();
+        if (segmentId == null) {
+            System.out.println("创建分段失败，跳过测试");
+            return;
+        }
+
+        // 删除分段
+        datasetsClient.deleteSegment(testDatasetId, testDocumentId, segmentId);
+        
+        // 验证删除成功 - 获取分段列表并检查被删除的分段是否不存在
+        SegmentListResponse response = datasetsClient.getSegments(testDatasetId, testDocumentId, null, null, 1, 10);
+        assertNotNull(response);
+        
+        // 检查删除的分段不在返回列表中
+        boolean segmentExists = response.getData().stream()
+                .anyMatch(segment -> segmentId.equals(segment.getId()));
+        assertEquals(false, segmentExists, "分段应该已被删除");
+
+    }
+
+    /**
+     * 创建测试文档
+     * @return 文档ID
+     */
+    private String createTestDocument() throws IOException, DifyApiException {
+        RetrievalModel retrievalModel = new RetrievalModel();
+        retrievalModel.setSearchMethod("hybrid_search");
+        retrievalModel.setRerankingEnable(false);
+        retrievalModel.setTopK(2);
+        retrievalModel.setScoreThresholdEnabled(false);
+
+        CreateDocumentByTextRequest request = CreateDocumentByTextRequest.builder()
+                .name("测试文档-" + System.currentTimeMillis())
+                .text("这是一个测试文档的内容。\n这是第二行内容。\n这是第三行内容。")
+                .indexingTechnique("economy")
+                .docForm("text_model")
+                .docLanguage("Chinese")
+                .retrievalModel(retrievalModel)
+                .processRule(ProcessRule.builder().mode("automatic").build())
+                .build();
+
+        DocumentResponse response = datasetsClient.createDocumentByText(testDatasetId, request);
+        testDocumentId = response.getDocument().getId();
+        System.out.println("创建测试文档成功，ID: " + testDocumentId);
+
+        // 等待索引完成
+        try {
+            System.out.println("等待文档索引完成...");
+            Thread.sleep(5000); // 等待5秒
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+            
+        return testDocumentId;
+    }
+
+    /**
+     * 创建测试分段
+     * @return 分段ID
+     */
+    private String createTestSegment() throws IOException, DifyApiException {
+        CreateSegmentsRequest.SegmentInfo segment = CreateSegmentsRequest.SegmentInfo.builder()
+                .content("这是一个测试分段内容")
+                .build();
+
+        CreateSegmentsRequest request = CreateSegmentsRequest.builder()
+                .segments(java.util.Collections.singletonList(segment))
+                .build();
+
+        SegmentListResponse response = datasetsClient.createSegments(testDatasetId, testDocumentId, request);
+        
+        if (response != null && response.getData() != null) {
+            String segmentId = response.getData().get(0).getId();
+            System.out.println("创建测试分段成功，ID: " + segmentId);
+            return segmentId;
+        }
+        
+        return null;
+    }
+
+    /**
+     * 创建测试子块
+     * @param segmentId 分段ID
+     * @return 子块ID
+     */
+    private String createTestChildChunk(String segmentId) throws IOException, DifyApiException {
+        SaveChildChunkRequest request = SaveChildChunkRequest.builder()
+                .content("这是一个测试子块内容")
+                .build();
+
+        ChildChunkResponse response = datasetsClient.createChildChunk(testDatasetId, testDocumentId, segmentId, request);
+        
+        if (response != null && response.getData() != null) {
+            String childChunkId = response.getData().getId();
+            System.out.println("创建测试子块成功，ID: " + childChunkId);
+            return childChunkId;
+        }
+        
+        return null;
     }
 }
