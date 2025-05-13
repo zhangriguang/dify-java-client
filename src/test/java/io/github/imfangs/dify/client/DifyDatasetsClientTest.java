@@ -3,7 +3,6 @@ package io.github.imfangs.dify.client;
 import io.github.imfangs.dify.client.config.DifyTestConfig;
 import io.github.imfangs.dify.client.exception.DifyApiException;
 import io.github.imfangs.dify.client.model.DifyConfig;
-import io.github.imfangs.dify.client.model.common.SimpleResponse;
 import io.github.imfangs.dify.client.model.datasets.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +10,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -237,7 +238,7 @@ public class DifyDatasetsClientTest {
     @Test
     public void testDeleteDocument() throws IOException, DifyApiException {
         // 跳过测试如果没有测试知识库或文档
-        if (testDatasetId == null ) {
+        if (testDatasetId == null) {
             System.out.println("跳过测试，因为没有测试知识库");
             return;
         }
@@ -448,7 +449,7 @@ public class DifyDatasetsClientTest {
             System.out.println("创建分段失败，跳过测试");
             return;
         }
-        
+
         // 获取分段列表
         SegmentListResponse response = datasetsClient.getSegments(testDatasetId, testDocumentId, null, null, 1, 10);
 
@@ -521,12 +522,12 @@ public class DifyDatasetsClientTest {
         }
 
         // 创建一个分段并获取ID
-        String testSegmentId = createTestSegment(); 
+        String testSegmentId = createTestSegment();
         if (testSegmentId == null) {
             System.out.println("创建分段失败，跳过测试");
             return;
         }
-        
+
 
         // 创建子块请求
         SaveChildChunkRequest request = SaveChildChunkRequest.builder()
@@ -661,11 +662,11 @@ public class DifyDatasetsClientTest {
 
         // 删除子块
         datasetsClient.deleteChildChunks(testDatasetId, testDocumentId, segmentId, childChunkId);
-        
+
         // 验证删除成功 - 获取子块列表并检查被删除的子块是否不存在
         ChildChunkListResponse response = datasetsClient.getChildChunks(testDatasetId, testDocumentId, segmentId, null, 1, 10);
         assertNotNull(response);
-        
+
         // 检查删除的子块不在返回列表中
         boolean childChunkExists = response.getData().stream()
                 .anyMatch(chunk -> childChunkId.equals(chunk.getId()));
@@ -697,11 +698,11 @@ public class DifyDatasetsClientTest {
 
         // 删除分段
         datasetsClient.deleteSegment(testDatasetId, testDocumentId, segmentId);
-        
+
         // 验证删除成功 - 获取分段列表并检查被删除的分段是否不存在
         SegmentListResponse response = datasetsClient.getSegments(testDatasetId, testDocumentId, null, null, 1, 10);
         assertNotNull(response);
-        
+
         // 检查删除的分段不在返回列表中
         boolean segmentExists = response.getData().stream()
                 .anyMatch(segment -> segmentId.equals(segment.getId()));
@@ -711,6 +712,7 @@ public class DifyDatasetsClientTest {
 
     /**
      * 创建测试文档
+     *
      * @return 文档ID
      */
     private String createTestDocument() throws IOException, DifyApiException {
@@ -741,12 +743,13 @@ public class DifyDatasetsClientTest {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-            
+
         return testDocumentId;
     }
 
     /**
      * 创建测试分段
+     *
      * @return 分段ID
      */
     private String createTestSegment() throws IOException, DifyApiException {
@@ -759,18 +762,19 @@ public class DifyDatasetsClientTest {
                 .build();
 
         SegmentListResponse response = datasetsClient.createSegments(testDatasetId, testDocumentId, request);
-        
+
         if (response != null && response.getData() != null) {
             String segmentId = response.getData().get(0).getId();
             System.out.println("创建测试分段成功，ID: " + segmentId);
             return segmentId;
         }
-        
+
         return null;
     }
 
     /**
      * 创建测试子块
+     *
      * @param segmentId 分段ID
      * @return 子块ID
      */
@@ -780,13 +784,78 @@ public class DifyDatasetsClientTest {
                 .build();
 
         ChildChunkResponse response = datasetsClient.createChildChunk(testDatasetId, testDocumentId, segmentId, request);
-        
+
         if (response != null && response.getData() != null) {
             String childChunkId = response.getData().getId();
             System.out.println("创建测试子块成功，ID: " + childChunkId);
             return childChunkId;
         }
-        
+
         return null;
+    }
+
+    /**
+     * 测试启用/禁用内置元数据
+     *
+     * @author zhangriguang
+     * @date 2025-05-13
+     */
+    @Test
+    public void testBuiltInMetadata() throws Exception {
+        String datasetId = "知识库ID";
+        String action = "enable";
+        String result = datasetsClient.builtInMetadata(datasetId, action);
+        System.out.println("操作结果: " + result);
+    }
+
+    /**
+     * 更新文档元数据
+     *
+     * @author zhangriguang
+     * @date 2025-05-13
+     */
+    @Test
+    public void testUpdateDocumentMetadata() throws Exception {
+        String datasetId = "知识库ID";
+        List<OperationData> operationDataList = new ArrayList<OperationData>() {{
+            add(new OperationData() {{
+                setDocumentId("文档ID");
+                List<Metadata> metadataList = new ArrayList<Metadata>() {{
+                    add(new Metadata() {{
+                        setId("元数据ID");
+                        setType("元数据类型");
+                        setName("元数据名称");
+                    }});
+                }};
+                setMetadataList(metadataList);
+            }});
+        }};
+        String result = datasetsClient.updateDocumentMetadata(datasetId, operationDataList);
+        System.out.println("操作结果: " + result);
+    }
+
+    /**
+     * 测试查询知识库元数据列表
+     *
+     * @author zhangriguang
+     * @date 2025-05-13
+     */
+    @Test
+    public void testGetDocMetadataList() throws Exception {
+        String datasetId = "知识库ID";
+        DocMetadataListResponse list = datasetsClient.getDocMetadataList(datasetId);
+        System.out.println("知识库元数据列表: " + list);
+    }
+
+    /**
+     * 测试获取嵌入模型列表
+     *
+     * @author zhangriguang
+     * @date 2025-05-13
+     */
+    @Test
+    public void testGetEmbeddingModelList() throws Exception {
+        EmbeddingModelListResponse list = datasetsClient.getEmbeddingModelList();
+        System.out.println("嵌入模型列表: " + list);
     }
 }
