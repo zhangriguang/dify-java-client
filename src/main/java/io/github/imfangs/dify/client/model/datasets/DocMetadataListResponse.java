@@ -37,7 +37,7 @@ public class DocMetadataListResponse {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public class DocMetadata {
+    public static class DocMetadata {
         /**
          * 元数据 ID
          */

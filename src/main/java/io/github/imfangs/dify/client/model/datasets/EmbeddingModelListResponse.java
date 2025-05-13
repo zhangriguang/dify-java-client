@@ -33,7 +33,7 @@ public class EmbeddingModelListResponse {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public class EmbeddingModel {
+    public static class EmbeddingModel {
         /**
          * 元数据提供者
          */
@@ -73,7 +73,7 @@ public class EmbeddingModelListResponse {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public class Language {
+    public static class Language {
         /**
          * 中文
          */
@@ -95,7 +95,7 @@ public class EmbeddingModelListResponse {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public class Model {
+    public static class Model {
         /**
          * 模型名称
          */
@@ -147,7 +147,7 @@ public class EmbeddingModelListResponse {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public class ModelProperties {
+    public static class ModelProperties {
         /**
          * 上下文大小
          */

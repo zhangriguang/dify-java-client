@@ -38,7 +38,7 @@ public class OperationData {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public class Metadata {
+    public static class Metadata {
         /**
          * 元数据 ID
          */
