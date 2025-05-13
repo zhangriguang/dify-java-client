@@ -18,7 +18,7 @@ public class SegmentResponse {
     /**
      * 分段列表
      */
-    private List<SegmentInfo> data;
+    private SegmentInfo data;
 
     /**
      * 文档形式
