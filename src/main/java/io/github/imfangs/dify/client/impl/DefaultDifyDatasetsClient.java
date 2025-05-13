@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -19,8 +20,8 @@ import java.util.Map;
  * 提供知识库相关的操作
  */
 @Slf4j
-public class DefaultDifyDatasetsClient extends AbstractDifyClient implements DifyDatasetsClient { 
-   
+public class DefaultDifyDatasetsClient extends AbstractDifyClient implements DifyDatasetsClient {
+
     // API 路径常量
     private static final String DATASETS_PATH = "/datasets";
     private static final String DOCUMENTS_PATH = "/documents";
@@ -34,6 +35,13 @@ public class DefaultDifyDatasetsClient extends AbstractDifyClient implements Dif
     private static final String UPLOAD_FILE_PATH = "/upload-file";
     private static final String RETRIEVE_PATH = "/retrieve";
     private static final String METADATA_PATH = "/metadata";
+
+    //启用/禁用内置元数据路径
+    private static final String METADATA_BUILT_IN_PATH = "/metadata/built-in";
+    //更新文档元数据路径
+    private static final String DOCUMENT_METADATA_PATH = "/documents/metadata";
+    //嵌入模型列表路径
+    private static final String EMBEDDING_MODEL_TYPES_PATH = "/workspaces/current/models/model-types/text-embedding";
 
     /**
      * 构造函数
@@ -164,7 +172,7 @@ public class DefaultDifyDatasetsClient extends AbstractDifyClient implements Dif
 
     @Override
     public SegmentListResponse getSegments(String datasetId, String documentId, String keyword, String status) throws IOException, DifyApiException {
-       return getSegments(datasetId, documentId, keyword, status, null, null);
+        return getSegments(datasetId, documentId, keyword, status, null, null);
     }
 
     @Override
@@ -193,7 +201,7 @@ public class DefaultDifyDatasetsClient extends AbstractDifyClient implements Dif
     }
 
     @Override
-    public ChildChunkResponse createChildChunk(String datasetId, String docummentId,  String segmentId, SaveChildChunkRequest request) throws IOException, DifyApiException {
+    public ChildChunkResponse createChildChunk(String datasetId, String docummentId, String segmentId, SaveChildChunkRequest request) throws IOException, DifyApiException {
         String path = buildSegmentPath(datasetId, docummentId, segmentId) + CHILD_CHUNKS_PATH;
         return executePost(path, request, ChildChunkResponse.class);
     }
@@ -249,12 +257,12 @@ public class DefaultDifyDatasetsClient extends AbstractDifyClient implements Dif
     /**
      * 执行Multipart请求
      *
-     * @param path 请求路径
-     * @param requestBody 请求体
+     * @param path          请求路径
+     * @param requestBody   请求体
      * @param responseClass 响应类型
-     * @param <T> 响应类型
+     * @param <T>           响应类型
      * @return 响应对象
-     * @throws IOException IO异常
+     * @throws IOException      IO异常
      * @throws DifyApiException API异常
      */
     private <T> T executeMultipartRequest(String path, RequestBody requestBody, Class<T> responseClass) throws IOException, DifyApiException {
@@ -273,7 +281,7 @@ public class DefaultDifyDatasetsClient extends AbstractDifyClient implements Dif
      * 创建Multipart请求构建器
      *
      * @param request 请求对象
-     * @param file 文件
+     * @param file    文件
      * @return Multipart请求构建器
      */
     private MultipartBody.Builder createMultipartBuilder(Object request, File file) {
@@ -286,7 +294,7 @@ public class DefaultDifyDatasetsClient extends AbstractDifyClient implements Dif
     /**
      * 构建文档路径
      *
-     * @param datasetId 知识库ID
+     * @param datasetId  知识库ID
      * @param documentId 文档ID
      * @return 文档路径
      */
@@ -297,16 +305,16 @@ public class DefaultDifyDatasetsClient extends AbstractDifyClient implements Dif
     /**
      * 构建分段路径
      *
-     * @param datasetId 知识库ID
+     * @param datasetId  知识库ID
      * @param documentId 文档ID
-     * @param segmentId 分段ID
+     * @param segmentId  分段ID
      * @return 分段路径
      */
     private String buildSegmentPath(String datasetId, String documentId, String segmentId) {
         return buildDocumentPath(datasetId, documentId) + SEGMENTS_PATH + "/" + segmentId;
     }
 
-    
+
     private String buildChildChunkPath(String datasetId, String docummentId, String segmentId, String childChunkId) {
         return buildSegmentPath(datasetId, docummentId, segmentId) + CHILD_CHUNKS_PATH + "/" + childChunkId;
     }
@@ -324,12 +332,12 @@ public class DefaultDifyDatasetsClient extends AbstractDifyClient implements Dif
             byte[] buffer = new byte[8192];
             int bytesRead;
             java.io.ByteArrayOutputStream output = new java.io.ByteArrayOutputStream();
-            
+
             // 读取数据直到输入流结束
             while ((bytesRead = inputStream.read(buffer)) != -1) {
                 output.write(buffer, 0, bytesRead);
             }
-            
+
             return output.toByteArray();
         } finally {
             // 确保关闭输入流
@@ -341,4 +349,75 @@ public class DefaultDifyDatasetsClient extends AbstractDifyClient implements Dif
         }
     }
 
+    /**
+     * 启用/禁用内置元数据
+     *
+     * @param datasetId 知识库 ID
+     * @param action    动作，只能是 'enable' 或 'disable'
+     * @return 结果
+     * @throws IOException      IO异常
+     * @throws DifyApiException Dify API异常
+     * @author zhangriguang
+     * @date 2025-05-13
+     */
+    @Override
+    public String builtInMetadata(String datasetId, String action) throws IOException, DifyApiException {
+        log.debug("启用/禁用内置元数据: datasetId={}, action={}", datasetId, action);
+        String path = DATASETS_PATH + "/" + datasetId + METADATA_BUILT_IN_PATH + "/" + action;
+        return executePost(path, null, String.class);
+    }
+
+    /**
+     * 更新文档元数据
+     *
+     * @param datasetId         知识库 ID
+     * @param operationDataList 文档元数据集合
+     * @return 结果
+     * @throws IOException      IO异常
+     * @throws DifyApiException Dify API异常
+     * @author zhangriguang
+     * @date 2025-05-13
+     */
+    @Override
+    public String updateDocumentMetadata(String datasetId, List<OperationData> operationDataList) throws IOException, DifyApiException {
+        log.debug("更新文档元数据: datasetId={}, operationDataList={}", datasetId, operationDataList);
+        String path = DATASETS_PATH + "/" + datasetId + DOCUMENT_METADATA_PATH;
+        Map<String, Object> body = new HashMap<>(1);
+        body.put("operation_data", operationDataList);
+        return executePost(path, body, String.class);
+    }
+
+    /**
+     * 查询知识库元数据列表
+     *
+     * @param datasetId 知识库 ID
+     * @return 响应
+     * @throws IOException      IO异常
+     * @throws DifyApiException Dify API异常
+     * @author zhangriguang
+     * @date 2025-05-13
+     */
+    @Override
+    public DocMetadataListResponse getDocMetadataList(String datasetId) throws IOException, DifyApiException {
+        log.debug("查询知识库元数据列表: datasetId={}", datasetId);
+        String path = DATASETS_PATH + "/" + datasetId + METADATA_PATH;
+        Request request = createGetRequest(path);
+        return executeRequest(request, DocMetadataListResponse.class);
+    }
+
+    /**
+     * 获取嵌入模型列表
+     *
+     * @return 响应
+     * @throws IOException      IO异常
+     * @throws DifyApiException Dify API异常
+     * @author zhangriguang
+     * @date 2025-05-13
+     */
+    @Override
+    public EmbeddingModelListResponse getEmbeddingModelList() throws IOException, DifyApiException {
+        log.debug("获取嵌入模型列表");
+        Request request = createGetRequest(EMBEDDING_MODEL_TYPES_PATH);
+        return executeRequest(request, EmbeddingModelListResponse.class);
+    }
 }
