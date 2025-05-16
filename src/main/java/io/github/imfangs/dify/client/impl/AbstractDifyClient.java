@@ -201,12 +201,15 @@ public abstract class AbstractDifyClient {
      * @return 请求对象
      */
     protected Request createPostRequest(String path, RequestBody body) {
-        return new Request.Builder()
+        Request.Builder request = new Request.Builder()
                 .url(baseUrl + path)
-                .post(body)
-                .header("Authorization", "Bearer " + apiKey)
-                .header("Content-Type", "application/json")
-                .build();
+                .header("Authorization", "Bearer " + apiKey);
+        if (body != null) {
+            request.post(body).header("Content-Type", "application/json");
+        } else {
+            request.post(RequestBody.create("".getBytes()));
+        }
+        return request.build();
     }
 
     /**

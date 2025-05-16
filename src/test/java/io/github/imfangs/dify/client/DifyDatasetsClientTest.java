@@ -802,9 +802,13 @@ public class DifyDatasetsClientTest {
      */
     @Test
     public void testBuiltInMetadata() throws Exception {
-        String datasetId = "知识库ID";
+        // 跳过测试如果没有测试知识库
+        if (testDatasetId == null) {
+            System.out.println("跳过测试，因为没有测试知识库");
+            return;
+        }
         String action = "enable";
-        String result = datasetsClient.builtInMetadata(datasetId, action);
+        String result = datasetsClient.builtInMetadata(testDatasetId, action);
         System.out.println("操作结果: " + result);
     }
 
@@ -816,21 +820,34 @@ public class DifyDatasetsClientTest {
      */
     @Test
     public void testUpdateDocumentMetadata() throws Exception {
-        String datasetId = "知识库ID";
+        // 跳过测试如果没有测试知识库
+        if (testDatasetId == null) {
+            System.out.println("跳过测试，因为没有测试知识库");
+            return;
+        }
+        // 先创建一个文档
+        if (testDocumentId == null) {
+            createTestDocument();
+        }
+        // 创建元数据请求
+        CreateMetadataRequest createRequest = CreateMetadataRequest.builder().name("test").type("string").build();
+        // 发送请求
+        MetadataResponse createResponse = datasetsClient.createMetadata(testDatasetId, createRequest);
+
         List<OperationData> operationDataList = new ArrayList<OperationData>() {{
             add(new OperationData() {{
-                setDocumentId("文档ID");
+                setDocumentId(testDocumentId);
                 List<Metadata> metadataList = new ArrayList<Metadata>() {{
                     add(new Metadata() {{
-                        setId("元数据ID");
-                        setType("元数据类型");
+                        setId(createResponse.getId());
+                        setType(createResponse.getType());
                         setName("元数据名称");
                     }});
                 }};
                 setMetadataList(metadataList);
             }});
         }};
-        String result = datasetsClient.updateDocumentMetadata(datasetId, operationDataList);
+        String result = datasetsClient.updateDocumentMetadata(testDatasetId, operationDataList);
         System.out.println("操作结果: " + result);
     }
 
@@ -842,8 +859,12 @@ public class DifyDatasetsClientTest {
      */
     @Test
     public void testGetDocMetadataList() throws Exception {
-        String datasetId = "知识库ID";
-        DocMetadataListResponse list = datasetsClient.getDocMetadataList(datasetId);
+        // 跳过测试如果没有测试知识库
+        if (testDatasetId == null) {
+            System.out.println("跳过测试，因为没有测试知识库");
+            return;
+        }
+        DocMetadataListResponse list = datasetsClient.getDocMetadataList(testDatasetId);
         System.out.println("知识库元数据列表: " + list);
     }
 

@@ -67,10 +67,14 @@ public class JsonUtils {
      * @return 转换后的对象
      */
     public static <T> T fromJson(String json, Class<T> clazz) {
-        try {
-            return OBJECT_MAPPER.readValue(json, clazz);
-        } catch (IOException e) {
-            log.error("Failed to convert JSON to object", e);
+        if (json != null && !json.isEmpty()) {
+            try {
+                return OBJECT_MAPPER.readValue(json, clazz);
+            } catch (IOException e) {
+                log.error("Failed to convert JSON to object", e);
+                return null;
+            }
+        }else{
             return null;
         }
     }
@@ -84,10 +88,14 @@ public class JsonUtils {
      * @return 转换后的对象
      */
     public static <T> T fromJson(String json, TypeReference<T> typeReference) {
-        try {
-            return OBJECT_MAPPER.readValue(json, typeReference);
-        } catch (IOException e) {
-            log.error("Failed to convert JSON to object", e);
+        if (json != null && !json.isEmpty()) {
+            try {
+                return OBJECT_MAPPER.readValue(json, typeReference);
+            } catch (IOException e) {
+                log.error("Failed to convert JSON to object", e);
+                return null;
+            }
+        }else{
             return null;
         }
     }
@@ -99,11 +107,15 @@ public class JsonUtils {
      * @return Map对象
      */
     public static Map<String, Object> jsonToMap(String json) {
-        try {
-            return OBJECT_MAPPER.readValue(json, new TypeReference<Map<String, Object>>() {
-            });
-        } catch (IOException e) {
-            log.error("Failed to convert JSON to Map", e);
+        if (json != null && !json.isEmpty()) {
+            try {
+                return OBJECT_MAPPER.readValue(json, new TypeReference<Map<String, Object>>() {
+                });
+            } catch (IOException e) {
+                log.error("Failed to convert JSON to Map", e);
+                return null;
+            }
+        }else{
             return null;
         }
     }
