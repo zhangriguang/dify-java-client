@@ -409,6 +409,9 @@ public class DefaultDifyClient extends DifyBaseClientImpl implements DifyClient 
      * @return 是否继续处理
      */
     private boolean processStreamLine(String line, BaseStreamCallback callback, EventProcessor eventProcessor) {
+        if(line == null || line.trim().isEmpty()){
+            return true;
+        }
         if (line.startsWith(DATA_PREFIX)) {
             String data = line.substring(DATA_PREFIX.length()).trim();
 
