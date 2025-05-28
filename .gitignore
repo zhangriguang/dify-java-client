@@ -52,3 +52,8 @@ nbdist/
 
 # Test configuration
 src/test/resources/dify-test-config.properties
+# SpecStory explanation file
+.specstory/.what-is-this.md
+.specstory/**
+
+.cursorindexingignore

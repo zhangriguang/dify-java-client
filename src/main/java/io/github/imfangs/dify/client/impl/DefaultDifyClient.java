@@ -59,6 +59,17 @@ public class DefaultDifyClient extends DifyBaseClientImpl implements DifyClient 
     private static final String APPS_ANNOTATIONS_PATH = "/apps/annotations";
     private static final String APPS_ANNOTATIONS_REPLY_PATH = "/apps/annotations-reply";
 
+    // 音频文件类型
+    private static final Map<String, MediaType> AUDIO_MEDIA_TYPES = new HashMap<String, MediaType>() {{
+        put("mp3", MediaType.parse("audio/mp3"));
+        put("mp4", MediaType.parse("audio/mp4"));
+        put("mpeg", MediaType.parse("audio/mpeg"));
+        put("mpga", MediaType.parse("audio/mpga"));
+        put("m4a", MediaType.parse("audio/m4a"));
+        put("wav", MediaType.parse("audio/wav"));
+        put("webm", MediaType.parse("audio/webm"));
+    }};
+
     /**
      * 构造函数
      *
@@ -187,7 +198,18 @@ public class DefaultDifyClient extends DifyBaseClientImpl implements DifyClient 
     @Override
     public AudioToTextResponse audioToText(File file, String user) throws IOException, DifyApiException {
         log.debug("语音转文字: fileName={}, user={}", file.getName(), user);
-        RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM).addFormDataPart("file", file.getName(), RequestBody.create(AUDIO, file)).addFormDataPart("user", user).build();
+
+        String extension = getFileExtension(file.getName()).toLowerCase();
+        MediaType mediaType = AUDIO_MEDIA_TYPES.get(extension);
+        if (mediaType == null) {
+            throw new RuntimeException("不支持的音频格式: " + extension + "。支持的格式: mp3, mp4, mpeg, mpga, m4a, wav, webm");
+        }
+
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("file", file.getName(), RequestBody.create(mediaType, file))
+                .addFormDataPart("user", user)
+                .build();
 
         Request request = new Request.Builder().url(baseUrl + AUDIO_TO_TEXT_PATH).post(requestBody).header("Authorization", "Bearer " + apiKey).build();
 
@@ -558,5 +580,10 @@ public class DefaultDifyClient extends DifyBaseClientImpl implements DifyClient 
     public AnnotationReply getAnnotationReply(String action, String jobId) throws IOException, DifyApiException {
         log.debug("查询标注回复初始设置任务状态: action={}, jobId={}", action, jobId);
         return executeGet(APPS_ANNOTATIONS_REPLY_PATH + "/" + action + "/status/" + jobId, AnnotationReply.class);
+    }
+
+    private String getFileExtension(String fileName) {
+        int lastDotIndex = fileName.lastIndexOf('.');
+        return lastDotIndex > 0 ? fileName.substring(lastDotIndex + 1) : "";
     }
 }
