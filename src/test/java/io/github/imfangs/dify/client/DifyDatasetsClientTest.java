@@ -842,6 +842,7 @@ public class DifyDatasetsClientTest {
                         setId(createResponse.getId());
                         setType(createResponse.getType());
                         setName("元数据名称");
+                        setValue("元数据值");
                     }});
                 }};
                 setMetadataList(metadataList);

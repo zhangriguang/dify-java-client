@@ -26,7 +26,7 @@ public class OperationData {
     /**
      * 元数据列表
      */
-    private List<Metadata> metadataList ;
+    private List<Metadata> metadataList;
 
     /**
      * 元数据
@@ -53,5 +53,10 @@ public class OperationData {
          * 元数据名称
          */
         private String name;
+
+        /**
+         * 元数据值
+         */
+        private String value;
     }
 }
