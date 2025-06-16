@@ -392,4 +392,75 @@ public interface DifyDatasetsClient {
      * @date 2025-05-13
      */
     EmbeddingModelListResponse getEmbeddingModelList() throws IOException, DifyApiException;
+
+    // ================ 知识库类型标签相关接口 ================
+
+    /**
+     * 新增知识库类型标签
+     *
+     * @param request 创建标签请求
+     * @return 标签信息
+     * @throws IOException      IO异常
+     * @throws DifyApiException API异常
+     */
+    TagResponse createTag(CreateTagRequest request) throws IOException, DifyApiException;
+
+    /**
+     * 获取知识库类型标签列表
+     *
+     * @return 标签列表
+     * @throws IOException      IO异常
+     * @throws DifyApiException API异常
+     */
+    List<TagResponse> getTags() throws IOException, DifyApiException;
+
+    /**
+     * 修改知识库类型标签名称
+     *
+     * @param request 修改标签请求
+     * @return 标签信息
+     * @throws IOException      IO异常
+     * @throws DifyApiException API异常
+     */
+    TagResponse updateTag(UpdateTagRequest request) throws IOException, DifyApiException;
+
+    /**
+     * 删除知识库类型标签
+     *
+     * @param request 删除标签请求
+     * @return 响应
+     * @throws IOException      IO异常
+     * @throws DifyApiException API异常
+     */
+    SimpleResponse deleteTag(DeleteTagRequest request) throws IOException, DifyApiException;
+
+    /**
+     * 绑定知识库到知识库类型标签
+     *
+     * @param request 标签绑定请求
+     * @return 响应
+     * @throws IOException      IO异常
+     * @throws DifyApiException API异常
+     */
+    SimpleResponse bindTags(TagBindRequest request) throws IOException, DifyApiException;
+
+    /**
+     * 解绑知识库和知识库类型标签
+     *
+     * @param request 标签解绑请求
+     * @return 响应
+     * @throws IOException      IO异常
+     * @throws DifyApiException API异常
+     */
+    SimpleResponse unbindTag(TagUnbindRequest request) throws IOException, DifyApiException;
+
+    /**
+     * 查询知识库已绑定的标签
+     *
+     * @param datasetId 知识库ID
+     * @return 标签列表响应
+     * @throws IOException      IO异常
+     * @throws DifyApiException API异常
+     */
+    TagListResponse getDatasetTags(String datasetId) throws IOException, DifyApiException;
 }
