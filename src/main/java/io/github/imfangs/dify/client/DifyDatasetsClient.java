@@ -204,6 +204,18 @@ public interface DifyDatasetsClient {
     SegmentListResponse getSegments(String datasetId, String documentId, String keyword, String status, Integer page, Integer limit) throws IOException, DifyApiException;
 
     /**
+     * 查看文档分段详情
+     *
+     * @param datasetId  知识库ID
+     * @param documentId 文档ID
+     * @param segmentId  分段ID
+     * @return 分段详情
+     * @throws IOException      IO异常
+     * @throws DifyApiException API异常
+     */
+    SegmentResponse getSegment(String datasetId, String documentId, String segmentId) throws IOException, DifyApiException;
+
+    /**
      * 删除文档分段
      * <p>
      * 注意：官方文档写的返回 { "result": "success" } ，实际返回的是空
