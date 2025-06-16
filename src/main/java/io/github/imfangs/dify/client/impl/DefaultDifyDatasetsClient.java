@@ -42,6 +42,11 @@ public class DefaultDifyDatasetsClient extends AbstractDifyClient implements Dif
     private static final String DOCUMENT_METADATA_PATH = "/documents/metadata";
     //嵌入模型列表路径
     private static final String EMBEDDING_MODEL_TYPES_PATH = "/workspaces/current/models/model-types/text-embedding";
+    
+    // 标签相关路径常量
+    private static final String TAGS_PATH = "/tags";
+    private static final String TAGS_BINDING_PATH = "/tags/binding";
+    private static final String TAGS_UNBINDING_PATH = "/tags/unbinding";
 
     /**
      * 构造函数
@@ -77,6 +82,18 @@ public class DefaultDifyDatasetsClient extends AbstractDifyClient implements Dif
 
         String url = buildUrlWithParams(DATASETS_PATH, queryParams);
         return executeGet(url, DatasetListResponse.class);
+    }
+
+    @Override
+    public DatasetResponse getDataset(String datasetId) throws IOException, DifyApiException {
+        String path = DATASETS_PATH + "/" + datasetId;
+        return executeGet(path, DatasetResponse.class);
+    }
+
+    @Override
+    public DatasetResponse updateDataset(String datasetId, UpdateDatasetRequest request) throws IOException, DifyApiException {
+        String path = DATASETS_PATH + "/" + datasetId;
+        return executePatch(path, request, DatasetResponse.class);
     }
 
     @Override
@@ -419,5 +436,66 @@ public class DefaultDifyDatasetsClient extends AbstractDifyClient implements Dif
         log.debug("获取嵌入模型列表");
         Request request = createGetRequest(EMBEDDING_MODEL_TYPES_PATH);
         return executeRequest(request, EmbeddingModelListResponse.class);
+    }
+
+    // ================ 知识库类型标签相关接口实现 ================
+
+    @Override
+    public TagResponse createTag(CreateTagRequest request) throws IOException, DifyApiException {
+        log.debug("新增知识库类型标签: name={}", request.getName());
+        String path = DATASETS_PATH + TAGS_PATH;
+        return executePost(path, request, TagResponse.class);
+    }
+
+    @Override
+    public List<TagResponse> getTags() throws IOException, DifyApiException {
+        log.debug("获取知识库类型标签列表");
+        String path = DATASETS_PATH + TAGS_PATH;
+        // 根据API文档，返回的是标签数组
+        Request request = createGetRequest(path);
+        try (Response response = httpClient.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                throw new DifyApiException(response.code(), "HTTP_ERROR", response.message());
+            }
+            String responseBody = response.body().string();
+            com.fasterxml.jackson.core.type.TypeReference<List<TagResponse>> typeRef = 
+                new com.fasterxml.jackson.core.type.TypeReference<List<TagResponse>>() {};
+            return JsonUtils.fromJson(responseBody, typeRef);
+        }
+    }
+
+    @Override
+    public TagResponse updateTag(UpdateTagRequest request) throws IOException, DifyApiException {
+        log.debug("修改知识库类型标签名称: tagId={}, name={}", request.getTagId(), request.getName());
+        String path = DATASETS_PATH + TAGS_PATH;
+        return executePatch(path, request, TagResponse.class);
+    }
+
+    @Override
+    public SimpleResponse deleteTag(DeleteTagRequest request) throws IOException, DifyApiException {
+        log.debug("删除知识库类型标签: tagId={}", request.getTagId());
+        String path = DATASETS_PATH + TAGS_PATH;
+        return executeDelete(path, request, SimpleResponse.class);
+    }
+
+    @Override
+    public SimpleResponse bindTags(TagBindRequest request) throws IOException, DifyApiException {
+        log.debug("绑定知识库到知识库类型标签: targetId={}, tagIds={}", request.getTargetId(), request.getTagIds());
+        String path = DATASETS_PATH + TAGS_BINDING_PATH;
+        return executePost(path, request, SimpleResponse.class);
+    }
+
+    @Override
+    public SimpleResponse unbindTag(TagUnbindRequest request) throws IOException, DifyApiException {
+        log.debug("解绑知识库和知识库类型标签: targetId={}, tagId={}", request.getTargetId(), request.getTagId());
+        String path = DATASETS_PATH + TAGS_UNBINDING_PATH;
+        return executePost(path, request, SimpleResponse.class);
+    }
+
+    @Override
+    public TagListResponse getDatasetTags(String datasetId) throws IOException, DifyApiException {
+        log.debug("查询知识库已绑定的标签: datasetId={}", datasetId);
+        String path = DATASETS_PATH + "/" + datasetId + TAGS_PATH;
+        return executePost(path, null, TagListResponse.class);
     }
 }
