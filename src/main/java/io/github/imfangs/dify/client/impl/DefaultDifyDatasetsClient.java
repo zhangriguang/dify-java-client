@@ -80,6 +80,18 @@ public class DefaultDifyDatasetsClient extends AbstractDifyClient implements Dif
     }
 
     @Override
+    public DatasetResponse getDataset(String datasetId) throws IOException, DifyApiException {
+        String path = DATASETS_PATH + "/" + datasetId;
+        return executeGet(path, DatasetResponse.class);
+    }
+
+    @Override
+    public DatasetResponse updateDataset(String datasetId, UpdateDatasetRequest request) throws IOException, DifyApiException {
+        String path = DATASETS_PATH + "/" + datasetId;
+        return executePatch(path, request, DatasetResponse.class);
+    }
+
+    @Override
     public SimpleResponse deleteDataset(String datasetId) throws IOException, DifyApiException {
         String path = DATASETS_PATH + "/" + datasetId;
         Request httpRequest = createDeleteRequest(path, null);

@@ -114,6 +114,97 @@ public class DifyDatasetsClientTest {
     }
 
     /**
+     * 测试获取知识库详情
+     */
+    @Test
+    public void testGetDataset() throws IOException, DifyApiException {
+        // 跳过测试如果没有测试知识库
+        if (testDatasetId == null) {
+            System.out.println("跳过测试，因为没有测试知识库");
+            return;
+        }
+
+        // 获取知识库详情
+        DatasetResponse response = datasetsClient.getDataset(testDatasetId);
+
+        // 验证响应
+        assertNotNull(response);
+        assertNotNull(response.getId());
+        assertEquals(testDatasetId, response.getId());
+        assertNotNull(response.getName());
+
+        // 打印知识库详情
+        System.out.println("知识库详情:");
+        System.out.println("  ID: " + response.getId());
+        System.out.println("  名称: " + response.getName());
+        System.out.println("  描述: " + response.getDescription());
+        System.out.println("  权限: " + response.getPermission());
+        System.out.println("  索引技术: " + response.getIndexingTechnique());
+        System.out.println("  文档数量: " + response.getDocumentCount());
+        System.out.println("  字数: " + response.getWordCount());
+        System.out.println("  嵌入模型: " + response.getEmbeddingModel());
+        System.out.println("  嵌入模型提供商: " + response.getEmbeddingModelProvider());
+        
+        if (response.getRetrievalModelDict() != null) {
+            System.out.println("  检索模型:");
+            System.out.println("    搜索方法: " + response.getRetrievalModelDict().getSearchMethod());
+            System.out.println("    Top-K: " + response.getRetrievalModelDict().getTopK());
+            System.out.println("    重排序启用: " + response.getRetrievalModelDict().getRerankingEnable());
+        }
+    }
+
+    /**
+     * 测试更新知识库
+     */
+    @Test
+    public void testUpdateDataset() throws IOException, DifyApiException {
+        // 跳过测试如果没有测试知识库
+        if (testDatasetId == null) {
+            System.out.println("跳过测试，因为没有测试知识库");
+            return;
+        }
+
+        // 构建更新请求
+        UpdateDatasetRequest.RetrievalModel retrievalModel = UpdateDatasetRequest.RetrievalModel.builder()
+                .searchMethod("semantic_search")
+                .rerankingEnable(false)
+                .topK(3)
+                .scoreThresholdEnabled(false)
+                .build();
+
+        UpdateDatasetRequest request = UpdateDatasetRequest.builder()
+                .name("更新后的测试知识库-" + System.currentTimeMillis())
+                .indexingTechnique("high_quality")
+                .permission("only_me")
+                .retrievalModel(retrievalModel)
+                .partialMemberList(java.util.Arrays.asList())
+                .build();
+
+        // 发送更新请求
+        DatasetResponse response = datasetsClient.updateDataset(testDatasetId, request);
+
+        // 验证响应
+        assertNotNull(response);
+        assertEquals(testDatasetId, response.getId());
+        assertEquals(request.getName(), response.getName());
+        assertEquals(request.getIndexingTechnique(), response.getIndexingTechnique());
+        assertEquals(request.getPermission(), response.getPermission());
+
+        // 打印更新结果
+        System.out.println("知识库更新成功:");
+        System.out.println("  ID: " + response.getId());
+        System.out.println("  新名称: " + response.getName());
+        System.out.println("  索引技术: " + response.getIndexingTechnique());
+        System.out.println("  权限: " + response.getPermission());
+        
+        if (response.getRetrievalModelDict() != null) {
+            System.out.println("  检索模型已更新:");
+            System.out.println("    搜索方法: " + response.getRetrievalModelDict().getSearchMethod());
+            System.out.println("    Top-K: " + response.getRetrievalModelDict().getTopK());
+        }
+    }
+
+    /**
      * 测试通过文本创建文档
      */
     @Test

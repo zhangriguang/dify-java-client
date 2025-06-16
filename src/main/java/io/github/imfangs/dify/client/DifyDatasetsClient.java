@@ -37,6 +37,27 @@ public interface DifyDatasetsClient {
     DatasetListResponse getDatasets(Integer page, Integer limit) throws IOException, DifyApiException;
 
     /**
+     * 获取知识库详情
+     *
+     * @param datasetId 知识库ID
+     * @return 知识库详情
+     * @throws IOException      IO异常
+     * @throws DifyApiException API异常
+     */
+    DatasetResponse getDataset(String datasetId) throws IOException, DifyApiException;
+
+    /**
+     * 更新知识库
+     *
+     * @param datasetId 知识库ID
+     * @param request   更新请求
+     * @return 更新后的知识库信息
+     * @throws IOException      IO异常
+     * @throws DifyApiException API异常
+     */
+    DatasetResponse updateDataset(String datasetId, UpdateDatasetRequest request) throws IOException, DifyApiException;
+
+    /**
      * 删除知识库
      *
      * @param datasetId 知识库ID
