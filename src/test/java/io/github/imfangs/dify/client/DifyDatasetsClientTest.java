@@ -253,7 +253,7 @@ public class DifyDatasetsClientTest {
      * 测试通过文件创建文档
      */
     @Test
-    public void testCreateDocumentByFile() throws IOException {
+    public void testCreateDocumentByFile() throws IOException, DifyApiException {
         // 跳过测试如果没有测试知识库
         if (testDatasetId == null) {
             System.out.println("跳过测试，因为没有测试知识库");

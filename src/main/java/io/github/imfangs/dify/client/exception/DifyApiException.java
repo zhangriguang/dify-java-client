@@ -2,13 +2,12 @@ package io.github.imfangs.dify.client.exception;
 
 import lombok.Getter;
 
-import java.io.IOException;
-
 /**
  * Dify API 异常
+ * 用于表示 API 业务逻辑错误，如参数错误、权限不足、资源不存在等
  */
 @Getter
-public class DifyApiException extends IOException {
+public class DifyApiException extends Exception {
     /**
      * HTTP 状态码
      */
