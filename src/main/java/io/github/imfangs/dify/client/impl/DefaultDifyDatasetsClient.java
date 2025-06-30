@@ -207,6 +207,12 @@ public class DefaultDifyDatasetsClient extends AbstractDifyClient implements Dif
     }
 
     @Override
+    public SegmentResponse getSegment(String datasetId, String documentId, String segmentId) throws IOException, DifyApiException {
+        String path = buildSegmentPath(datasetId, documentId, segmentId);
+        return executeGet(path, SegmentResponse.class);
+    }
+
+    @Override
     public void deleteSegment(String datasetId, String documentId, String segmentId) throws IOException, DifyApiException {
         String path = buildSegmentPath(datasetId, documentId, segmentId);
         executeDelete(path, null, Object.class);
