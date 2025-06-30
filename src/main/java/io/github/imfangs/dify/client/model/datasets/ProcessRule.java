@@ -19,6 +19,7 @@ public class ProcessRule {
      * 清洗、分段模式
      * automatic 自动
      * custom 自定义
+     * hierarchical 父子
      */
     private String mode;
 
