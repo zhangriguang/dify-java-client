@@ -1,9 +1,6 @@
 package io.github.imfangs.dify.client.callback;
 
-import io.github.imfangs.dify.client.event.NodeFinishedEvent;
-import io.github.imfangs.dify.client.event.NodeStartedEvent;
-import io.github.imfangs.dify.client.event.WorkflowFinishedEvent;
-import io.github.imfangs.dify.client.event.WorkflowStartedEvent;
+import io.github.imfangs.dify.client.event.*;
 
 /**
  * 工作流编排对话型应用流式回调接口
@@ -40,5 +37,29 @@ public interface ChatflowStreamCallback extends ChatStreamCallback {
      * @param event 事件数据
      */
     default void onWorkflowFinished(WorkflowFinishedEvent event) {
+    }
+
+    /**
+     * 迭代器开始执行事件
+     *
+     * @param event 事件数据
+     */
+    default void onIterationStarted(IterationStartedEvent event) {
+    }
+
+    /**
+     * 迭代器下一次执行事件
+     *
+     * @param event 事件数据
+     */
+    default void onIterationNext(IterationNextEvent event) {
+    }
+
+    /**
+     * 迭代器执行完成事件
+     *
+     * @param event 事件数据
+     */
+    default void onIterationCompleted(IterationCompletedEvent event) {
     }
 }

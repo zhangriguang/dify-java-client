@@ -39,6 +39,30 @@ public interface WorkflowStreamCallback extends BaseStreamCallback {
     }
 
     /**
+     * 迭代器开始执行事件
+     *
+     * @param event 事件数据
+     */
+    default void onIterationStarted(IterationStartedEvent event) {
+    }
+
+    /**
+     * 迭代器下一次执行事件
+     *
+     * @param event 事件数据
+     */
+    default void onIterationNext(IterationNextEvent event) {
+    }
+
+    /**
+     * 迭代器执行完成事件
+     *
+     * @param event 事件数据
+     */
+    default void onIterationCompleted(IterationCompletedEvent event) {
+    }
+
+    /**
      * 工作流LLM执行过程
      * @param event 事件数据
      */

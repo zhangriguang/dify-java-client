@@ -29,6 +29,11 @@ public enum EventType {
     NODE_FINISHED("node_finished"),       // node 执行结束
     WORKFLOW_FINISHED("workflow_finished"), // workflow 执行结束
 
+    // 迭代器相关事件
+    ITERATION_STARTED("iteration_started"),     // 迭代器开始执行
+    ITERATION_NEXT("iteration_next"),           // 迭代器下一次执行
+    ITERATION_COMPLETED("iteration_completed"), // 迭代器执行完成
+
     // Workflow 中间节点解析
     WORKFLOW_TEXT_CHUNK("text_chunk") // workflow llm模型输入结果
 

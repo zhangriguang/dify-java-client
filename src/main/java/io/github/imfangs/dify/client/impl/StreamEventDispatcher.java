@@ -80,6 +80,18 @@ public class StreamEventDispatcher {
                     WorkflowFinishedEvent workflowFinishedEvent = JsonUtils.fromJson(data, WorkflowFinishedEvent.class);
                     callback.onWorkflowFinished(workflowFinishedEvent);
                     break;
+                case ITERATION_STARTED:
+                    IterationStartedEvent iterationStartedEvent = JsonUtils.fromJson(data, IterationStartedEvent.class);
+                    callback.onIterationStarted(iterationStartedEvent);
+                    break;
+                case ITERATION_NEXT:
+                    IterationNextEvent iterationNextEvent = JsonUtils.fromJson(data, IterationNextEvent.class);
+                    callback.onIterationNext(iterationNextEvent);
+                    break;
+                case ITERATION_COMPLETED:
+                    IterationCompletedEvent iterationCompletedEvent = JsonUtils.fromJson(data, IterationCompletedEvent.class);
+                    callback.onIterationCompleted(iterationCompletedEvent);
+                    break;
                 case ERROR:
                     ErrorEvent errorEvent = JsonUtils.fromJson(data, ErrorEvent.class);
                     callback.onError(errorEvent);
@@ -277,6 +289,18 @@ public class StreamEventDispatcher {
                 case WORKFLOW_FINISHED:
                     WorkflowFinishedEvent workflowFinishedEvent = JsonUtils.fromJson(data, WorkflowFinishedEvent.class);
                     callback.onWorkflowFinished(workflowFinishedEvent);
+                    break;
+                case ITERATION_STARTED:
+                    IterationStartedEvent iterationStartedEvent = JsonUtils.fromJson(data, IterationStartedEvent.class);
+                    callback.onIterationStarted(iterationStartedEvent);
+                    break;
+                case ITERATION_NEXT:
+                    IterationNextEvent iterationNextEvent = JsonUtils.fromJson(data, IterationNextEvent.class);
+                    callback.onIterationNext(iterationNextEvent);
+                    break;
+                case ITERATION_COMPLETED:
+                    IterationCompletedEvent iterationCompletedEvent = JsonUtils.fromJson(data, IterationCompletedEvent.class);
+                    callback.onIterationCompleted(iterationCompletedEvent);
                     break;
                 case WORKFLOW_TEXT_CHUNK:
                     WorkflowTextChunkEvent workflowTextChunkEvent = JsonUtils.fromJson(data, WorkflowTextChunkEvent.class);
