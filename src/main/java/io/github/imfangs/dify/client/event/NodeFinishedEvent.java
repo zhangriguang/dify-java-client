@@ -41,6 +41,18 @@ public class NodeFinishedEvent extends BaseWorkflowEvent {
         private String nodeId;
 
         /**
+         * 节点类型
+         */
+        @JsonProperty("node_type")
+        private String nodeType;
+
+        /**
+         * 节点名称
+         */
+        @JsonProperty("title")
+        private String title;
+
+        /**
          * 执行序号，用于展示 Tracing Node 顺序
          */
         @JsonProperty("index")
