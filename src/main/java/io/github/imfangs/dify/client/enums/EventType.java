@@ -34,6 +34,11 @@ public enum EventType {
     ITERATION_NEXT("iteration_next"),           // 迭代器下一次执行
     ITERATION_COMPLETED("iteration_completed"), // 迭代器执行完成
 
+    // 循环相关事件
+    LOOP_STARTED("loop_started"),      // 循环开始执行
+    LOOP_NEXT("loop_next"),            // 循环下一次执行
+    LOOP_COMPLETED("loop_completed"),  // 循环执行完成
+
     // Workflow 中间节点解析
     WORKFLOW_TEXT_CHUNK("text_chunk") // workflow llm模型输入结果
 

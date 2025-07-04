@@ -63,6 +63,30 @@ public interface WorkflowStreamCallback extends BaseStreamCallback {
     }
 
     /**
+     * 循环开始执行事件
+     *
+     * @param event 事件数据
+     */
+    default void onLoopStarted(LoopStartedEvent event) {
+    }
+
+    /**
+     * 循环下一次执行事件
+     *
+     * @param event 事件数据
+     */
+    default void onLoopNext(LoopNextEvent event) {
+    }
+
+    /**
+     * 循环执行完成事件
+     *
+     * @param event 事件数据
+     */
+    default void onLoopCompleted(LoopCompletedEvent event) {
+    }
+
+    /**
      * 工作流LLM执行过程
      * @param event 事件数据
      */
