@@ -92,6 +92,18 @@ public class StreamEventDispatcher {
                     IterationCompletedEvent iterationCompletedEvent = JsonUtils.fromJson(data, IterationCompletedEvent.class);
                     callback.onIterationCompleted(iterationCompletedEvent);
                     break;
+                case LOOP_STARTED:
+                    LoopStartedEvent loopStartedEvent = JsonUtils.fromJson(data, LoopStartedEvent.class);
+                    callback.onLoopStarted(loopStartedEvent);
+                    break;
+                case LOOP_NEXT:
+                    LoopNextEvent loopNextEvent = JsonUtils.fromJson(data, LoopNextEvent.class);
+                    callback.onLoopNext(loopNextEvent);
+                    break;
+                case LOOP_COMPLETED:
+                    LoopCompletedEvent loopCompletedEvent = JsonUtils.fromJson(data, LoopCompletedEvent.class);
+                    callback.onLoopCompleted(loopCompletedEvent);
+                    break;
                 case AGENT_LOG:
                     AgentLogEvent agentLogEvent = JsonUtils.fromJson(data, AgentLogEvent.class);
                     callback.onAgentLog(agentLogEvent);
@@ -313,6 +325,18 @@ public class StreamEventDispatcher {
                 case ITERATION_COMPLETED:
                     IterationCompletedEvent iterationCompletedEvent = JsonUtils.fromJson(data, IterationCompletedEvent.class);
                     callback.onIterationCompleted(iterationCompletedEvent);
+                    break;
+                case LOOP_STARTED:
+                    LoopStartedEvent loopStartedEvent = JsonUtils.fromJson(data, LoopStartedEvent.class);
+                    callback.onLoopStarted(loopStartedEvent);
+                    break;
+                case LOOP_NEXT:
+                    LoopNextEvent loopNextEvent = JsonUtils.fromJson(data, LoopNextEvent.class);
+                    callback.onLoopNext(loopNextEvent);
+                    break;
+                case LOOP_COMPLETED:
+                    LoopCompletedEvent loopCompletedEvent = JsonUtils.fromJson(data, LoopCompletedEvent.class);
+                    callback.onLoopCompleted(loopCompletedEvent);
                     break;
                 case WORKFLOW_TEXT_CHUNK:
                     WorkflowTextChunkEvent workflowTextChunkEvent = JsonUtils.fromJson(data, WorkflowTextChunkEvent.class);
