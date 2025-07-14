@@ -40,6 +40,13 @@ public class DetailedDocumentResponse {
     private Map<String, Object> dataSourceInfo;
 
     /**
+     * 数据源详细信息字典
+     * 包含文件的详细信息，如上传文件的完整元数据
+     */
+    @JsonProperty("data_source_detail_dict")
+    private Map<String, Object> dataSourceDetailDict;
+
+    /**
      * 知识库处理规则ID
      */
     @JsonProperty("dataset_process_rule_id")
