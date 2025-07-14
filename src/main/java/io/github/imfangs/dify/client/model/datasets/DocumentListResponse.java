@@ -1,11 +1,13 @@
 package io.github.imfangs.dify.client.model.datasets;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 文档列表响应
@@ -23,6 +25,7 @@ public class DocumentListResponse {
     /**
      * 是否有更多
      */
+    @JsonProperty("has_more")
     private Boolean hasMore;
 
     /**
@@ -61,16 +64,26 @@ public class DocumentListResponse {
         /**
          * 数据源类型
          */
+        @JsonProperty("data_source_type")
         private String dataSourceType;
 
         /**
          * 数据源信息
          */
+        @JsonProperty("data_source_info")
         private Object dataSourceInfo;
+
+        /**
+         * 数据源详细信息字典
+         * 包含文件的详细信息，如上传文件的完整元数据
+         */
+        @JsonProperty("data_source_detail_dict")
+        private Map<String, Object> dataSourceDetailDict;
 
         /**
          * 知识库处理规则ID
          */
+        @JsonProperty("dataset_process_rule_id")
         private String datasetProcessRuleId;
 
         /**
@@ -81,16 +94,19 @@ public class DocumentListResponse {
         /**
          * 创建来源
          */
+        @JsonProperty("created_from")
         private String createdFrom;
 
         /**
          * 创建者
          */
+        @JsonProperty("created_by")
         private String createdBy;
 
         /**
          * 创建时间
          */
+        @JsonProperty("created_at")
         private Long createdAt;
 
         /**
@@ -101,6 +117,7 @@ public class DocumentListResponse {
         /**
          * 索引状态
          */
+        @JsonProperty("indexing_status")
         private String indexingStatus;
 
         /**
@@ -116,16 +133,49 @@ public class DocumentListResponse {
         /**
          * 禁用时间
          */
+        @JsonProperty("disabled_at")
         private Long disabledAt;
 
         /**
          * 禁用者
          */
+        @JsonProperty("disabled_by")
         private String disabledBy;
 
         /**
          * 是否归档
          */
         private Boolean archived;
+
+        /**
+         * 字数统计
+         */
+        @JsonProperty("word_count")
+        private Integer wordCount;
+
+        /**
+         * 命中次数
+         */
+        @JsonProperty("hit_count")
+        private Integer hitCount;
+
+        /**
+         * 显示状态
+         * 可能的值：queuing, indexing, error, available, disabled, archived
+         */
+        @JsonProperty("display_status")
+        private String displayStatus;
+
+        /**
+         * 文档形式
+         */
+        @JsonProperty("doc_form")
+        private String docForm;
+
+        /**
+         * 文档元数据
+         */
+        @JsonProperty("doc_metadata")
+        private List<Map<String, Object>> docMetadata;
     }
 }
