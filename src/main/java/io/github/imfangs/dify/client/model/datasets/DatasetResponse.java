@@ -181,9 +181,9 @@ public class DatasetResponse {
         private RerankingModel rerankingModel;
 
         /**
-         * 权重
+         * 混合检索模式下的权重设置
          */
-        private Double weights;
+        private WeightedScoreFields weights;
 
         /**
          * 返回结果数量

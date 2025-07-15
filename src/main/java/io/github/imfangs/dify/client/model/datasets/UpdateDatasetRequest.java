@@ -92,9 +92,9 @@ public class UpdateDatasetRequest {
         private RerankingMode rerankingMode;
 
         /**
-         * 混合检索模式下语意检索的权重设置
+         * 混合检索模式下的权重设置
          */
-        private Double weights;
+        private WeightedScoreFields weights;
 
         /**
          * 返回结果数量，非必填
