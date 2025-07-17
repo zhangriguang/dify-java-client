@@ -14,7 +14,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -385,5 +387,24 @@ public class DifyChatClientTest {
         if (parameters.getSuggestedQuestions() != null) {
             System.out.println("推荐问题数量: " + parameters.getSuggestedQuestions().size());
         }
+    }
+
+    @Test
+    public void testGetConversationVariables() throws Exception {
+        // 首先发送一条消息创建会话
+        ChatMessage message = new ChatMessage();
+        message.setQuery("创建一个新会话用于删除测试");
+        message.setUser(USER_ID);
+        message.setResponseMode(ResponseMode.BLOCKING);
+
+        ChatMessageResponse response = chatClient.sendChatMessage(message);
+        String conversationId = response.getConversationId();
+        assertNotNull(conversationId, "会话ID不应为空");
+
+        // 查询会话变量
+        VariableResponse variableResponse = chatClient.getConversationVariables(conversationId, USER_ID, null, 10, null);
+
+        // 验证响应
+        assertNotNull(variableResponse);
     }
 }
