@@ -1,5 +1,6 @@
 package io.github.imfangs.dify.client.model.datasets;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -42,9 +43,9 @@ public class RetrievalModel {
     private RerankingModel rerankingModel;
 
     /**
-     * 混合检索模式下语义检索的权重设置
+     * 混合检索模式下的权重设置
      */
-    private Float weights;
+    private WeightedScoreFields weights;
 
     /**
      * 召回条数
