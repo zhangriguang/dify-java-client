@@ -377,11 +377,16 @@ System.out.println("ナレッジベース総数: " + datasetList.getTotal());
 #### ドキュメント管理
 
 ```java
-// テキストによるドキュメント作成
+// テキストによるドキュメント作成 - 自動モード（推奨）
 CreateDocumentByTextRequest docRequest = CreateDocumentByTextRequest.builder()
     .name("テストドキュメント-" + System.currentTimeMillis())
     .text("これはテストドキュメントの内容です。\nこれは2行目の内容です。\nこれは3行目の内容です。")
     .indexingTechnique("high_quality")
+    .docForm("text_model")
+    .docLanguage("Japanese")
+    .processRule(ProcessRule.builder()
+        .mode("automatic")  // 自動処理モードを使用
+        .build())
     .build();
 
 DocumentResponse docResponse = datasetsClient.createDocumentByText(datasetId, docRequest);

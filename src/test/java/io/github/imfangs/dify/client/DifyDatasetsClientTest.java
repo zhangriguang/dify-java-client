@@ -145,7 +145,7 @@ public class DifyDatasetsClientTest {
         System.out.println("  字数: " + response.getWordCount());
         System.out.println("  嵌入模型: " + response.getEmbeddingModel());
         System.out.println("  嵌入模型提供商: " + response.getEmbeddingModelProvider());
-        
+
         if (response.getRetrievalModelDict() != null) {
             System.out.println("  检索模型:");
             System.out.println("    搜索方法: " + response.getRetrievalModelDict().getSearchMethod());
@@ -197,7 +197,7 @@ public class DifyDatasetsClientTest {
         System.out.println("  新名称: " + response.getName());
         System.out.println("  索引技术: " + response.getIndexingTechnique());
         System.out.println("  权限: " + response.getPermission());
-        
+
         if (response.getRetrievalModelDict() != null) {
             System.out.println("  检索模型已更新:");
             System.out.println("    搜索方法: " + response.getRetrievalModelDict().getSearchMethod());
@@ -308,6 +308,153 @@ public class DifyDatasetsClientTest {
         // 保存文档ID用于后续测试
         testDocumentId = response.getDocument().getId();
         System.out.println("创建测试文档成功，ID: " + testDocumentId);
+    }
+
+    /**
+     * 测试使用自定义处理规则创建文档
+     */
+    @Test
+    public void testCreateDocumentWithCustomProcessRule() throws IOException, DifyApiException {
+        // 跳过测试如果没有测试知识库
+        if (testDatasetId == null) {
+            System.out.println("跳过测试，因为没有测试知识库");
+            return;
+        }
+
+        // 构建自定义预处理规则
+        ProcessRule.PreProcessingRule removeSpaces = ProcessRule.PreProcessingRule.builder()
+                .id("remove_extra_spaces")
+                .enabled(true)
+                .build();
+
+        ProcessRule.PreProcessingRule removeUrls = ProcessRule.PreProcessingRule.builder()
+                .id("remove_urls_emails")
+                .enabled(false)
+                .build();
+
+        // 构建分段规则
+        ProcessRule.Segmentation segmentation = ProcessRule.Segmentation.builder()
+                .separator("\n")
+                .maxTokens(512)  // 使用较小的分段大小用于测试
+                .build();
+
+        // 组合规则
+        ProcessRule.Rules rules = ProcessRule.Rules.builder()
+                .preProcessingRules(Arrays.asList(removeSpaces, removeUrls))
+                .segmentation(segmentation)
+                .build();
+
+        // 构建自定义处理规则
+        ProcessRule customProcessRule = ProcessRule.builder()
+                .mode("custom")
+                .rules(rules)
+                .build();
+
+        RetrievalModel retrievalModel = new RetrievalModel();
+        retrievalModel.setSearchMethod("semantic_search");
+        retrievalModel.setRerankingEnable(false);
+        retrievalModel.setTopK(3);
+        retrievalModel.setScoreThresholdEnabled(false);
+
+        // 创建文档请求
+        CreateDocumentByTextRequest request = CreateDocumentByTextRequest.builder()
+                .name("自定义处理规则文档-" + System.currentTimeMillis())
+                .text("这是一个使用自定义处理规则的测试文档。\n\n" +
+                      "第一段内容：这里包含了一些需要清理的    多余空格   和换行符。\n" +
+                      "第二段内容：这里包含一个邮箱地址 test@example.com 和网址 https://www.example.com\n" +
+                      "第三段内容：这是正常的文本内容，应该被正确处理和分段。")
+                .indexingTechnique("high_quality")
+                .docForm("text_model")
+                .docLanguage("Chinese")
+                .retrievalModel(retrievalModel)
+                .processRule(customProcessRule)  // 使用自定义处理规则
+                .build();
+
+        // 发送请求
+        DocumentResponse response = datasetsClient.createDocumentByText(testDatasetId, request);
+
+        // 验证响应
+        assertNotNull(response);
+        assertNotNull(response.getDocument());
+        assertNotNull(response.getDocument().getId());
+        assertEquals(request.getName(), response.getDocument().getName());
+
+        System.out.println("使用自定义处理规则创建文档成功，ID: " + response.getDocument().getId());
+        System.out.println("文档名称: " + response.getDocument().getName());
+        System.out.println("处理规则模式: custom");
+    }
+
+    /**
+     * 测试不同处理模式的效果对比
+     */
+    @Test
+    public void testDifferentProcessModes() throws IOException, DifyApiException {
+        // 跳过测试如果没有测试知识库
+        if (testDatasetId == null) {
+            System.out.println("跳过测试，因为没有测试知识库");
+            return;
+        }
+
+        String testText = "这是一个长文档的示例内容。\n\n" +
+                         "第一段：介绍部分，这里描述了文档的基本信息和背景。\n" +
+                         "第二段：详细内容，这里包含了具体的技术细节和实现方案。\n" +
+                         "第三段：总结部分，这里总结了主要观点和结论。\n\n" +
+                         "更多内容会继续展开...";
+
+        // 测试自动模式
+        ProcessRule automaticRule = ProcessRule.builder()
+                .mode("automatic")
+                .build();
+
+        CreateDocumentByTextRequest automaticRequest = CreateDocumentByTextRequest.builder()
+                .name("自动模式文档-" + System.currentTimeMillis())
+                .text(testText)
+                .indexingTechnique("economy")
+                .docForm("text_model")
+                .docLanguage("Chinese")
+                .processRule(automaticRule)
+                .build();
+
+        DocumentResponse automaticResponse = datasetsClient.createDocumentByText(testDatasetId, automaticRequest);
+        System.out.println("自动模式文档创建成功，ID: " + automaticResponse.getDocument().getId());
+
+        // 测试自定义模式
+        ProcessRule.Segmentation customSegmentation = ProcessRule.Segmentation.builder()
+                .separator("\n\n")  // 使用双换行符作为分隔符
+                .maxTokens(200)     // 较小的分段大小
+                .build();
+
+        ProcessRule.Rules customRules = ProcessRule.Rules.builder()
+                .preProcessingRules(Arrays.asList(
+                    ProcessRule.PreProcessingRule.builder()
+                        .id("remove_extra_spaces")
+                        .enabled(true)
+                        .build()
+                ))
+                .segmentation(customSegmentation)
+                .build();
+
+        ProcessRule customRule = ProcessRule.builder()
+                .mode("custom")
+                .rules(customRules)
+                .build();
+
+        CreateDocumentByTextRequest customRequest = CreateDocumentByTextRequest.builder()
+                .name("自定义模式文档-" + System.currentTimeMillis())
+                .text(testText)
+                .indexingTechnique("economy")
+                .docForm("text_model")
+                .docLanguage("Chinese")
+                .processRule(customRule)
+                .build();
+
+        DocumentResponse customResponse = datasetsClient.createDocumentByText(testDatasetId, customRequest);
+        System.out.println("自定义模式文档创建成功，ID: " + customResponse.getDocument().getId());
+
+        // 对比结果
+        System.out.println("=== 处理模式对比测试完成 ===");
+        System.out.println("自动模式文档ID: " + automaticResponse.getDocument().getId());
+        System.out.println("自定义模式文档ID: " + customResponse.getDocument().getId());
     }
 
     /**

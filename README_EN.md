@@ -377,11 +377,16 @@ System.out.println("Total knowledge bases: " + datasetList.getTotal());
 #### Document Management
 
 ```java
-// Create document by text
+// Create document by text - Using automatic mode (recommended)
 CreateDocumentByTextRequest docRequest = CreateDocumentByTextRequest.builder()
     .name("Test Document-" + System.currentTimeMillis())
     .text("This is the content of a test document.\nThis is the second line.\nThis is the third line.")
     .indexingTechnique("high_quality")
+    .docForm("text_model")
+    .docLanguage("English")
+    .processRule(ProcessRule.builder()
+        .mode("automatic")  // Use automatic processing mode
+        .build())
     .build();
 
 DocumentResponse docResponse = datasetsClient.createDocumentByText(datasetId, docRequest);

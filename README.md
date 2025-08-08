@@ -377,11 +377,16 @@ System.out.println("知识库总数: " + datasetList.getTotal());
 #### 文档管理
 
 ```java
-// 通过文本创建文档
+// 通过文本创建文档 - 使用自动处理模式（推荐）
 CreateDocumentByTextRequest docRequest = CreateDocumentByTextRequest.builder()
     .name("测试文档-" + System.currentTimeMillis())
     .text("这是一个测试文档的内容。\n这是第二行内容。\n这是第三行内容。")
     .indexingTechnique("high_quality")
+    .docForm("text_model")
+    .docLanguage("Chinese")
+    .processRule(ProcessRule.builder()
+        .mode("automatic")  // 使用自动处理模式
+        .build())
     .build();
 
 DocumentResponse docResponse = datasetsClient.createDocumentByText(datasetId, docRequest);
