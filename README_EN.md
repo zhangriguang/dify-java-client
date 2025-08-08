@@ -60,14 +60,14 @@ Dify Java Client provides the following core features:
 <dependency>
     <groupId>io.github.imfangs</groupId>
     <artifactId>dify-java-client</artifactId>
-    <version>1.1.5</version>
+    <version>1.1.6</version>
 </dependency>
 ```
 
 ### Gradle
 
 ```groovy
-implementation 'io.github.imfangs:dify-java-client:1.1.5'
+implementation 'io.github.imfangs:dify-java-client:1.1.6'
 ```
 
 ## Quick Start
@@ -377,11 +377,16 @@ System.out.println("Total knowledge bases: " + datasetList.getTotal());
 #### Document Management
 
 ```java
-// Create document by text
+// Create document by text - Using automatic mode (recommended)
 CreateDocumentByTextRequest docRequest = CreateDocumentByTextRequest.builder()
     .name("Test Document-" + System.currentTimeMillis())
     .text("This is the content of a test document.\nThis is the second line.\nThis is the third line.")
     .indexingTechnique("high_quality")
+    .docForm("text_model")
+    .docLanguage("English")
+    .processRule(ProcessRule.builder()
+        .mode("automatic")  // Use automatic processing mode
+        .build())
     .build();
 
 DocumentResponse docResponse = datasetsClient.createDocumentByText(datasetId, docRequest);

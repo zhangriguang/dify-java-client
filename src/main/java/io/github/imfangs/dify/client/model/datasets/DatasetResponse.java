@@ -122,7 +122,8 @@ public class DatasetResponse {
     /**
      * 标签
      */
-    private List<String> tags;
+    @JsonProperty("tags")
+    private List<TagResponse> tags;
 
     /**
      * 文档格式

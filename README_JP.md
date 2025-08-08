@@ -60,14 +60,14 @@ Dify Java Clientは以下の主要機能を提供します：
 <dependency>
     <groupId>io.github.imfangs</groupId>
     <artifactId>dify-java-client</artifactId>
-    <version>1.1.5</version>
+    <version>1.1.6</version>
 </dependency>
 ```
 
 ### Gradle
 
 ```groovy
-implementation 'io.github.imfangs:dify-java-client:1.1.5'
+implementation 'io.github.imfangs:dify-java-client:1.1.6'
 ```
 
 ## クイックスタート
@@ -377,11 +377,16 @@ System.out.println("ナレッジベース総数: " + datasetList.getTotal());
 #### ドキュメント管理
 
 ```java
-// テキストによるドキュメント作成
+// テキストによるドキュメント作成 - 自動モード（推奨）
 CreateDocumentByTextRequest docRequest = CreateDocumentByTextRequest.builder()
     .name("テストドキュメント-" + System.currentTimeMillis())
     .text("これはテストドキュメントの内容です。\nこれは2行目の内容です。\nこれは3行目の内容です。")
     .indexingTechnique("high_quality")
+    .docForm("text_model")
+    .docLanguage("Japanese")
+    .processRule(ProcessRule.builder()
+        .mode("automatic")  // 自動処理モードを使用
+        .build())
     .build();
 
 DocumentResponse docResponse = datasetsClient.createDocumentByText(datasetId, docRequest);
