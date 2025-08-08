@@ -232,4 +232,16 @@ public interface DifyChatClient extends DifyBaseClient {
      * @throws DifyApiException API异常
      */
     AnnotationReply getAnnotationReply(String action, String jobId) throws IOException, DifyApiException;
+
+    /**
+     * 获取对话变量
+     * 从特定对话中检索变量。此端点对于提取对话过程中捕获的结构化数据非常有用。
+     * @param conversationId 会话 ID
+     * @param user 用户标识，由开发者定义规则，需保证用户标识在应用内唯一。重要说明: Service API 不共享 WebApp 创建的对话。通过 API 创建的对话与 WebApp 界面中创建的对话是相互隔离的。
+     * @param lastId （选填）当前页最后面一条记录的 ID，默认 null。
+     * @param limit 一次请求返回多少条记录，默认 20 条，最大 100 条，最小 1 条。
+     * @param variableName （选填）按变量名称筛选。
+     * @return
+     */
+    VariableResponse getConversationVariables(String conversationId, String user, String lastId, Integer limit, String variableName) throws DifyApiException, IOException;
 }

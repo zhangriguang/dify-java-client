@@ -20,6 +20,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -580,6 +581,29 @@ public class DefaultDifyClient extends DifyBaseClientImpl implements DifyClient 
     public AnnotationReply getAnnotationReply(String action, String jobId) throws IOException, DifyApiException {
         log.debug("查询标注回复初始设置任务状态: action={}, jobId={}", action, jobId);
         return executeGet(APPS_ANNOTATIONS_REPLY_PATH + "/" + action + "/status/" + jobId, AnnotationReply.class);
+    }
+
+    /**
+     * 获取对话变量
+     * 从特定对话中检索变量。此端点对于提取对话过程中捕获的结构化数据非常有用。
+     * @param conversationId 会话 ID
+     * @param user 用户标识，由开发者定义规则，需保证用户标识在应用内唯一。重要说明: Service API 不共享 WebApp 创建的对话。通过 API 创建的对话与 WebApp 界面中创建的对话是相互隔离的。
+     * @param lastId （选填）当前页最后面一条记录的 ID，默认 null。
+     * @param limit 一次请求返回多少条记录，默认 20 条，最大 100 条，最小 1 条。
+     * @param variableName （选填）按变量名称筛选。
+     * @return
+     */
+    @Override
+    public VariableResponse getConversationVariables(String conversationId, String user, String lastId, Integer limit, String variableName) throws DifyApiException, IOException {
+        log.debug("获取对话变量: conversationId={}, user={}, lastId={}, limit={}, variableName={}", conversationId, user, lastId, limit, variableName);
+        StringBuilder path = new StringBuilder(String.format(CONVERSATIONS_PATH + "/%s/variables?user=%s&limit=%s", conversationId, user, limit));
+        Optional.ofNullable(lastId).ifPresent((lId) -> {
+            path.append("&last_id=").append(lId);
+        });
+        Optional.ofNullable(variableName).ifPresent((vName) -> {
+            path.append("&variable_name=").append(vName);
+        });
+        return executeGet(path.toString(), VariableResponse.class);
     }
 
     private String getFileExtension(String fileName) {

@@ -233,7 +233,19 @@ public class DifyDatasetsClientTest {
                 // 1.1.3 invalid_param (400) - Must not be null! 【retrieval_model】
                 .retrievalModel(retrievalModel)
                 // 没有这里的设置，会500报错，服务器内部错误
+                // 默认规则, 该方式与界面导入不同，不会按照\n分割
                 .processRule(ProcessRule.builder().mode("automatic").build())
+
+                // 自定义规则, 该方式与界面默认导入方式相同，界面默认\n\n分隔，这里使用\n分隔
+//                .processRule(ProcessRule.builder()
+//                        .mode("custom")
+//                        .rules(
+//                                ProcessRule.Rules.builder()
+//                                        .preProcessingRules(Arrays.asList(
+//                                                ProcessRule.PreProcessingRule.builder().id("remove_extra_spaces").enabled(true).build(),
+//                                                ProcessRule.PreProcessingRule.builder().id("remove_urls_emails").enabled(false).build()))
+//                                .segmentation(ProcessRule.Segmentation.builder().separator("\n").maxTokens(2000).build()).build()).build())
+
                 .build();
 
         // 发送请求
