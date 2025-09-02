@@ -60,14 +60,14 @@ Dify Java Clientは以下の主要機能を提供します：
 <dependency>
     <groupId>io.github.imfangs</groupId>
     <artifactId>dify-java-client</artifactId>
-    <version>1.1.7</version>
+    <version>1.1.8</version>
 </dependency>
 ```
 
 ### Gradle
 
 ```groovy
-implementation 'io.github.imfangs:dify-java-client:1.1.7'
+implementation 'io.github.imfangs:dify-java-client:1.1.8'
 ```
 
 ## クイックスタート

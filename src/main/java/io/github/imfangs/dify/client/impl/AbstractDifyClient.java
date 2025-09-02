@@ -7,6 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -353,5 +356,79 @@ public abstract class AbstractDifyClient {
         if (value != null) {
             params.put(key, value);
         }
+    }
+
+    /**
+     * 构建支持多值参数的URL查询参数
+     * 特别处理List<String>类型的参数，生成多个同名参数
+     * 例如：tag_ids=[id1,id2] -> ?tag_ids=id1&tag_ids=id2
+     *
+     * @param path 请求路径
+     * @param params 参数映射
+     * @return 完整URL
+     */
+    protected String buildUrlWithMultiValueParams(String path, Map<String, Object> params) {
+        if (params == null || params.isEmpty()) {
+            return path;
+        }
+
+        StringBuilder urlBuilder = new StringBuilder(path);
+        boolean isFirstParam = true;
+
+        for (Map.Entry<String, Object> entry : params.entrySet()) {
+            if (entry.getValue() != null) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+
+                try {
+                    // 特殊处理List类型的参数（如tag_ids）
+                    if (value instanceof List) {
+                        @SuppressWarnings("unchecked")
+                        List<String> listValue = (List<String>) value;
+                        for (String item : listValue) {
+                            if (item != null && !item.isEmpty()) {
+                                urlBuilder.append(isFirstParam ? "?" : "&")
+                                        .append(URLEncoder.encode(key, "UTF-8"))
+                                        .append("=")
+                                        .append(URLEncoder.encode(item, "UTF-8"));
+                                isFirstParam = false;
+                            }
+                        }
+                    } else {
+                        // 处理普通参数
+                        urlBuilder.append(isFirstParam ? "?" : "&")
+                                .append(URLEncoder.encode(key, "UTF-8"))
+                                .append("=")
+                                .append(URLEncoder.encode(value.toString(), "UTF-8"));
+                        isFirstParam = false;
+                    }
+                } catch (UnsupportedEncodingException e) {
+                    // UTF-8 is always supported, this should never happen
+                    log.warn("URL编码失败: {}", e.getMessage());
+                    // 降级到不编码的版本
+                    if (value instanceof List) {
+                        @SuppressWarnings("unchecked")
+                        List<String> listValue = (List<String>) value;
+                        for (String item : listValue) {
+                            if (item != null && !item.isEmpty()) {
+                                urlBuilder.append(isFirstParam ? "?" : "&")
+                                        .append(key)
+                                        .append("=")
+                                        .append(item);
+                                isFirstParam = false;
+                            }
+                        }
+                    } else {
+                        urlBuilder.append(isFirstParam ? "?" : "&")
+                                .append(key)
+                                .append("=")
+                                .append(value);
+                        isFirstParam = false;
+                    }
+                }
+            }
+        }
+
+        return urlBuilder.toString();
     }
 }
