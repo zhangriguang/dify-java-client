@@ -37,6 +37,44 @@ public interface DifyDatasetsClient {
     DatasetListResponse getDatasets(Integer page, Integer limit) throws IOException, DifyApiException;
 
     /**
+     * 获取知识库列表（支持高级查询参数）
+     *
+     * @param keyword    搜索关键词，可选
+     * @param tagIds     标签 ID 列表，可选
+     * @param page       页码，可选，默认为 1
+     * @param limit      每页数量，可选，默认 20，范围 1-100
+     * @param includeAll 是否包含所有数据集（仅对所有者生效），可选，默认为 false
+     * @return 知识库列表
+     * @throws IOException      IO异常
+     * @throws DifyApiException API异常
+     */
+    DatasetListResponse getDatasets(String keyword, List<String> tagIds, Integer page, Integer limit, Boolean includeAll) throws IOException, DifyApiException;
+
+    /**
+     * 根据关键词搜索知识库列表
+     *
+     * @param keyword 搜索关键词
+     * @param page    页码
+     * @param limit   每页数量
+     * @return 知识库列表
+     * @throws IOException      IO异常
+     * @throws DifyApiException API异常
+     */
+    DatasetListResponse getDatasets(String keyword, Integer page, Integer limit) throws IOException, DifyApiException;
+
+    /**
+     * 根据标签ID列表获取知识库列表
+     *
+     * @param tagIds 标签 ID 列表
+     * @param page   页码
+     * @param limit  每页数量
+     * @return 知识库列表
+     * @throws IOException      IO异常
+     * @throws DifyApiException API异常
+     */
+    DatasetListResponse getDatasetsByTags(List<String> tagIds, Integer page, Integer limit) throws IOException, DifyApiException;
+
+    /**
      * 获取知识库详情
      *
      * @param datasetId 知识库ID
