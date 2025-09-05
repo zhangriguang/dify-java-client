@@ -26,6 +26,26 @@ public class SegmentListResponse {
     private String docForm;
 
     /**
+     * 是否有更多
+     */
+    private Boolean hasMore;
+
+    /**
+     * 每页数量
+     */
+    private Integer limit;
+
+    /**
+     * 总数
+     */
+    private Integer total;
+
+    /**
+     * 页码
+     */
+    private Integer page;
+
+    /**
      * 分段信息
      */
     @Data

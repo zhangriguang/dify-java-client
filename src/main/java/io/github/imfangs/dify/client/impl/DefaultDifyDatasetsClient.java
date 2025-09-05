@@ -11,6 +11,8 @@ import okhttp3.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,6 +86,29 @@ public class DefaultDifyDatasetsClient extends AbstractDifyClient implements Dif
 
         String url = buildUrlWithParams(DATASETS_PATH, queryParams);
         return executeGet(url, DatasetListResponse.class);
+    }
+
+    @Override
+    public DatasetListResponse getDatasets(String keyword, List<String> tagIds, Integer page, Integer limit, Boolean includeAll) throws IOException, DifyApiException {
+        Map<String, Object> queryParams = new HashMap<>();
+        addIfNotEmpty(queryParams, "keyword", keyword);
+        addTagIds(queryParams, "tag_ids", tagIds);
+        addIfNotNull(queryParams, "page", page);
+        addIfNotNull(queryParams, "limit", limit);
+        addIfNotNull(queryParams, "include_all", includeAll);
+
+        String url = buildUrlWithMultiValueParams(DATASETS_PATH, queryParams);
+        return executeGet(url, DatasetListResponse.class);
+    }
+
+    @Override
+    public DatasetListResponse getDatasets(String keyword, Integer page, Integer limit) throws IOException, DifyApiException {
+        return getDatasets(keyword, null, page, limit, null);
+    }
+
+    @Override
+    public DatasetListResponse getDatasetsByTags(List<String> tagIds, Integer page, Integer limit) throws IOException, DifyApiException {
+        return getDatasets(null, tagIds, page, limit, null);
     }
 
     @Override
@@ -523,4 +548,20 @@ public class DefaultDifyDatasetsClient extends AbstractDifyClient implements Dif
         String path = DATASETS_PATH + "/" + datasetId + TAGS_PATH;
         return executePost(path, null, TagListResponse.class);
     }
+
+    /**
+     * 添加标签ID列表参数
+     * 将List<String>存储为列表，在buildUrlWithMultiValueParams中处理为多个同名参数
+     *
+     * @param params 参数映射
+     * @param key    键
+     * @param tagIds 标签ID列表
+     */
+    private void addTagIds(Map<String, Object> params, String key, List<String> tagIds) {
+        if (tagIds != null && !tagIds.isEmpty()) {
+            // 直接存储列表，在buildUrlWithMultiValueParams中特殊处理
+            params.put(key, tagIds);
+        }
+    }
+
 }
