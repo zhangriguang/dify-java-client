@@ -58,7 +58,7 @@ public class DefaultDifyClient extends DifyBaseClientImpl implements DifyClient 
 
     //标注应用相关路径
     private static final String APPS_ANNOTATIONS_PATH = "/apps/annotations";
-    private static final String APPS_ANNOTATIONS_REPLY_PATH = "/apps/annotations-reply";
+    private static final String APPS_ANNOTATIONS_REPLY_PATH = "/apps/annotation-reply";
 
     // 音频文件类型
     private static final Map<String, MediaType> AUDIO_MEDIA_TYPES = new HashMap<String, MediaType>() {{
@@ -323,10 +323,18 @@ public class DefaultDifyClient extends DifyBaseClientImpl implements DifyClient 
         return executePost(WORKFLOWS_TASKS_PATH + "/" + taskId + STOP_PATH, body, WorkflowStopResponse.class);
     }
 
+    /**
+     * 获取工作流运行状态
+     *
+     * @param workflowRunId 工作流运行实例 ID（从工作流执行响应中获得的运行实例标识）
+     * @return 工作流执行状态响应
+     * @throws IOException      IO异常
+     * @throws DifyApiException API异常
+     */
     @Override
-    public WorkflowRunStatusResponse getWorkflowRun(String workflowId) throws IOException, DifyApiException {
-        log.debug("获取工作流执行状态: workflowId={}", workflowId);
-        return executeGet(WORKFLOWS_PATH + "/run/" + workflowId, WorkflowRunStatusResponse.class);
+    public WorkflowRunStatusResponse getWorkflowRun(String workflowRunId) throws IOException, DifyApiException {
+        log.debug("获取工作流执行状态: workflowRunId={}", workflowRunId);
+        return executeGet(WORKFLOWS_PATH + "/run/" + workflowRunId, WorkflowRunStatusResponse.class);
     }
 
     @Override
