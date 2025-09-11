@@ -100,6 +100,23 @@ public abstract class AbstractDifyClient {
     }
 
     /**
+     * 执行PUT请求
+     *
+     * @param path 请求路径
+     * @param body 请求体
+     * @param responseClass 响应类型
+     * @param <T> 响应类型
+     * @return 响应对象
+     * @throws IOException IO异常
+     * @throws DifyApiException API异常
+     */
+    protected <T> T executePut(String path, Object body, Class<T> responseClass) throws IOException, DifyApiException {
+        RequestBody requestBody = createJsonRequestBody(body);
+        Request request = createPutRequest(path, requestBody);
+        return executeRequest(request, responseClass);
+    }
+
+    /**
      * 执行DELETE请求
      *
      * @param path 请求路径
@@ -226,6 +243,22 @@ public abstract class AbstractDifyClient {
         return new Request.Builder()
                 .url(baseUrl + path)
                 .patch(body)
+                .header("Authorization", "Bearer " + apiKey)
+                .header("Content-Type", "application/json")
+                .build();
+    }
+
+    /**
+     * 创建PUT请求
+     *
+     * @param path 请求路径
+     * @param body 请求体
+     * @return 请求对象
+     */
+    protected Request createPutRequest(String path, RequestBody body) {
+        return new Request.Builder()
+                .url(baseUrl + path)
+                .put(body)
                 .header("Authorization", "Bearer " + apiKey)
                 .header("Content-Type", "application/json")
                 .build();
