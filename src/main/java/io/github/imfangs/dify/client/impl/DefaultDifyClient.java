@@ -529,7 +529,7 @@ public class DefaultDifyClient extends DifyBaseClientImpl implements DifyClient 
         Map<String, String> body = new HashMap<>(2);
         body.put("question", question);
         body.put("answer", answer);
-        return executePatch(APPS_ANNOTATIONS_PATH + "/" + annotationId, body, Annotation.class);
+        return executePut(APPS_ANNOTATIONS_PATH + "/" + annotationId, body, Annotation.class);
     }
 
     /**
