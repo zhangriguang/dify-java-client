@@ -44,14 +44,14 @@ public interface DifyWorkflowClient extends DifyBaseClient {
     WorkflowStopResponse stopWorkflow(String taskId, String user) throws IOException, DifyApiException;
 
     /**
-     * 获取工作流执行情况
+     * 获取工作流运行状态
      *
-     * @param workflowId 工作流ID
-     * @return 执行情况
+     * @param workflowRunId 工作流运行实例 ID（从工作流执行响应中获得的运行实例标识）
+     * @return 工作流执行状态响应
      * @throws IOException IO异常
      * @throws DifyApiException API异常
      */
-    WorkflowRunStatusResponse getWorkflowRun(String workflowId) throws IOException, DifyApiException;
+    WorkflowRunStatusResponse getWorkflowRun(String workflowRunId) throws IOException, DifyApiException;
 
     /**
      * 获取工作流日志

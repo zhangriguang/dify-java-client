@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,7 +22,8 @@ public class CompletionRequest {
     /**
      * 输入参数，允许传入 App 定义的各变量值
      */
-    private Map<String, Object> inputs;
+    @Builder.Default
+    private Map<String, Object> inputs = new HashMap<>();
 
     /**
      * 响应模式
