@@ -3,6 +3,7 @@ package io.github.imfangs.dify.client;
 import io.github.imfangs.dify.client.config.DifyTestConfig;
 import io.github.imfangs.dify.client.exception.DifyApiException;
 import io.github.imfangs.dify.client.model.DifyConfig;
+import io.github.imfangs.dify.client.model.common.SimpleResponse;
 import io.github.imfangs.dify.client.model.datasets.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -1099,7 +1100,7 @@ public class DifyDatasetsClientTest {
                 setMetadataList(metadataList);
             }});
         }};
-        String result = datasetsClient.updateDocumentMetadata(testDatasetId, operationDataList);
+        SimpleResponse result = datasetsClient.updateDocumentMetadata(testDatasetId, operationDataList);
         System.out.println("操作结果: " + result);
     }
 
