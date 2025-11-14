@@ -439,19 +439,19 @@ public class DefaultDifyDatasetsClient extends AbstractDifyClient implements Dif
      *
      * @param datasetId         知识库 ID
      * @param operationDataList 文档元数据集合
-     * @return 结果
+     * @return  结果
      * @throws IOException      IO异常
      * @throws DifyApiException Dify API异常
      * @author zhangriguang
      * @date 2025-05-13
      */
     @Override
-    public String updateDocumentMetadata(String datasetId, List<OperationData> operationDataList) throws IOException, DifyApiException {
+    public SimpleResponse updateDocumentMetadata(String datasetId, List<OperationData> operationDataList) throws IOException, DifyApiException {
         log.debug("更新文档元数据: datasetId={}, operationDataList={}", datasetId, operationDataList);
         String path = DATASETS_PATH + "/" + datasetId + DOCUMENT_METADATA_PATH;
         Map<String, Object> body = new HashMap<>(1);
         body.put("operation_data", operationDataList);
-        return executePost(path, body, String.class);
+        return executePost(path, body, SimpleResponse.class);
     }
 
     /**
