@@ -456,6 +456,14 @@ public class DefaultDifyClient extends DifyBaseClientImpl implements DifyClient 
 
                 // 处理事件
                 eventProcessor.process(data, baseEvent.getEvent());
+                // 如果是结束类事件，则停止继续读取，主动关闭连接
+                String eventTypeStr = baseEvent.getEvent();
+                EventType eventType = eventTypeStr != null ? EventType.fromValue(eventTypeStr) : null;
+                if (eventType == EventType.MESSAGE_END
+                        || eventType == EventType.WORKFLOW_FINISHED
+                        || eventType == EventType.ERROR) {
+                    return false;
+                }
             } catch (Exception e) {
                 log.error("解析事件数据失败: {}", data, e);
                 callback.onException(e);
