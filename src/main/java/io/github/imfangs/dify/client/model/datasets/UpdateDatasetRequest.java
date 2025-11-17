@@ -62,6 +62,24 @@ public class UpdateDatasetRequest {
     private List<String> partialMemberList;
 
     /**
+     * 外部检索模型（选填）
+     */
+    @JsonProperty("external_retrieval_model")
+    private RetrievalModel externalRetrievalModel;
+
+    /**
+     * 外部知识库 ID（选填）
+     */
+    @JsonProperty("external_knowledge_id")
+    private String externalKnowledgeId;
+
+    /**
+     * 外部知识库 API_ID（选填）
+     */
+    @JsonProperty("external_knowledge_api_id")
+    private String externalKnowledgeApiId;
+
+    /**
      * 检索模型
      */
     @Data

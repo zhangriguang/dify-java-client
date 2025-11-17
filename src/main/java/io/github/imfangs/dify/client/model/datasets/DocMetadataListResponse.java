@@ -1,5 +1,6 @@
 package io.github.imfangs.dify.client.model.datasets;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -56,6 +57,7 @@ public class DocMetadataListResponse {
         /**
          * 元数据使用次数
          */
+        @JsonProperty("count")
         private Integer useCount;
     }
 }

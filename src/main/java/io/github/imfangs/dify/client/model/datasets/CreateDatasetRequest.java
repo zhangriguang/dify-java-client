@@ -1,5 +1,6 @@
 package io.github.imfangs.dify.client.model.datasets;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -54,4 +55,22 @@ public class CreateDatasetRequest {
      * 外部知识库 ID（选填）
      */
     private String externalKnowledgeId;
+
+    /**
+     * 嵌入模型（选填）
+     */
+    @JsonProperty("embedding_model")
+    private String embeddingModel;
+
+    /**
+     * 嵌入模型提供商（选填）
+     */
+    @JsonProperty("embedding_model_provider")
+    private String embeddingModelProvider;
+
+    /**
+     * 检索参数（选填，如不填，按照默认方式召回）
+     */
+    @JsonProperty("retrieval_model")
+    private UpdateDatasetRequest.RetrievalModel retrievalModel;
 }

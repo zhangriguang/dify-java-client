@@ -370,6 +370,7 @@ public interface DifyDatasetsClient {
      * @throws IOException      IO异常
      * @throws DifyApiException API异常
      */
+    @Deprecated
     UploadFileResponse getUploadFile(String datasetId, String documentId) throws IOException, DifyApiException;
 
     /**
