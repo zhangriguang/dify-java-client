@@ -86,10 +86,17 @@ public class UpdateDatasetRequest {
         private Boolean rerankingEnable;
 
         /**
-         * Rerank 模型配置，非必填，如果启用了 reranking 则传值
+         * 重排序模式（字符串）。不传或为 null 则不启用 Rerank。
+         * 可选值：weighted_score / reranking_model
          */
         @JsonProperty("reranking_mode")
-        private RerankingMode rerankingMode;
+        private String rerankingMode;
+
+        /**
+         * Rerank 模型配置，非必填；当 reranking_mode = reranking_model 时有效
+         */
+        @JsonProperty("reranking_model")
+        private RerankingModel rerankingModel;
 
         /**
          * 混合检索模式下的权重设置
@@ -122,7 +129,7 @@ public class UpdateDatasetRequest {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class RerankingMode {
+    public static class RerankingModel {
         /**
          * Rerank 模型提供商
          */
