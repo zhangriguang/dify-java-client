@@ -44,6 +44,7 @@ public class DefaultDifyClient extends DifyBaseClientImpl implements DifyClient 
     private static final String META_PATH = "/meta";
     private static final String STOP_PATH = "/stop";
     private static final String FEEDBACKS_PATH = "/feedbacks";
+    private static final String APP_FEEDBACKS_PATH = "/app/feedbacks";
     private static final String SUGGESTED_QUESTIONS_PATH = "/suggested";
     private static final String NAME_PATH = "/name";
 
@@ -265,6 +266,12 @@ public class DefaultDifyClient extends DifyBaseClientImpl implements DifyClient 
         return executeGet(META_PATH, AppMetaResponse.class);
     }
 
+    @Override
+    public io.github.imfangs.dify.client.model.chat.AppFeedbacksResponse getAppFeedbacks() throws IOException, DifyApiException {
+        log.debug("获取应用反馈列表");
+        return executeGet(APP_FEEDBACKS_PATH, io.github.imfangs.dify.client.model.chat.AppFeedbacksResponse.class);
+    }
+
     // ==================== 文本生成型应用相关方法 ====================
 
     @Override
@@ -300,6 +307,13 @@ public class DefaultDifyClient extends DifyBaseClientImpl implements DifyClient 
     public WorkflowRunResponse runWorkflow(WorkflowRunRequest request) throws IOException, DifyApiException {
         log.debug("执行工作流: {}", request);
         return executePost(WORKFLOWS_RUN_PATH, request, WorkflowRunResponse.class);
+    }
+
+    @Override
+    public WorkflowRunResponse runWorkflowById(String workflowId, WorkflowRunRequest request) throws IOException, DifyApiException {
+        log.debug("按 ID 执行工作流: workflowId={}, request={}", workflowId, request);
+        String path = WORKFLOWS_PATH + "/" + workflowId + "/run";
+        return executePost(path, request, WorkflowRunResponse.class);
     }
 
     @Override
@@ -339,10 +353,27 @@ public class DefaultDifyClient extends DifyBaseClientImpl implements DifyClient 
 
     @Override
     public WorkflowLogsResponse getWorkflowLogs(String keyword, String status, Integer page, Integer limit) throws IOException, DifyApiException {
-        log.debug("获取工作流日志: keyword={}, status={}, page={}, limit={}", keyword, status, page, limit);
+        return getWorkflowLogs(keyword, status, null, null, null, null, page, limit);
+    }
+
+    @Override
+    public WorkflowLogsResponse getWorkflowLogs(String keyword,
+                                                String status,
+                                                String createdAtBefore,
+                                                String createdAtAfter,
+                                                String createdByEndUserSessionId,
+                                                String createdByAccount,
+                                                Integer page,
+                                                Integer limit) throws IOException, DifyApiException {
+        log.debug("获取工作流日志: keyword={}, status={}, createdAtBefore={}, createdAtAfter={}, createdByEndUserSessionId={}, createdByAccount={}, page={}, limit={}",
+                keyword, status, createdAtBefore, createdAtAfter, createdByEndUserSessionId, createdByAccount, page, limit);
         Map<String, Object> params = new HashMap<>();
         params.put("keyword", keyword);
         params.put("status", status);
+        params.put("created_at__before", createdAtBefore);
+        params.put("created_at__after", createdAtAfter);
+        params.put("created_by_end_user_session_id", createdByEndUserSessionId);
+        params.put("created_by_account", createdByAccount);
         params.put("page", page);
         params.put("limit", limit);
 
@@ -616,12 +647,18 @@ public class DefaultDifyClient extends DifyBaseClientImpl implements DifyClient 
         Optional.ofNullable(lastId).ifPresent((lId) -> {
             path.append("&last_id=").append(lId);
         });
-        Optional.ofNullable(variableName).ifPresent((vName) -> {
-            path.append("&variable_name=").append(vName);
-        });
         return executeGet(path.toString(), VariableResponse.class);
     }
 
+    @Override
+    public VariableResponse.VariableData updateConversationVariable(String conversationId, String variableId, Object value, String user) throws IOException, DifyApiException {
+        log.debug("更新对话变量: conversationId={}, variableId={}, user={}", conversationId, variableId, user);
+        Map<String, Object> body = new HashMap<>(2);
+        body.put("value", value);
+        body.put("user", user);
+        String path = CONVERSATIONS_PATH + "/" + conversationId + "/variables/" + variableId;
+        return executePut(path, body, VariableResponse.VariableData.class);
+    }
     private String getFileExtension(String fileName) {
         int lastDotIndex = fileName.lastIndexOf('.');
         return lastDotIndex > 0 ? fileName.substring(lastDotIndex + 1) : "";

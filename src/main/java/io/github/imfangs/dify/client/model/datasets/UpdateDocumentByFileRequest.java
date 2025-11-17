@@ -1,5 +1,6 @@
 package io.github.imfangs.dify.client.model.datasets;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -34,4 +35,10 @@ public class UpdateDocumentByFileRequest {
      * 文档元数据（如提供文档类型则必填）
      */
     private Map<String, Object> docMetadata;
+
+    /**
+     * 检索参数（选填）
+     */
+    @JsonProperty("retrieval_model")
+    private UpdateDatasetRequest.RetrievalModel retrievalModel;
 }

@@ -166,6 +166,15 @@ public interface DifyChatClient extends DifyBaseClient {
     AppMetaResponse getAppMeta() throws IOException, DifyApiException;
 
     /**
+     * 获取应用反馈列表
+     *
+     * @return 反馈列表
+     * @throws IOException      IO异常
+     * @throws DifyApiException API异常
+     */
+    io.github.imfangs.dify.client.model.chat.AppFeedbacksResponse getAppFeedbacks() throws IOException, DifyApiException;
+
+    /**
      * 获取标注列表
      *
      * @param page  页码
@@ -244,4 +253,17 @@ public interface DifyChatClient extends DifyBaseClient {
      * @return
      */
     VariableResponse getConversationVariables(String conversationId, String user, String lastId, Integer limit, String variableName) throws DifyApiException, IOException;
+
+    /**
+     * 更新对话变量的值
+     *
+     * @param conversationId 会话 ID
+     * @param variableId     变量 ID
+     * @param value          新的变量值（任意 JSON 类型）
+     * @param user           用户标识
+     * @return 更新后的变量
+     * @throws IOException      IO异常
+     * @throws DifyApiException API异常
+     */
+    VariableResponse.VariableData updateConversationVariable(String conversationId, String variableId, Object value, String user) throws IOException, DifyApiException;
 }
