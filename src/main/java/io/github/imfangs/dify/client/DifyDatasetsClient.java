@@ -370,6 +370,7 @@ public interface DifyDatasetsClient {
      * @throws IOException      IO异常
      * @throws DifyApiException API异常
      */
+    @Deprecated
     UploadFileResponse getUploadFile(String datasetId, String documentId) throws IOException, DifyApiException;
 
     /**
@@ -442,7 +443,7 @@ public interface DifyDatasetsClient {
      * @author zhangriguang
      * @date 2025-05-13
      */
-    String updateDocumentMetadata(String datasetId, List<OperationData> operationDataList) throws IOException, DifyApiException;
+    SimpleResponse updateDocumentMetadata(String datasetId, List<OperationData> operationDataList) throws IOException, DifyApiException;
 
     /**
      * 查询知识库元数据列表

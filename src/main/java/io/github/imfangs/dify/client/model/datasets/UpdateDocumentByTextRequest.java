@@ -1,5 +1,6 @@
 package io.github.imfangs.dify.client.model.datasets;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -39,4 +40,10 @@ public class UpdateDocumentByTextRequest {
      * 处理规则（选填）
      */
     private ProcessRule processRule;
+
+    /**
+     * 检索参数（选填）
+     */
+    @JsonProperty("retrieval_model")
+    private UpdateDatasetRequest.RetrievalModel retrievalModel;
 }

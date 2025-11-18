@@ -11,8 +11,6 @@ import okhttp3.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -275,8 +273,14 @@ public class DefaultDifyDatasetsClient extends AbstractDifyClient implements Dif
 
     @Override
     public ChildChunkListResponse getChildChunks(String datasetId, String documentId, String segmentId, String keyword, Integer page, Integer limit) throws IOException, DifyApiException {
+        Map<String, Object> queryParams = new HashMap<>();
+        addIfNotEmpty(queryParams, "keyword", keyword);
+        addIfNotNull(queryParams, "page", page);
+        addIfNotNull(queryParams, "limit", limit);
+
         String path = buildSegmentPath(datasetId, documentId, segmentId) + CHILD_CHUNKS_PATH;
-        return executeGet(path, ChildChunkListResponse.class);
+        String url = buildUrlWithParams(path, queryParams);
+        return executeGet(url, ChildChunkListResponse.class);
     }
 
     @Override
@@ -292,6 +296,7 @@ public class DefaultDifyDatasetsClient extends AbstractDifyClient implements Dif
     }
 
     @Override
+    @Deprecated
     public UploadFileResponse getUploadFile(String datasetId, String documentId) throws IOException, DifyApiException {
         String path = buildDocumentPath(datasetId, documentId) + UPLOAD_FILE_PATH;
         return executeGet(path, UploadFileResponse.class);
@@ -439,19 +444,19 @@ public class DefaultDifyDatasetsClient extends AbstractDifyClient implements Dif
      *
      * @param datasetId         知识库 ID
      * @param operationDataList 文档元数据集合
-     * @return 结果
+     * @return  结果
      * @throws IOException      IO异常
      * @throws DifyApiException Dify API异常
      * @author zhangriguang
      * @date 2025-05-13
      */
     @Override
-    public String updateDocumentMetadata(String datasetId, List<OperationData> operationDataList) throws IOException, DifyApiException {
+    public SimpleResponse updateDocumentMetadata(String datasetId, List<OperationData> operationDataList) throws IOException, DifyApiException {
         log.debug("更新文档元数据: datasetId={}, operationDataList={}", datasetId, operationDataList);
         String path = DATASETS_PATH + "/" + datasetId + DOCUMENT_METADATA_PATH;
         Map<String, Object> body = new HashMap<>(1);
         body.put("operation_data", operationDataList);
-        return executePost(path, body, String.class);
+        return executePost(path, body, SimpleResponse.class);
     }
 
     /**
@@ -546,7 +551,7 @@ public class DefaultDifyDatasetsClient extends AbstractDifyClient implements Dif
     public TagListResponse getDatasetTags(String datasetId) throws IOException, DifyApiException {
         log.debug("查询知识库已绑定的标签: datasetId={}", datasetId);
         String path = DATASETS_PATH + "/" + datasetId + TAGS_PATH;
-        return executePost(path, null, TagListResponse.class);
+        return executeGet(path, TagListResponse.class);
     }
 
     /**
