@@ -491,7 +491,6 @@ public class DefaultDifyClient extends DifyBaseClientImpl implements DifyClient 
                 String eventTypeStr = baseEvent.getEvent();
                 EventType eventType = eventTypeStr != null ? EventType.fromValue(eventTypeStr) : null;
                 if (eventType == EventType.MESSAGE_END
-                        || eventType == EventType.WORKFLOW_FINISHED
                         || eventType == EventType.ERROR) {
                     return false;
                 }
