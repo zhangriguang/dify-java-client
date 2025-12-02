@@ -176,6 +176,7 @@ public class DifyDatasetsClientTest {
 
         UpdateDatasetRequest request = UpdateDatasetRequest.builder()
                 .name("更新后的测试知识库-" + System.currentTimeMillis())
+                .description("更新后的描述-" + System.currentTimeMillis())
                 .indexingTechnique("high_quality")
                 .permission("only_me")
                 .retrievalModel(retrievalModel)
@@ -189,6 +190,7 @@ public class DifyDatasetsClientTest {
         assertNotNull(response);
         assertEquals(testDatasetId, response.getId());
         assertEquals(request.getName(), response.getName());
+        assertEquals(request.getDescription(), response.getDescription());
         assertEquals(request.getIndexingTechnique(), response.getIndexingTechnique());
         assertEquals(request.getPermission(), response.getPermission());
 
