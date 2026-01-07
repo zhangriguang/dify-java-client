@@ -1062,7 +1062,7 @@ public class DifyDatasetsClientTest {
             return;
         }
         String action = "enable";
-        String result = datasetsClient.builtInMetadata(testDatasetId, action);
+    SimpleResponse result = datasetsClient.builtInMetadata(testDatasetId, action);
         System.out.println("操作结果: " + result);
     }
 
