@@ -433,10 +433,10 @@ public class DefaultDifyDatasetsClient extends AbstractDifyClient implements Dif
      * @date 2025-05-13
      */
     @Override
-    public String builtInMetadata(String datasetId, String action) throws IOException, DifyApiException {
+    public SimpleResponse builtInMetadata(String datasetId, String action) throws IOException, DifyApiException {
         log.debug("启用/禁用内置元数据: datasetId={}, action={}", datasetId, action);
         String path = DATASETS_PATH + "/" + datasetId + METADATA_BUILT_IN_PATH + "/" + action;
-        return executePost(path, null, String.class);
+        return executePost(path, null, SimpleResponse.class);
     }
 
     /**
