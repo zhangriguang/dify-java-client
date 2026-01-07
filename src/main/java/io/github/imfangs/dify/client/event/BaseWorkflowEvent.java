@@ -18,4 +18,10 @@ public abstract class BaseWorkflowEvent extends BaseEvent {
      */
     @JsonProperty("workflow_run_id")
     private String workflowRunId;
+
+    /**
+     * 会话ID（对话型应用特有）
+     */
+    @JsonProperty("conversation_id")
+    private String conversationId;
 }
