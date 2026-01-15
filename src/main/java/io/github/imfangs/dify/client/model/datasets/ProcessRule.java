@@ -97,6 +97,11 @@ public class ProcessRule {
          * 最大长度（token）默认为 1000
          */
         private Integer maxTokens;
+        
+        /**
+         * 分段重叠
+         */
+        private Integer chunkOverlap;
     }
 
     /**
