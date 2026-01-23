@@ -430,7 +430,7 @@ public interface DifyDatasetsClient {
      * @author zhangriguang
      * @date 2025-05-13
      */
-    String builtInMetadata(String datasetId, String action) throws IOException, DifyApiException;
+    SimpleResponse builtInMetadata(String datasetId, String action) throws IOException, DifyApiException;
 
     /**
      * 更新文档元数据

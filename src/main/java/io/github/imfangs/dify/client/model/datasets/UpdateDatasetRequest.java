@@ -22,6 +22,11 @@ public class UpdateDatasetRequest {
     private String name;
 
     /**
+     * 知识库描述（选填）
+     */
+    private String description;
+
+    /**
      * 索引模式（选填，建议填写）
      * high_quality 高质量
      * economy 经济
