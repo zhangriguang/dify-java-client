@@ -31,6 +31,14 @@ public interface WorkflowStreamCallback extends BaseStreamCallback {
     }
 
     /**
+     * 节点重试事件
+     *
+     * @param event 事件数据
+     */
+    default void onNodeRetry(NodeRetryEvent event) {
+    }
+
+    /**
      * 工作流完成事件
      *
      * @param event 事件数据

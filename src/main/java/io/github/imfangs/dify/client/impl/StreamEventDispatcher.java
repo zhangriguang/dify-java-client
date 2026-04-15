@@ -76,6 +76,10 @@ public class StreamEventDispatcher {
                     NodeFinishedEvent nodeFinishedEvent = JsonUtils.fromJson(data, NodeFinishedEvent.class);
                     callback.onNodeFinished(nodeFinishedEvent);
                     break;
+                case NODE_RETRY:
+                    NodeRetryEvent nodeRetryEvent = JsonUtils.fromJson(data, NodeRetryEvent.class);
+                    callback.onNodeRetry(nodeRetryEvent);
+                    break;
                 case WORKFLOW_FINISHED:
                     WorkflowFinishedEvent workflowFinishedEvent = JsonUtils.fromJson(data, WorkflowFinishedEvent.class);
                     callback.onWorkflowFinished(workflowFinishedEvent);
@@ -309,6 +313,10 @@ public class StreamEventDispatcher {
                 case NODE_FINISHED:
                     NodeFinishedEvent nodeFinishedEvent = JsonUtils.fromJson(data, NodeFinishedEvent.class);
                     callback.onNodeFinished(nodeFinishedEvent);
+                    break;
+                case NODE_RETRY:
+                    NodeRetryEvent workflowNodeRetryEvent = JsonUtils.fromJson(data, NodeRetryEvent.class);
+                    callback.onNodeRetry(workflowNodeRetryEvent);
                     break;
                 case WORKFLOW_FINISHED:
                     WorkflowFinishedEvent workflowFinishedEvent = JsonUtils.fromJson(data, WorkflowFinishedEvent.class);

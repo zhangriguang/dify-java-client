@@ -41,6 +41,11 @@ public class AppParametersResponse {
     private SpeechToText speechToText;
 
     /**
+     * 文本转语音
+     */
+    private TextToSpeech textToSpeech;
+
+    /**
      * 引用和归属
      */
     private RetrieverResource retrieverResource;
@@ -54,6 +59,16 @@ public class AppParametersResponse {
      * 用户输入表单配置
      */
     private List<Map<String, Object>> userInputForm;
+
+    /**
+     * 更多类似回答
+     */
+    private MoreLikeThis moreLikeThis;
+
+    /**
+     * 敏感词规避
+     */
+    private SensitiveWordAvoidance sensitiveWordAvoidance;
 
     /**
      * 文件上传配置
@@ -93,6 +108,76 @@ public class AppParametersResponse {
          * 是否开启
          */
         private Boolean enabled;
+    }
+
+    /**
+     * 文本转语音
+     */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class TextToSpeech {
+        /**
+         * 是否开启
+         */
+        private Boolean enabled;
+
+        /**
+         * 语音类型
+         */
+        private String voice;
+
+        /**
+         * 语言
+         */
+        private String language;
+
+        /**
+         * 自动播放: enabled / disabled
+         */
+        private String autoPlay;
+    }
+
+    /**
+     * 更多类似回答
+     */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class MoreLikeThis {
+        /**
+         * 是否开启
+         */
+        private Boolean enabled;
+    }
+
+    /**
+     * 敏感词规避
+     */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class SensitiveWordAvoidance {
+        /**
+         * 是否开启
+         */
+        private Boolean enabled;
+
+        /**
+         * 规避类型
+         */
+        private String type;
+
+        /**
+         * 规避配置
+         */
+        private Object configs;
     }
 
     /**
@@ -251,5 +336,10 @@ public class AppParametersResponse {
          * 视频文件上传大小限制 (MB)
          */
         private Integer videoFileSizeLimit;
+
+        /**
+         * 工作流文件上传数量限制
+         */
+        private Integer workflowFileUploadLimit;
     }
 }

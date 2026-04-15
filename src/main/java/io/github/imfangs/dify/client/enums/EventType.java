@@ -28,6 +28,7 @@ public enum EventType {
     WORKFLOW_STARTED("workflow_started"), // workflow 开始执行
     NODE_STARTED("node_started"),         // node 开始执行
     NODE_FINISHED("node_finished"),       // node 执行结束
+    NODE_RETRY("node_retry"),             // node 重试
     WORKFLOW_FINISHED("workflow_finished"), // workflow 执行结束
 
     // 迭代器相关事件
