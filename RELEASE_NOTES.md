@@ -1,7 +1,8 @@
 ## Changes
 
-- Add `node_retry` event support for Workflow and Chatflow streaming, preventing workflows from terminating during node retries (#157)
-- Add `text_to_speech` parameter to `AppParametersResponse` with `enabled`, `voice`, `language`, and `autoPlay` fields (#158)
-- Add missing `more_like_this` and `sensitive_word_avoidance` parameters to `AppParametersResponse`
-- Add missing `workflow_file_upload_limit` field to `SystemParameters`
+- Optimize streaming response handling by introducing terminal event constants for different app types (#161)
+  - Chat/Completion streams now terminate on `message_end` or `error`
+  - Chatflow/Workflow streams now terminate on `workflow_finished` or `error`
+  - Fixes issue where Chatflow events after `message_end` were being lost
+- Add missing fields to `DetailedDocumentResponse`: `doc_type`, `doc_metadata`, `summary_index_status`, `need_summary` (#160)
 
