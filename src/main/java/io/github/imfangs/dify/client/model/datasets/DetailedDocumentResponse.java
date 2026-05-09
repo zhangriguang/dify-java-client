@@ -168,6 +168,18 @@ public class DetailedDocumentResponse {
     private String displayStatus;
 
     /**
+     * 文档类型
+     */
+    @JsonProperty("doc_type")
+    private String docType;
+
+    /**
+     * 文档元数据详情列表
+     */
+    @JsonProperty("doc_metadata")
+    private List<Map<String, Object>> docMetadata;
+
+    /**
      * 文档形式
      */
     @JsonProperty("doc_form")
@@ -178,6 +190,18 @@ public class DetailedDocumentResponse {
      */
     @JsonProperty("doc_language")
     private String docLanguage;
+
+    /**
+     * 摘要索引状态
+     */
+    @JsonProperty("summary_index_status")
+    private String summaryIndexStatus;
+
+    /**
+     * 是否需要摘要
+     */
+    @JsonProperty("need_summary")
+    private Boolean needSummary;
 
     /**
      * 处理规则信息
