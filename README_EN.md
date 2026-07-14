@@ -60,14 +60,14 @@ Dify Java Client provides the following core features:
 <dependency>
     <groupId>io.github.imfangs</groupId>
     <artifactId>dify-java-client</artifactId>
-    <version>1.2.7</version>
+    <version>1.6.0</version>
 </dependency>
 ```
 
 ### Gradle
 
 ```groovy
-implementation 'io.github.imfangs:dify-java-client:1.2.7'
+implementation 'io.github.imfangs:dify-java-client:1.6.0'
 ```
 
 ## Quick Start
@@ -425,6 +425,107 @@ retrieveResponse.getRecords().forEach(record -> {
 });
 ```
 
+#### Document Download
+
+```java
+// Single document: get a signed download URL
+DocumentDownloadUrlResponse url = datasetsClient.getDocumentDownloadUrl(datasetId, documentId);
+
+// Batch: up to 100 documents packed into a ZIP archive
+DocumentBatchDownloadRequest batchRequest = DocumentBatchDownloadRequest.builder()
+    .documentIds(java.util.Arrays.asList(documentId1, documentId2))
+    .build();
+try (FilePreviewResponse zip = datasetsClient.downloadDocumentsAsZip(datasetId, batchRequest)) {
+    java.nio.file.Files.write(java.nio.file.Paths.get(zip.getFileName()), zip.getContentAsBytes());
+}
+```
+
+#### Knowledge Pipeline (RAG Pipeline)
+
+```java
+// 1) List datasource nodes configured in the pipeline
+List<DatasourcePluginResponse> nodes = datasetsClient.listPipelineDatasourcePlugins(datasetId, true);
+String startNodeId = nodes.get(0).getNodeId();
+
+// 2) Upload a file for pipeline processing
+PipelineFileUploadResponse uploaded = datasetsClient.uploadPipelineFile(new java.io.File("./doc.pdf"));
+
+// 3) Run the full pipeline (blocking mode)
+java.util.Map<String, Object> item = new java.util.HashMap<>();
+item.put("reference", uploaded.getId());
+item.put("name", uploaded.getName());
+
+PipelineRunRequest runRequest = PipelineRunRequest.builder()
+    .inputs(new java.util.HashMap<>())
+    .datasourceType("local_file")
+    .datasourceInfoList(java.util.Arrays.asList(item))
+    .startNodeId(startNodeId)
+    .isPublished(true)
+    .build();
+
+java.util.Map<String, Object> result = datasetsClient.runPipeline(datasetId, runRequest);
+
+// Or streaming
+datasetsClient.runPipelineStream(datasetId, runRequest, callback);
+
+// 4) Run a single datasource node (streaming)
+datasetsClient.runPipelineDatasourceNodeStream(datasetId, startNodeId, nodeRequest, callback);
+```
+
+### 5. End Users
+
+```java
+// Retrieve end-user details by ID (e.g., when created_by from other APIs is an end-user ID)
+EndUserResponse endUser = client.getEndUser(endUserId);
+System.out.println("external_user_id: " + endUser.getExternalUserId());
+```
+
+### 6. Human Input Flow
+
+Dify 1.14.2+ supports inserting Human Input nodes into workflow/chatflow apps that pause execution and wait for a form submission.
+
+```java
+// 1) Subscribe to a workflow; onHumanInputRequired fires when the run reaches a human-input node
+workflowClient.runWorkflowStream(request, new WorkflowStreamCallback() {
+    @Override
+    public void onHumanInputRequired(HumanInputRequiredEvent event) {
+        String formToken = event.getData().getFormToken();
+        String workflowRunId = event.getWorkflowRunId();
+        handoffToReviewer(formToken, workflowRunId);
+    }
+});
+
+// 2) Fetch the paused form
+HumanInputFormResponse form = client.getHumanInputForm(formToken);
+
+// 3) Submit the form to resume the workflow
+java.util.Map<String, Object> inputs = new java.util.HashMap<>();
+inputs.put("decision", "approve");
+HumanInputFormSubmitRequest submit = HumanInputFormSubmitRequest.builder()
+    .inputs(inputs)
+    .action("action-approve")
+    .user("reviewer-alice")
+    .build();
+client.submitHumanInputForm(formToken, submit);
+
+// 4) Re-subscribe to the resumed workflow events
+workflowClient.streamWorkflowEvents(workflowRunId, "reviewer-alice", true, false, callback);
+```
+
+### 7. Reasoning Chunk
+
+When a Chatflow LLM node uses `reasoning_format=separated`, the model's chain-of-thought streams as `reasoning_chunk` events parallel to the answer.
+
+```java
+chatflowClient.sendChatMessageStream(message, new ChatflowStreamCallback() {
+    @Override
+    public void onReasoningChunk(ReasoningChunkEvent event) {
+        renderThinking(event.getData().getReasoning(),
+                       Boolean.TRUE.equals(event.getData().getIsFinal()));
+    }
+});
+```
+
 ## API Reference
 
 ### Client Types
@@ -436,7 +537,7 @@ retrieveResponse.getRecords().forEach(record -> {
 | `DifyCompletionClient` | Text generation application client | Text generation, stop generation |
 | `DifyChatflowClient` | Workflow-orchestrated chat application client | Workflow-orchestrated conversations |
 | `DifyWorkflowClient` | Workflow application client | Execute workflows, workflow management |
-| `DifyDatasetsClient` | Knowledge base client | Knowledge base management, document management, retrieval |
+| `DifyDatasetsClient` | Knowledge base client | Knowledge base management, document management, retrieval, batch/signed download, RAG Pipeline |
 
 ### Response Modes
 
@@ -457,10 +558,16 @@ retrieveResponse.getRecords().forEach(record -> {
 | `MessageReplaceEvent` | Message replacement event |
 | `AgentMessageEvent` | Agent message event |
 | `AgentThoughtEvent` | Agent thought event |
+| `ReasoningChunkEvent` | LLM reasoning stream event (reasoning_format=separated) |
 | `WorkflowStartedEvent` | Workflow started event |
 | `NodeStartedEvent` | Node started event |
 | `NodeFinishedEvent` | Node finished event |
+| `NodeRetryEvent` | Node retry event |
 | `WorkflowFinishedEvent` | Workflow finished event |
+| `WorkflowPausedEvent` | Workflow paused (human input) event |
+| `HumanInputRequiredEvent` | Human input required event |
+| `HumanInputFormFilledEvent` | Human input form submitted event |
+| `HumanInputFormTimeoutEvent` | Human input form timeout event |
 | `ErrorEvent` | Error event |
 | `PingEvent` | Ping event |
 

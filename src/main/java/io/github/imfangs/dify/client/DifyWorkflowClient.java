@@ -100,4 +100,22 @@ public interface DifyWorkflowClient extends DifyBaseClient {
                                          String createdByAccount,
                                          Integer page,
                                          Integer limit) throws IOException, DifyApiException;
+
+    /**
+     * 订阅工作流事件流（SSE）
+     * 常用于人工介入表单提交后，恢复订阅工作流后续事件。
+     *
+     * @param workflowRunId 工作流运行实例 ID
+     * @param user 终端用户标识（须与触发运行的 user 相同）
+     * @param includeStateSnapshot 是否重放已执行节点的状态快照
+     * @param continueOnPause 遇到 workflow_paused 时是否继续保持连接（多次人工介入场景）
+     * @param callback 事件回调
+     * @throws IOException IO异常
+     * @throws DifyApiException API异常
+     */
+    void streamWorkflowEvents(String workflowRunId,
+                              String user,
+                              Boolean includeStateSnapshot,
+                              Boolean continueOnPause,
+                              WorkflowStreamCallback callback) throws IOException, DifyApiException;
 }

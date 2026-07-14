@@ -42,7 +42,14 @@ public enum EventType {
     LOOP_COMPLETED("loop_completed"),  // 循环执行完成
 
     // Workflow 中间节点解析
-    WORKFLOW_TEXT_CHUNK("text_chunk") // workflow llm模型输入结果
+    WORKFLOW_TEXT_CHUNK("text_chunk"), // workflow llm模型输入结果
+    REASONING_CHUNK("reasoning_chunk"), // LLM 节点 reasoning_format=separated 时的思考内容增量
+
+    // 人工介入 (Human Input) 相关事件（Dify 1.14.2+）
+    HUMAN_INPUT_REQUIRED("human_input_required"),         // 工作流到达人工介入节点，等待表单
+    WORKFLOW_PAUSED("workflow_paused"),                   // 工作流因人工介入等原因暂停
+    HUMAN_INPUT_FORM_FILLED("human_input_form_filled"),   // 表单已提交，工作流恢复
+    HUMAN_INPUT_FORM_TIMEOUT("human_input_form_timeout")  // 表单超时未提交
 
     ;
 

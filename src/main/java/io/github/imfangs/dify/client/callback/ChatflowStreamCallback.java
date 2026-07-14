@@ -94,4 +94,45 @@ public interface ChatflowStreamCallback extends ChatStreamCallback {
      */
     default void onLoopCompleted(LoopCompletedEvent event) {
     }
+
+    /**
+     * 人工介入表单等待事件（Dify 1.14.2+）
+     *
+     * @param event 事件数据
+     */
+    default void onHumanInputRequired(HumanInputRequiredEvent event) {
+    }
+
+    /**
+     * 工作流暂停事件（Dify 1.14.2+）
+     *
+     * @param event 事件数据
+     */
+    default void onWorkflowPaused(WorkflowPausedEvent event) {
+    }
+
+    /**
+     * 人工介入表单已提交事件（Dify 1.14.2+）
+     *
+     * @param event 事件数据
+     */
+    default void onHumanInputFormFilled(HumanInputFormFilledEvent event) {
+    }
+
+    /**
+     * 人工介入表单超时事件（Dify 1.14.2+）
+     *
+     * @param event 事件数据
+     */
+    default void onHumanInputFormTimeout(HumanInputFormTimeoutEvent event) {
+    }
+
+    /**
+     * 收到 LLM 节点的思考（reasoning）内容增量
+     * 仅当 LLM 节点开启 reasoning_format=separated 时触发；用于与正文（message 事件）并行渲染思考流。
+     *
+     * @param event 事件数据
+     */
+    default void onReasoningChunk(ReasoningChunkEvent event) {
+    }
 }

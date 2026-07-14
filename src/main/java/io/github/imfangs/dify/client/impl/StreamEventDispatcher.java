@@ -112,6 +112,26 @@ public class StreamEventDispatcher {
                     AgentLogEvent agentLogEvent = JsonUtils.fromJson(data, AgentLogEvent.class);
                     callback.onAgentLog(agentLogEvent);
                     break;
+                case HUMAN_INPUT_REQUIRED:
+                    HumanInputRequiredEvent humanInputRequiredEvent = JsonUtils.fromJson(data, HumanInputRequiredEvent.class);
+                    callback.onHumanInputRequired(humanInputRequiredEvent);
+                    break;
+                case WORKFLOW_PAUSED:
+                    WorkflowPausedEvent workflowPausedEvent = JsonUtils.fromJson(data, WorkflowPausedEvent.class);
+                    callback.onWorkflowPaused(workflowPausedEvent);
+                    break;
+                case HUMAN_INPUT_FORM_FILLED:
+                    HumanInputFormFilledEvent humanInputFormFilledEvent = JsonUtils.fromJson(data, HumanInputFormFilledEvent.class);
+                    callback.onHumanInputFormFilled(humanInputFormFilledEvent);
+                    break;
+                case HUMAN_INPUT_FORM_TIMEOUT:
+                    HumanInputFormTimeoutEvent humanInputFormTimeoutEvent = JsonUtils.fromJson(data, HumanInputFormTimeoutEvent.class);
+                    callback.onHumanInputFormTimeout(humanInputFormTimeoutEvent);
+                    break;
+                case REASONING_CHUNK:
+                    ReasoningChunkEvent reasoningChunkEvent = JsonUtils.fromJson(data, ReasoningChunkEvent.class);
+                    callback.onReasoningChunk(reasoningChunkEvent);
+                    break;
                 case ERROR:
                     ErrorEvent errorEvent = JsonUtils.fromJson(data, ErrorEvent.class);
                     callback.onError(errorEvent);
@@ -361,6 +381,26 @@ public class StreamEventDispatcher {
                 case TTS_MESSAGE_END:
                     TtsMessageEndEvent ttsMessageEndEvent = JsonUtils.fromJson(data, TtsMessageEndEvent.class);
                     callback.onTtsMessageEnd(ttsMessageEndEvent);
+                    break;
+                case HUMAN_INPUT_REQUIRED:
+                    HumanInputRequiredEvent humanInputRequiredEvent = JsonUtils.fromJson(data, HumanInputRequiredEvent.class);
+                    callback.onHumanInputRequired(humanInputRequiredEvent);
+                    break;
+                case WORKFLOW_PAUSED:
+                    WorkflowPausedEvent workflowPausedEvent = JsonUtils.fromJson(data, WorkflowPausedEvent.class);
+                    callback.onWorkflowPaused(workflowPausedEvent);
+                    break;
+                case HUMAN_INPUT_FORM_FILLED:
+                    HumanInputFormFilledEvent humanInputFormFilledEvent = JsonUtils.fromJson(data, HumanInputFormFilledEvent.class);
+                    callback.onHumanInputFormFilled(humanInputFormFilledEvent);
+                    break;
+                case HUMAN_INPUT_FORM_TIMEOUT:
+                    HumanInputFormTimeoutEvent humanInputFormTimeoutEvent = JsonUtils.fromJson(data, HumanInputFormTimeoutEvent.class);
+                    callback.onHumanInputFormTimeout(humanInputFormTimeoutEvent);
+                    break;
+                case REASONING_CHUNK:
+                    ReasoningChunkEvent reasoningChunkEvent = JsonUtils.fromJson(data, ReasoningChunkEvent.class);
+                    callback.onReasoningChunk(reasoningChunkEvent);
                     break;
                 case PING:
                     PingEvent pingEvent = JsonUtils.fromJson(data, PingEvent.class);

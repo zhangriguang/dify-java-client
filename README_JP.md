@@ -60,14 +60,14 @@ Dify Java Clientは以下の主要機能を提供します：
 <dependency>
     <groupId>io.github.imfangs</groupId>
     <artifactId>dify-java-client</artifactId>
-    <version>1.2.7</version>
+    <version>1.6.0</version>
 </dependency>
 ```
 
 ### Gradle
 
 ```groovy
-implementation 'io.github.imfangs:dify-java-client:1.2.7'
+implementation 'io.github.imfangs:dify-java-client:1.6.0'
 ```
 
 ## クイックスタート
@@ -425,6 +425,106 @@ retrieveResponse.getRecords().forEach(record -> {
 });
 ```
 
+#### ドキュメントのダウンロード
+
+```java
+// 単一ドキュメント: 署名付きダウンロード URL を取得
+DocumentDownloadUrlResponse url = datasetsClient.getDocumentDownloadUrl(datasetId, documentId);
+
+// バッチ: 最大 100 件のドキュメントを ZIP としてダウンロード
+DocumentBatchDownloadRequest batchRequest = DocumentBatchDownloadRequest.builder()
+    .documentIds(java.util.Arrays.asList(documentId1, documentId2))
+    .build();
+try (FilePreviewResponse zip = datasetsClient.downloadDocumentsAsZip(datasetId, batchRequest)) {
+    java.nio.file.Files.write(java.nio.file.Paths.get(zip.getFileName()), zip.getContentAsBytes());
+}
+```
+
+#### ナレッジベース Pipeline (RAG Pipeline)
+
+```java
+// 1) Pipeline に設定済みのデータソースノードを一覧
+List<DatasourcePluginResponse> nodes = datasetsClient.listPipelineDatasourcePlugins(datasetId, true);
+String startNodeId = nodes.get(0).getNodeId();
+
+// 2) Pipeline 用のファイルをアップロード
+PipelineFileUploadResponse uploaded = datasetsClient.uploadPipelineFile(new java.io.File("./doc.pdf"));
+
+// 3) Pipeline 全体を実行（ブロッキングモード）
+java.util.Map<String, Object> item = new java.util.HashMap<>();
+item.put("reference", uploaded.getId());
+item.put("name", uploaded.getName());
+
+PipelineRunRequest runRequest = PipelineRunRequest.builder()
+    .inputs(new java.util.HashMap<>())
+    .datasourceType("local_file")
+    .datasourceInfoList(java.util.Arrays.asList(item))
+    .startNodeId(startNodeId)
+    .isPublished(true)
+    .build();
+
+java.util.Map<String, Object> result = datasetsClient.runPipeline(datasetId, runRequest);
+
+// または、ストリーミング実行
+datasetsClient.runPipelineStream(datasetId, runRequest, callback);
+
+// 4) 単一データソースノードを実行（ストリーミング）
+datasetsClient.runPipelineDatasourceNodeStream(datasetId, startNodeId, nodeRequest, callback);
+```
+
+### 5. エンドユーザー (End Users)
+
+```java
+// ID でエンドユーザー詳細を取得（他 API の created_by がエンドユーザー ID の場合の逆引きに便利）
+EndUserResponse endUser = client.getEndUser(endUserId);
+```
+
+### 6. 人間の介入 (Human Input Flow)
+
+Dify 1.14.2+ ではワークフロー/チャットフローに Human Input ノードを組み込んで、フォームの提出を待つ運用が可能です。
+
+```java
+// 1) ワークフローに購読し、人間介入到達時に onHumanInputRequired が発火
+workflowClient.runWorkflowStream(request, new WorkflowStreamCallback() {
+    @Override
+    public void onHumanInputRequired(HumanInputRequiredEvent event) {
+        String formToken = event.getData().getFormToken();
+        String workflowRunId = event.getWorkflowRunId();
+        handoffToReviewer(formToken, workflowRunId);
+    }
+});
+
+// 2) 一時停止中のフォームを取得
+HumanInputFormResponse form = client.getHumanInputForm(formToken);
+
+// 3) フォームを送信してワークフローを再開
+java.util.Map<String, Object> inputs = new java.util.HashMap<>();
+inputs.put("decision", "approve");
+HumanInputFormSubmitRequest submit = HumanInputFormSubmitRequest.builder()
+    .inputs(inputs)
+    .action("action-approve")
+    .user("reviewer-alice")
+    .build();
+client.submitHumanInputForm(formToken, submit);
+
+// 4) 再開後のイベント購読
+workflowClient.streamWorkflowEvents(workflowRunId, "reviewer-alice", true, false, callback);
+```
+
+### 7. 思考ストリーム (reasoning_chunk)
+
+Chatflow の LLM ノードで `reasoning_format=separated` を有効にすると、モデルの思考内容が `reasoning_chunk` イベントとして本文と並行してストリーミングされます。
+
+```java
+chatflowClient.sendChatMessageStream(message, new ChatflowStreamCallback() {
+    @Override
+    public void onReasoningChunk(ReasoningChunkEvent event) {
+        renderThinking(event.getData().getReasoning(),
+                       Boolean.TRUE.equals(event.getData().getIsFinal()));
+    }
+});
+```
+
 ## API リファレンス
 
 ### クライアントタイプ
@@ -436,7 +536,7 @@ retrieveResponse.getRecords().forEach(record -> {
 | `DifyCompletionClient` | テキスト生成アプリケーションクライアント | テキスト生成、生成停止 |
 | `DifyChatflowClient` | ワークフロー制御会話アプリケーションクライアント | ワークフロー制御会話 |
 | `DifyWorkflowClient` | ワークフローアプリケーションクライアント | ワークフロー実行、ワークフロー管理 |
-| `DifyDatasetsClient` | ナレッジベースクライアント | ナレッジベース管理、ドキュメント管理、検索 |
+| `DifyDatasetsClient` | ナレッジベースクライアント | ナレッジベース管理、ドキュメント管理、検索、バッチ/署名付きダウンロード、RAG Pipeline |
 
 ### レスポンスモード
 
@@ -457,10 +557,16 @@ retrieveResponse.getRecords().forEach(record -> {
 | `MessageReplaceEvent` | メッセージ置換イベント |
 | `AgentMessageEvent` | エージェントメッセージイベント |
 | `AgentThoughtEvent` | エージェント思考イベント |
+| `ReasoningChunkEvent` | LLM 思考ストリームイベント（reasoning_format=separated） |
 | `WorkflowStartedEvent` | ワークフロー開始イベント |
 | `NodeStartedEvent` | ノード開始イベント |
 | `NodeFinishedEvent` | ノード完了イベント |
+| `NodeRetryEvent` | ノードリトライイベント |
 | `WorkflowFinishedEvent` | ワークフロー完了イベント |
+| `WorkflowPausedEvent` | ワークフロー一時停止イベント（人間介入） |
+| `HumanInputRequiredEvent` | 人間介入フォーム要求イベント |
+| `HumanInputFormFilledEvent` | フォーム提出済みイベント |
+| `HumanInputFormTimeoutEvent` | フォームタイムアウトイベント |
 | `ErrorEvent` | エラーイベント |
 | `PingEvent` | ピングイベント |
 

@@ -4,9 +4,12 @@ import io.github.imfangs.dify.client.exception.DifyApiException;
 import io.github.imfangs.dify.client.model.chat.AppInfoResponse;
 import io.github.imfangs.dify.client.model.chat.AppParametersResponse;
 import io.github.imfangs.dify.client.model.chat.AppWebAppSettingResponse;
+import io.github.imfangs.dify.client.model.common.EndUserResponse;
 import io.github.imfangs.dify.client.model.file.FileUploadRequest;
 import io.github.imfangs.dify.client.model.file.FileUploadResponse;
 import io.github.imfangs.dify.client.model.file.FilePreviewResponse;
+import io.github.imfangs.dify.client.model.workflow.HumanInputFormResponse;
+import io.github.imfangs.dify.client.model.workflow.HumanInputFormSubmitRequest;
 
 import java.io.File;
 import java.io.IOException;
@@ -101,6 +104,41 @@ public interface DifyBaseClient extends AutoCloseable {
      * @throws DifyApiException API异常
      */
     FilePreviewResponse previewFile(String fileId, boolean asAttachment) throws IOException, DifyApiException;
+
+    /**
+     * 根据 ID 查询终端用户（End User）详情
+     * 常见用法：其他接口（如文件上传）返回 created_by 是 end-user ID 时，可回查 external_user_id / session_id / 匿名标记。
+     * 该接口按当前 App Token 所属租户/应用范围鉴权，防止跨租户/应用访问。
+     *
+     * @param endUserId 终端用户 ID
+     * @return 终端用户详情
+     * @throws IOException IO异常
+     * @throws DifyApiException API异常
+     */
+    EndUserResponse getEndUser(String endUserId) throws IOException, DifyApiException;
+
+    /**
+     * 获取暂停中的 Human Input 表单
+     * 通过 human_input_required 事件中的 form_token 获取表单定义。
+     * 适用于所有支持人工介入的应用类型（Workflow / Chatflow）。
+     *
+     * @param formToken 表单 token
+     * @return 表单响应（含 form_content、inputs、user_actions、expiration_time 等）
+     * @throws IOException IO异常
+     * @throws DifyApiException API异常
+     */
+    HumanInputFormResponse getHumanInputForm(String formToken) throws IOException, DifyApiException;
+
+    /**
+     * 提交 Human Input 表单，工作流将从暂停处恢复执行。
+     * 提交成功后可通过工作流事件流订阅后续执行事件。
+     *
+     * @param formToken 表单 token
+     * @param request 提交内容（inputs / action / user）
+     * @throws IOException IO异常
+     * @throws DifyApiException API异常
+     */
+    void submitHumanInputForm(String formToken, HumanInputFormSubmitRequest request) throws IOException, DifyApiException;
 
     /**
      * 关闭客户端资源

@@ -5,9 +5,12 @@ import io.github.imfangs.dify.client.exception.DifyApiException;
 import io.github.imfangs.dify.client.model.chat.AppInfoResponse;
 import io.github.imfangs.dify.client.model.chat.AppParametersResponse;
 import io.github.imfangs.dify.client.model.chat.AppWebAppSettingResponse;
+import io.github.imfangs.dify.client.model.common.EndUserResponse;
 import io.github.imfangs.dify.client.model.file.FileUploadRequest;
 import io.github.imfangs.dify.client.model.file.FileUploadResponse;
 import io.github.imfangs.dify.client.model.file.FilePreviewResponse;
+import io.github.imfangs.dify.client.model.workflow.HumanInputFormResponse;
+import io.github.imfangs.dify.client.model.workflow.HumanInputFormSubmitRequest;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 
@@ -26,6 +29,8 @@ public class DifyBaseClientImpl extends AbstractDifyClient implements DifyBaseCl
     private static final String INFO_PATH = "/info";
     private static final String PARAMETERS_PATH = "/parameters";
     private static final String SITE_PATH = "/site";
+    private static final String END_USERS_PATH = "/end-users";
+    private static final String HUMAN_INPUT_FORM_PATH = "/form/human_input";
 
 
     /**
@@ -115,6 +120,36 @@ public class DifyBaseClientImpl extends AbstractDifyClient implements DifyBaseCl
     @Override
     public AppWebAppSettingResponse getAppWebAppSettings() throws IOException, DifyApiException {
         return executeGet(SITE_PATH, AppWebAppSettingResponse.class);
+    }
+
+    @Override
+    public EndUserResponse getEndUser(String endUserId) throws IOException, DifyApiException {
+        if (endUserId == null || endUserId.trim().isEmpty()) {
+            throw new IllegalArgumentException("终端用户 ID 不能为空");
+        }
+        String path = END_USERS_PATH + "/" + endUserId.trim();
+        return executeGet(path, EndUserResponse.class);
+    }
+
+    @Override
+    public HumanInputFormResponse getHumanInputForm(String formToken) throws IOException, DifyApiException {
+        if (formToken == null || formToken.trim().isEmpty()) {
+            throw new IllegalArgumentException("表单 token 不能为空");
+        }
+        log.debug("获取 Human Input 表单: formToken={}", formToken);
+        return executeGet(HUMAN_INPUT_FORM_PATH + "/" + formToken.trim(), HumanInputFormResponse.class);
+    }
+
+    @Override
+    public void submitHumanInputForm(String formToken, HumanInputFormSubmitRequest request) throws IOException, DifyApiException {
+        if (formToken == null || formToken.trim().isEmpty()) {
+            throw new IllegalArgumentException("表单 token 不能为空");
+        }
+        if (request == null || request.getUser() == null || request.getUser().trim().isEmpty()) {
+            throw new IllegalArgumentException("user 不能为空");
+        }
+        log.debug("提交 Human Input 表单: formToken={}, action={}", formToken, request.getAction());
+        executePost(HUMAN_INPUT_FORM_PATH + "/" + formToken.trim(), request, Object.class);
     }
 
     @Override

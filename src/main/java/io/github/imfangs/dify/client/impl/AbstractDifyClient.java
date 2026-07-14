@@ -1,17 +1,26 @@
 package io.github.imfangs.dify.client.impl;
 
+import io.github.imfangs.dify.client.callback.BaseStreamCallback;
+import io.github.imfangs.dify.client.enums.EventType;
+import io.github.imfangs.dify.client.event.BaseEvent;
+import io.github.imfangs.dify.client.event.PingEvent;
 import io.github.imfangs.dify.client.exception.DifyApiException;
 import io.github.imfangs.dify.client.util.HttpClientUtils;
 import io.github.imfangs.dify.client.util.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * Dify API 客户端抽象基类
@@ -463,5 +472,142 @@ public abstract class AbstractDifyClient {
         }
 
         return urlBuilder.toString();
+    }
+
+    // ==================== 流式请求（SSE）通用支持 ====================
+
+    protected static final String STREAM_DATA_PREFIX = "data:";
+    protected static final String STREAM_PING_EVENT_LINE = "event: ping";
+
+    /**
+     * 行处理器
+     */
+    @FunctionalInterface
+    protected interface LineProcessor {
+        /**
+         * @param line 一行数据
+         * @return 是否继续处理
+         */
+        boolean process(String line);
+    }
+
+    /**
+     * 事件处理器
+     */
+    @FunctionalInterface
+    protected interface EventProcessor {
+        void process(String data, String eventType);
+    }
+
+    /**
+     * 执行 POST 流式请求
+     */
+    protected void executeStreamRequest(String path, Object body, LineProcessor lineProcessor, Consumer<Exception> errorHandler) {
+        RequestBody requestBody = createJsonRequestBody(body);
+        Request httpRequest = new Request.Builder()
+                .url(baseUrl + path)
+                .post(requestBody)
+                .header("Authorization", "Bearer " + apiKey)
+                .header("Content-Type", "application/json")
+                .header("Accept", "text/event-stream")
+                .build();
+        executeStreamCall(httpRequest, lineProcessor, errorHandler);
+    }
+
+    /**
+     * 执行 GET 流式请求
+     */
+    protected void executeGetStreamRequest(String path, LineProcessor lineProcessor, Consumer<Exception> errorHandler) {
+        Request httpRequest = new Request.Builder()
+                .url(baseUrl + path)
+                .get()
+                .header("Authorization", "Bearer " + apiKey)
+                .header("Accept", "text/event-stream")
+                .build();
+        executeStreamCall(httpRequest, lineProcessor, errorHandler);
+    }
+
+    protected void executeStreamCall(Request httpRequest, LineProcessor lineProcessor, Consumer<Exception> errorHandler) {
+        Call call = httpClient.newCall(httpRequest);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                log.error("流式请求失败: {}", e.getMessage());
+                errorHandler.accept(e);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) {
+                if (!response.isSuccessful()) {
+                    try {
+                        String errorBody = response.body() != null ? response.body().string() : "";
+                        DifyApiException exception = createApiException(response.code(), errorBody);
+                        log.error("流式请求失败: {}", exception.getMessage());
+                        errorHandler.accept(exception);
+                    } catch (IOException e) {
+                        log.error("读取错误响应失败", e);
+                        errorHandler.accept(e);
+                    }
+                    return;
+                }
+
+                try (ResponseBody responseBody = response.body()) {
+                    if (responseBody == null) {
+                        IOException exception = new IOException("空响应体");
+                        log.error("流式请求失败: {}", exception.getMessage());
+                        errorHandler.accept(exception);
+                        return;
+                    }
+
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(responseBody.byteStream(), StandardCharsets.UTF_8))) {
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            if (line.isEmpty()) {
+                                continue;
+                            }
+                            if (!lineProcessor.process(line)) {
+                                break;
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    log.error("处理流式响应失败: {}", e.getMessage(), e);
+                    errorHandler.accept(e);
+                }
+            }
+        });
+    }
+
+    /**
+     * 处理一行 SSE 数据
+     */
+    protected boolean processStreamLine(String line, BaseStreamCallback callback, Set<EventType> terminalEvents, EventProcessor eventProcessor) {
+        if (line == null || line.trim().isEmpty()) {
+            return true;
+        }
+        if (line.startsWith(STREAM_DATA_PREFIX)) {
+            String data = line.substring(STREAM_DATA_PREFIX.length()).trim();
+            try {
+                BaseEvent baseEvent = JsonUtils.fromJson(data, BaseEvent.class);
+                if (baseEvent == null) {
+                    log.warn("解析事件数据为null: {}", data);
+                    return true;
+                }
+                eventProcessor.process(data, baseEvent.getEvent());
+                String eventTypeStr = baseEvent.getEvent();
+                EventType eventType = eventTypeStr != null ? EventType.fromValue(eventTypeStr) : null;
+                if (eventType != null && terminalEvents.contains(eventType)) {
+                    return false;
+                }
+            } catch (Exception e) {
+                log.error("解析事件数据失败: {}", data, e);
+                callback.onException(e);
+            }
+        } else if (STREAM_PING_EVENT_LINE.equalsIgnoreCase(line)) {
+            PingEvent pingEvent = new PingEvent();
+            pingEvent.setEvent(EventType.PING.getValue());
+            callback.onPing(pingEvent);
+        }
+        return true;
     }
 }

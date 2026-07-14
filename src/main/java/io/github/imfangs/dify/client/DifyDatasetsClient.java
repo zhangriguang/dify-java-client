@@ -3,11 +3,15 @@ package io.github.imfangs.dify.client;
 import io.github.imfangs.dify.client.exception.DifyApiException;
 import io.github.imfangs.dify.client.model.common.SimpleResponse;
 import io.github.imfangs.dify.client.model.datasets.*;
+import io.github.imfangs.dify.client.model.file.FilePreviewResponse;
+
+import io.github.imfangs.dify.client.callback.WorkflowStreamCallback;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Dify 知识库客户端接口
@@ -538,4 +542,103 @@ public interface DifyDatasetsClient {
      * @throws DifyApiException API异常
      */
     TagListResponse getDatasetTags(String datasetId) throws IOException, DifyApiException;
+
+    /**
+     * 批量下载知识库中的文档为 ZIP 压缩包
+     * 每次最多 100 个文档；返回响应体为 application/zip 二进制流。
+     *
+     * @param datasetId 知识库 ID
+     * @param request   文档 ID 列表
+     * @return ZIP 文件响应（InputStream + 元信息）
+     * @throws IOException      IO异常
+     * @throws DifyApiException API异常
+     */
+    FilePreviewResponse downloadDocumentsAsZip(String datasetId, DocumentBatchDownloadRequest request) throws IOException, DifyApiException;
+
+    /**
+     * 获取单文档的签名下载 URL
+     *
+     * @param datasetId  知识库 ID
+     * @param documentId 文档 ID
+     * @return 含限时签名 URL 的响应
+     * @throws IOException      IO异常
+     * @throws DifyApiException API异常
+     */
+    DocumentDownloadUrlResponse getDocumentDownloadUrl(String datasetId, String documentId) throws IOException, DifyApiException;
+
+    // ==================== 知识库 Pipeline (RAG Pipeline) 相关方法 ====================
+
+    /**
+     * 列出知识库 Pipeline 中已配置的数据源节点
+     * 每个节点包含所使用的插件与运行所需的元数据。
+     *
+     * @param datasetId   知识库 ID
+     * @param isPublished true 返回已发布版本的节点，false 返回草稿版本；null 使用后端默认（true）
+     * @return 数据源插件节点列表
+     * @throws IOException      IO异常
+     * @throws DifyApiException API异常
+     */
+    List<DatasourcePluginResponse> listPipelineDatasourcePlugins(String datasetId, Boolean isPublished) throws IOException, DifyApiException;
+
+    /**
+     * 运行 Pipeline 中的单个数据源节点，以流式方式返回节点执行事件
+     *
+     * @param datasetId 知识库 ID
+     * @param nodeId    数据源节点 ID（由 {@link #listPipelineDatasourcePlugins} 得到）
+     * @param request   运行参数
+     * @param callback  流式事件回调
+     * @throws IOException      IO异常
+     * @throws DifyApiException API异常
+     */
+    void runPipelineDatasourceNodeStream(String datasetId,
+                                         String nodeId,
+                                         DatasourceNodeRunRequest request,
+                                         WorkflowStreamCallback callback) throws IOException, DifyApiException;
+
+    /**
+     * 运行完整知识库 Pipeline（阻塞模式），response_mode 会被强制设为 blocking。
+     * 返回体为原始 JSON 结构，不同插件差异较大，故使用 Map。
+     *
+     * @param datasetId 知识库 ID
+     * @param request   Pipeline 运行参数
+     * @return Pipeline 执行结果
+     * @throws IOException      IO异常
+     * @throws DifyApiException API异常
+     */
+    Map<String, Object> runPipeline(String datasetId, PipelineRunRequest request) throws IOException, DifyApiException;
+
+    /**
+     * 运行完整知识库 Pipeline（流式模式），response_mode 会被强制设为 streaming。
+     *
+     * @param datasetId 知识库 ID
+     * @param request   Pipeline 运行参数
+     * @param callback  流式事件回调
+     * @throws IOException      IO异常
+     * @throws DifyApiException API异常
+     */
+    void runPipelineStream(String datasetId,
+                           PipelineRunRequest request,
+                           WorkflowStreamCallback callback) throws IOException, DifyApiException;
+
+    /**
+     * 上传文件用于知识库 Pipeline（multipart/form-data）
+     *
+     * @param file 要上传的文件
+     * @return 上传响应，其 id 可作为 pipeline/run 时 datasource_info_list 中的 reference
+     * @throws IOException      IO异常
+     * @throws DifyApiException API异常
+     */
+    PipelineFileUploadResponse uploadPipelineFile(File file) throws IOException, DifyApiException;
+
+    /**
+     * 上传文件用于知识库 Pipeline（InputStream 形式）
+     *
+     * @param inputStream 输入流
+     * @param fileName    文件名
+     * @param mimeType    MIME 类型
+     * @return 上传响应
+     * @throws IOException      IO异常
+     * @throws DifyApiException API异常
+     */
+    PipelineFileUploadResponse uploadPipelineFile(InputStream inputStream, String fileName, String mimeType) throws IOException, DifyApiException;
 }

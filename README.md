@@ -60,14 +60,14 @@ Dify Java Client 提供以下核心功能：
 <dependency>
     <groupId>io.github.imfangs</groupId>
     <artifactId>dify-java-client</artifactId>
-    <version>1.2.7</version>
+    <version>1.6.0</version>
 </dependency>
 ```
 
 ### Gradle
 
 ```groovy
-implementation 'io.github.imfangs:dify-java-client:1.2.7'
+implementation 'io.github.imfangs:dify-java-client:1.6.0'
 ```
 
 ## 快速开始
@@ -425,6 +425,145 @@ retrieveResponse.getRecords().forEach(record -> {
 });
 ```
 
+#### 文档下载
+
+```java
+// 单文档：获取签名下载 URL（限时有效）
+DocumentDownloadUrlResponse url = datasetsClient.getDocumentDownloadUrl(datasetId, documentId);
+System.out.println("下载 URL: " + url.getUrl());
+
+// 批量：一次最多 100 个文档打包为 ZIP
+DocumentBatchDownloadRequest batchRequest = DocumentBatchDownloadRequest.builder()
+    .documentIds(java.util.Arrays.asList(documentId1, documentId2))
+    .build();
+try (FilePreviewResponse zip = datasetsClient.downloadDocumentsAsZip(datasetId, batchRequest)) {
+    byte[] bytes = zip.getContentAsBytes();
+    java.nio.file.Files.write(java.nio.file.Paths.get(zip.getFileName()), bytes);
+}
+```
+
+#### 知识库 Pipeline（RAG Pipeline）
+
+```java
+// 1) 列出 Pipeline 中已配置的数据源节点
+List<DatasourcePluginResponse> nodes = datasetsClient.listPipelineDatasourcePlugins(datasetId, true);
+String startNodeId = nodes.get(0).getNodeId();
+
+// 2) 为 Pipeline 上传文件（本地文件类型的数据源）
+PipelineFileUploadResponse uploaded = datasetsClient.uploadPipelineFile(new java.io.File("./doc.pdf"));
+
+// 3) 运行整个 Pipeline（阻塞模式）
+java.util.Map<String, Object> localFileItem = new java.util.HashMap<>();
+localFileItem.put("reference", uploaded.getId());
+localFileItem.put("name", uploaded.getName());
+
+PipelineRunRequest runRequest = PipelineRunRequest.builder()
+    .inputs(new java.util.HashMap<>())
+    .datasourceType("local_file")
+    .datasourceInfoList(java.util.Arrays.asList(localFileItem))
+    .startNodeId(startNodeId)
+    .isPublished(true)
+    .build();
+
+java.util.Map<String, Object> result = datasetsClient.runPipeline(datasetId, runRequest);
+
+// 或流式模式
+datasetsClient.runPipelineStream(datasetId, runRequest, new WorkflowStreamCallback() {
+    @Override
+    public void onNodeFinished(NodeFinishedEvent event) {
+        System.out.println("节点完成: " + event.getData().getTitle());
+    }
+});
+
+// 4) 单独运行某个数据源节点（流式）
+DatasourceNodeRunRequest nodeRequest = DatasourceNodeRunRequest.builder()
+    .inputs(new java.util.HashMap<>())
+    .datasourceType("local_file")
+    .isPublished(true)
+    .build();
+datasetsClient.runPipelineDatasourceNodeStream(datasetId, startNodeId, nodeRequest, callback);
+```
+
+### 5. 终端用户 (End Users)
+
+```java
+// 根据 ID 查询终端用户详情
+// 常见场景：其他接口（如文件上传）返回 created_by 是 end-user ID 时，可回查详细信息
+EndUserResponse endUser = client.getEndUser(endUserId);
+System.out.println("external_user_id: " + endUser.getExternalUserId());
+System.out.println("session_id: " + endUser.getSessionId());
+```
+
+### 6. 人工介入 (Human Input Flow)
+
+Dify 1.14.2+ 支持在 Workflow/Chatflow 中插入 Human Input 节点让人工填写表单后继续执行。SDK 支持完整闭环。
+
+```java
+// 1) 订阅工作流 - 遇到人工介入节点时会触发 onHumanInputRequired
+workflowClient.runWorkflowStream(request, new WorkflowStreamCallback() {
+    @Override
+    public void onHumanInputRequired(HumanInputRequiredEvent event) {
+        String formToken = event.getData().getFormToken();
+        String workflowRunId = event.getWorkflowRunId();
+        // 缓存 formToken 和 workflowRunId，进入人工审批流程
+        handoffToReviewer(formToken, workflowRunId);
+    }
+
+    @Override
+    public void onWorkflowPaused(WorkflowPausedEvent event) {
+        System.out.println("工作流已暂停，等待人工介入");
+    }
+});
+
+// 2) 获取表单内容（可以在另一个进程/服务中）
+HumanInputFormResponse form = client.getHumanInputForm(formToken);
+System.out.println("表单内容: " + form.getFormContent());
+System.out.println("可选操作: " + form.getUserActions());
+
+// 3) 用户填写并提交表单
+java.util.Map<String, Object> inputs = new java.util.HashMap<>();
+inputs.put("decision", "approve");
+inputs.put("comment", "看起来没问题");
+
+HumanInputFormSubmitRequest submit = HumanInputFormSubmitRequest.builder()
+    .inputs(inputs)
+    .action("action-approve") // 匹配 form.getUserActions() 中某一项的 id
+    .user("reviewer-alice")
+    .build();
+client.submitHumanInputForm(formToken, submit);
+
+// 4) 恢复订阅工作流事件流（提交后工作流从暂停处继续）
+workflowClient.streamWorkflowEvents(workflowRunId, "reviewer-alice", true, false,
+    new WorkflowStreamCallback() {
+        @Override
+        public void onWorkflowFinished(WorkflowFinishedEvent event) {
+            System.out.println("工作流完成: " + event.getData().getStatus());
+        }
+    });
+```
+
+### 7. 思考流 (reasoning_chunk)
+
+当 Chatflow 应用中的 LLM 节点开启 `reasoning_format=separated` 时，模型的思考内容会通过 `reasoning_chunk` 事件与正文并行流出。
+
+```java
+chatflowClient.sendChatMessageStream(message, new ChatflowStreamCallback() {
+    @Override
+    public void onReasoningChunk(ReasoningChunkEvent event) {
+        // 在 UI 上单独渲染"思考中"面板
+        String reasoning = event.getData().getReasoning();
+        boolean isFinal = Boolean.TRUE.equals(event.getData().getIsFinal());
+        renderThinking(reasoning, isFinal);
+    }
+
+    @Override
+    public void onMessage(MessageEvent event) {
+        // 正文答复
+        appendAnswer(event.getAnswer());
+    }
+});
+```
+
 ## API 参考
 
 ### 客户端类型
@@ -436,7 +575,7 @@ retrieveResponse.getRecords().forEach(record -> {
 | `DifyCompletionClient` | 文本生成型应用客户端 | 文本生成、停止生成 |
 | `DifyChatflowClient` | 工作流编排对话型应用客户端 | 工作流编排对话 |
 | `DifyWorkflowClient` | 工作流应用客户端 | 执行工作流、工作流管理 |
-| `DifyDatasetsClient` | 知识库客户端 | 知识库管理、文档管理、检索 |
+| `DifyDatasetsClient` | 知识库客户端 | 知识库管理、文档管理、检索、批量/签名下载、RAG Pipeline |
 
 ### 响应模式
 
@@ -457,10 +596,16 @@ retrieveResponse.getRecords().forEach(record -> {
 | `MessageReplaceEvent` | 消息替换事件 |
 | `AgentMessageEvent` | Agent消息事件 |
 | `AgentThoughtEvent` | Agent思考事件 |
+| `ReasoningChunkEvent` | LLM 节点思考流事件（reasoning_format=separated） |
 | `WorkflowStartedEvent` | 工作流开始事件 |
 | `NodeStartedEvent` | 节点开始事件 |
 | `NodeFinishedEvent` | 节点完成事件 |
+| `NodeRetryEvent` | 节点重试事件 |
 | `WorkflowFinishedEvent` | 工作流完成事件 |
+| `WorkflowPausedEvent` | 工作流暂停事件（人工介入） |
+| `HumanInputRequiredEvent` | 请求人工介入表单事件 |
+| `HumanInputFormFilledEvent` | 表单已提交、恢复执行事件 |
+| `HumanInputFormTimeoutEvent` | 表单超时事件 |
 | `ErrorEvent` | 错误事件 |
 | `PingEvent` | 心跳事件 |
 

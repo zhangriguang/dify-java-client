@@ -125,4 +125,45 @@ public interface WorkflowStreamCallback extends BaseStreamCallback {
     default void onTtsMessageEnd(TtsMessageEndEvent event) {
     }
 
+    /**
+     * 人工介入表单等待事件（Dify 1.14.2+）
+     *
+     * @param event 事件数据
+     */
+    default void onHumanInputRequired(HumanInputRequiredEvent event) {
+    }
+
+    /**
+     * 工作流暂停事件（Dify 1.14.2+）
+     *
+     * @param event 事件数据
+     */
+    default void onWorkflowPaused(WorkflowPausedEvent event) {
+    }
+
+    /**
+     * 人工介入表单已提交事件（Dify 1.14.2+）
+     *
+     * @param event 事件数据
+     */
+    default void onHumanInputFormFilled(HumanInputFormFilledEvent event) {
+    }
+
+    /**
+     * 人工介入表单超时事件（Dify 1.14.2+）
+     *
+     * @param event 事件数据
+     */
+    default void onHumanInputFormTimeout(HumanInputFormTimeoutEvent event) {
+    }
+
+    /**
+     * LLM 节点思考（reasoning）内容增量事件
+     * 仅当 LLM 节点开启 reasoning_format=separated 时触发。
+     *
+     * @param event 事件数据
+     */
+    default void onReasoningChunk(ReasoningChunkEvent event) {
+    }
+
 }

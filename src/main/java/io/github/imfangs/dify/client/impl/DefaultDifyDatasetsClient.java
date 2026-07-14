@@ -1,9 +1,13 @@
 package io.github.imfangs.dify.client.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import io.github.imfangs.dify.client.DifyDatasetsClient;
+import io.github.imfangs.dify.client.callback.WorkflowStreamCallback;
+import io.github.imfangs.dify.client.enums.EventType;
 import io.github.imfangs.dify.client.exception.DifyApiException;
 import io.github.imfangs.dify.client.model.common.SimpleResponse;
 import io.github.imfangs.dify.client.model.datasets.*;
+import io.github.imfangs.dify.client.model.file.FilePreviewResponse;
 import io.github.imfangs.dify.client.util.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
@@ -11,9 +15,12 @@ import okhttp3.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Dify 知识库客户端默认实现
@@ -552,6 +559,223 @@ public class DefaultDifyDatasetsClient extends AbstractDifyClient implements Dif
         log.debug("查询知识库已绑定的标签: datasetId={}", datasetId);
         String path = DATASETS_PATH + "/" + datasetId + TAGS_PATH;
         return executeGet(path, TagListResponse.class);
+    }
+
+    @Override
+    public FilePreviewResponse downloadDocumentsAsZip(String datasetId, DocumentBatchDownloadRequest request) throws IOException, DifyApiException {
+        if (datasetId == null || datasetId.trim().isEmpty()) {
+            throw new IllegalArgumentException("知识库 ID 不能为空");
+        }
+        if (request == null || request.getDocumentIds() == null || request.getDocumentIds().isEmpty()) {
+            throw new IllegalArgumentException("documentIds 不能为空");
+        }
+        log.debug("批量下载文档 ZIP: datasetId={}, count={}", datasetId, request.getDocumentIds().size());
+        String path = DATASETS_PATH + "/" + datasetId + DOCUMENTS_PATH + "/download-zip";
+
+        RequestBody requestBody = RequestBody.create(
+                JsonUtils.toJson(request), MediaType.parse("application/json; charset=utf-8"));
+        Request httpRequest = new Request.Builder()
+                .url(baseUrl + path)
+                .post(requestBody)
+                .header("Authorization", "Bearer " + apiKey)
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/zip")
+                .build();
+
+        Response response = httpClient.newCall(httpRequest).execute();
+        if (!response.isSuccessful()) {
+            String errorBody = response.body() != null ? response.body().string() : "";
+            throw createApiException(response.code(), errorBody);
+        }
+        ResponseBody body = response.body();
+        if (body == null) {
+            throw new DifyApiException(500, "empty_response", "响应体为空");
+        }
+        Headers headers = response.headers();
+        Map<String, String> headerMap = new HashMap<>();
+        for (String name : headers.names()) {
+            headerMap.put(name, headers.get(name));
+        }
+        String contentDisposition = headers.get("Content-Disposition");
+        String fileName = null;
+        if (contentDisposition != null) {
+            int idx = contentDisposition.indexOf("filename=");
+            if (idx >= 0) {
+                fileName = contentDisposition.substring(idx + 9).replaceAll("\"", "").trim();
+            }
+        }
+        Long contentLength = body.contentLength() >= 0 ? body.contentLength() : null;
+        return FilePreviewResponse.builder()
+                .inputStream(body.byteStream())
+                .contentLength(contentLength)
+                .contentType(headers.get("Content-Type"))
+                .isAttachment(true)
+                .fileName(fileName)
+                .headers(headerMap)
+                .build();
+    }
+
+    @Override
+    public DocumentDownloadUrlResponse getDocumentDownloadUrl(String datasetId, String documentId) throws IOException, DifyApiException {
+        if (datasetId == null || datasetId.trim().isEmpty()) {
+            throw new IllegalArgumentException("知识库 ID 不能为空");
+        }
+        if (documentId == null || documentId.trim().isEmpty()) {
+            throw new IllegalArgumentException("文档 ID 不能为空");
+        }
+        log.debug("获取文档签名下载 URL: datasetId={}, documentId={}", datasetId, documentId);
+        String path = DATASETS_PATH + "/" + datasetId + DOCUMENTS_PATH + "/" + documentId + "/download";
+        return executeGet(path, DocumentDownloadUrlResponse.class);
+    }
+
+    // ==================== 知识库 Pipeline (RAG Pipeline) 实现 ====================
+
+    private static final String PIPELINE_PATH = "/pipeline";
+    private static final String PIPELINE_DATASOURCE_PLUGINS_PATH = "/pipeline/datasource-plugins";
+    private static final String PIPELINE_DATASOURCE_NODES_PATH = "/pipeline/datasource/nodes";
+    private static final String PIPELINE_RUN_PATH = "/pipeline/run";
+    private static final String PIPELINE_FILE_UPLOAD_PATH = "/datasets/pipeline/file-upload";
+    private static final Set<EventType> PIPELINE_TERMINAL_EVENTS = EnumSet.of(EventType.WORKFLOW_FINISHED, EventType.ERROR);
+
+    @Override
+    public List<DatasourcePluginResponse> listPipelineDatasourcePlugins(String datasetId, Boolean isPublished) throws IOException, DifyApiException {
+        if (datasetId == null || datasetId.trim().isEmpty()) {
+            throw new IllegalArgumentException("知识库 ID 不能为空");
+        }
+        log.debug("列出 Pipeline 数据源节点: datasetId={}, isPublished={}", datasetId, isPublished);
+        Map<String, Object> params = new HashMap<>();
+        if (isPublished != null) {
+            params.put("is_published", isPublished);
+        }
+        String url = buildUrlWithParams(DATASETS_PATH + "/" + datasetId + PIPELINE_DATASOURCE_PLUGINS_PATH, params);
+        Request request = createGetRequest(url);
+        try (Response response = httpClient.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                String errorBody = response.body() != null ? response.body().string() : "";
+                throw createApiException(response.code(), errorBody);
+            }
+            String bodyStr = response.body() != null ? response.body().string() : "[]";
+            return JsonUtils.fromJson(bodyStr, new TypeReference<List<DatasourcePluginResponse>>() {});
+        }
+    }
+
+    @Override
+    public void runPipelineDatasourceNodeStream(String datasetId,
+                                                String nodeId,
+                                                DatasourceNodeRunRequest request,
+                                                WorkflowStreamCallback callback) throws IOException, DifyApiException {
+        if (datasetId == null || datasetId.trim().isEmpty()) {
+            throw new IllegalArgumentException("知识库 ID 不能为空");
+        }
+        if (nodeId == null || nodeId.trim().isEmpty()) {
+            throw new IllegalArgumentException("nodeId 不能为空");
+        }
+        if (request == null) {
+            throw new IllegalArgumentException("请求不能为空");
+        }
+        log.debug("运行 Pipeline 数据源节点: datasetId={}, nodeId={}, request={}", datasetId, nodeId, request);
+        String path = DATASETS_PATH + "/" + datasetId + PIPELINE_DATASOURCE_NODES_PATH + "/" + nodeId + "/run";
+        executeStreamRequest(path, request,
+                (line) -> processStreamLine(line, callback, PIPELINE_TERMINAL_EVENTS,
+                        (data, eventType) -> StreamEventDispatcher.dispatchWorkflowEvent(callback, data)),
+                callback::onException);
+    }
+
+    @Override
+    public Map<String, Object> runPipeline(String datasetId, PipelineRunRequest request) throws IOException, DifyApiException {
+        if (datasetId == null || datasetId.trim().isEmpty()) {
+            throw new IllegalArgumentException("知识库 ID 不能为空");
+        }
+        if (request == null) {
+            throw new IllegalArgumentException("请求不能为空");
+        }
+        request.setResponseMode("blocking");
+        log.debug("运行 Pipeline（阻塞模式）: datasetId={}", datasetId);
+        String path = DATASETS_PATH + "/" + datasetId + PIPELINE_RUN_PATH;
+
+        RequestBody requestBody = createJsonRequestBody(request);
+        Request httpRequest = createPostRequest(path, requestBody);
+        try (Response response = httpClient.newCall(httpRequest).execute()) {
+            if (!response.isSuccessful()) {
+                String errorBody = response.body() != null ? response.body().string() : "";
+                throw createApiException(response.code(), errorBody);
+            }
+            String bodyStr = response.body() != null ? response.body().string() : "{}";
+            return JsonUtils.fromJson(bodyStr, new TypeReference<Map<String, Object>>() {});
+        }
+    }
+
+    @Override
+    public void runPipelineStream(String datasetId,
+                                  PipelineRunRequest request,
+                                  WorkflowStreamCallback callback) throws IOException, DifyApiException {
+        if (datasetId == null || datasetId.trim().isEmpty()) {
+            throw new IllegalArgumentException("知识库 ID 不能为空");
+        }
+        if (request == null) {
+            throw new IllegalArgumentException("请求不能为空");
+        }
+        request.setResponseMode("streaming");
+        log.debug("运行 Pipeline（流式模式）: datasetId={}", datasetId);
+        String path = DATASETS_PATH + "/" + datasetId + PIPELINE_RUN_PATH;
+        executeStreamRequest(path, request,
+                (line) -> processStreamLine(line, callback, PIPELINE_TERMINAL_EVENTS,
+                        (data, eventType) -> StreamEventDispatcher.dispatchWorkflowEvent(callback, data)),
+                callback::onException);
+    }
+
+    @Override
+    public PipelineFileUploadResponse uploadPipelineFile(File file) throws IOException, DifyApiException {
+        if (file == null || !file.exists()) {
+            throw new IllegalArgumentException("文件不存在");
+        }
+        log.debug("上传 Pipeline 文件: {}", file.getName());
+        String mime = Files.probeContentType(file.toPath());
+        MediaType mediaType = mime != null ? MediaType.parse(mime) : OCTET_STREAM;
+        RequestBody body = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("file", file.getName(), RequestBody.create(file, mediaType))
+                .build();
+        return uploadPipelineFileBody(body);
+    }
+
+    @Override
+    public PipelineFileUploadResponse uploadPipelineFile(InputStream inputStream, String fileName, String mimeType) throws IOException, DifyApiException {
+        if (inputStream == null) {
+            throw new IllegalArgumentException("输入流不能为空");
+        }
+        if (fileName == null || fileName.trim().isEmpty()) {
+            throw new IllegalArgumentException("文件名不能为空");
+        }
+        log.debug("上传 Pipeline 文件(InputStream): {}", fileName);
+        MediaType mediaType = mimeType != null && !mimeType.isEmpty() ? MediaType.parse(mimeType) : OCTET_STREAM;
+        RequestBody fileBody = new RequestBody() {
+            @Override
+            public MediaType contentType() {
+                return mediaType;
+            }
+
+            @Override
+            public void writeTo(okio.BufferedSink sink) throws IOException {
+                try (okio.Source source = okio.Okio.source(inputStream)) {
+                    sink.writeAll(source);
+                }
+            }
+        };
+        RequestBody body = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("file", fileName, fileBody)
+                .build();
+        return uploadPipelineFileBody(body);
+    }
+
+    private PipelineFileUploadResponse uploadPipelineFileBody(RequestBody body) throws IOException, DifyApiException {
+        Request httpRequest = new Request.Builder()
+                .url(baseUrl + PIPELINE_FILE_UPLOAD_PATH)
+                .post(body)
+                .header("Authorization", "Bearer " + apiKey)
+                .build();
+        return executeRequest(httpRequest, PipelineFileUploadResponse.class);
     }
 
     /**

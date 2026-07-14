@@ -33,8 +33,6 @@ import java.util.function.Consumer;
 public class DefaultDifyClient extends DifyBaseClientImpl implements DifyClient {
 
     // 流式响应相关常量
-    private static final String DATA_PREFIX = "data:";
-    private static final String PING_EVENT = "event: ping";
     private static final Set<EventType> CHAT_TERMINAL_EVENTS = EnumSet.of(EventType.MESSAGE_END, EventType.ERROR);
     private static final Set<EventType> WORKFLOW_TERMINAL_EVENTS = EnumSet.of(EventType.WORKFLOW_FINISHED, EventType.ERROR);
 
@@ -60,6 +58,7 @@ public class DefaultDifyClient extends DifyBaseClientImpl implements DifyClient 
     private static final String WORKFLOWS_RUN_PATH = "/workflows/run";
     private static final String WORKFLOWS_TASKS_PATH = "/workflows/tasks";
     private static final String WORKFLOWS_LOGS_PATH = "/workflows/logs";
+    private static final String WORKFLOW_EVENTS_PATH = "/workflow";
 
     //标注应用相关路径
     private static final String APPS_ANNOTATIONS_PATH = "/apps/annotations";
@@ -386,143 +385,32 @@ public class DefaultDifyClient extends DifyBaseClientImpl implements DifyClient 
         return executeRequest(request, WorkflowLogsResponse.class);
     }
 
-    /**
-     * 执行流式请求
-     *
-     * @param path          请求路径
-     * @param body          请求体
-     * @param lineProcessor 行处理器，返回false表示停止处理
-     * @param errorHandler  错误处理器
-     */
-    private void executeStreamRequest(String path, Object body, LineProcessor lineProcessor, Consumer<Exception> errorHandler) {
-        // 创建请求
-        RequestBody requestBody = createJsonRequestBody(body);
-        Request httpRequest = new Request.Builder().url(baseUrl + path).post(requestBody).header("Authorization", "Bearer " + apiKey).header("Content-Type", "application/json").header("Accept", "text/event-stream").build();
-
-        // 执行请求并处理流式响应
-        Call call = httpClient.newCall(httpRequest);
-        call.enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                log.error("流式请求失败: {}", e.getMessage());
-                errorHandler.accept(e);
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) {
-                if (!response.isSuccessful()) {
-                    try {
-                        String errorBody = response.body() != null ? response.body().string() : "";
-                        DifyApiException exception = createApiException(response.code(), errorBody);
-                        log.error("流式请求失败: {}", exception.getMessage());
-                        errorHandler.accept(exception);
-                    } catch (IOException e) {
-                        log.error("读取错误响应失败", e);
-                        errorHandler.accept(e);
-                    }
-                    return;
-                }
-
-                try (ResponseBody responseBody = response.body()) {
-                    if (responseBody == null) {
-                        IOException exception = new IOException("空响应体");
-                        log.error("流式请求失败: {}", exception.getMessage());
-                        errorHandler.accept(exception);
-                        return;
-                    }
-
-                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(responseBody.byteStream(), StandardCharsets.UTF_8))) {
-                        String line;
-                        while ((line = reader.readLine()) != null) {
-                            if (line.isEmpty()) {
-                                continue;
-                            }
-
-                            // 处理行，如果返回false则停止处理
-                            if (!lineProcessor.process(line)) {
-                                break;
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    log.error("处理流式响应失败: {}", e.getMessage(), e);
-                    errorHandler.accept(e);
-                }
-            }
-        });
-    }
-
-    /**
-     * 行处理器接口
-     */
-    @FunctionalInterface
-    private interface LineProcessor {
-        /**
-         * 处理一行数据
-         *
-         * @param line 行数据
-         * @return 是否继续处理
-         */
-        boolean process(String line);
-    }
-
-    /**
-     * 处理流式数据行
-     *
-     * @param line           数据行
-     * @param callback       回调接口
-     * @param terminalEvents 流式读取终止事件
-     * @param eventProcessor 事件处理器
-     * @return 是否继续处理
-     */
-    private boolean processStreamLine(String line, BaseStreamCallback callback, Set<EventType> terminalEvents, EventProcessor eventProcessor) {
-        if(line == null || line.trim().isEmpty()){
-            return true;
+    @Override
+    public void streamWorkflowEvents(String workflowRunId,
+                                     String user,
+                                     Boolean includeStateSnapshot,
+                                     Boolean continueOnPause,
+                                     WorkflowStreamCallback callback) throws IOException, DifyApiException {
+        if (workflowRunId == null || workflowRunId.trim().isEmpty()) {
+            throw new IllegalArgumentException("workflowRunId 不能为空");
         }
-        if (line.startsWith(DATA_PREFIX)) {
-            String data = line.substring(DATA_PREFIX.length()).trim();
-
-            try {
-                // 解析事件类型
-                BaseEvent baseEvent = JsonUtils.fromJson(data, BaseEvent.class);
-                if (baseEvent == null) {
-                    log.warn("解析事件数据为null: {}", data);
-                    return true; // 继续处理
-                }
-
-                // 处理事件
-                eventProcessor.process(data, baseEvent.getEvent());
-                // 不同 Dify 应用类型的最终事件不同，例如 Chatflow 的 message_end 后仍会继续发送 workflow_finished。
-                String eventTypeStr = baseEvent.getEvent();
-                EventType eventType = eventTypeStr != null ? EventType.fromValue(eventTypeStr) : null;
-                if (eventType != null && terminalEvents.contains(eventType)) {
-                    return false;
-                }
-            } catch (Exception e) {
-                log.error("解析事件数据失败: {}", data, e);
-                callback.onException(e);
-            }
-        } else if (PING_EVENT.equalsIgnoreCase(line)) {
-            // 心跳事件与 Dify API 文档中描述不一致，返回的不是data开头
-            PingEvent pingEvent = new PingEvent();
-            pingEvent.setEvent(EventType.PING.getValue());
-            callback.onPing(pingEvent);
+        if (user == null || user.trim().isEmpty()) {
+            throw new IllegalArgumentException("user 不能为空");
         }
-        return true; // 继续处理
-    }
-
-    /**
-     * 事件处理器接口
-     */
-    @FunctionalInterface
-    private interface EventProcessor {
-        /**
-         * 处理事件
-         *
-         * @param data      事件数据
-         * @param eventType 事件类型
-         */
-        void process(String data, String eventType);
+        log.debug("订阅工作流事件流: workflowRunId={}, user={}, includeStateSnapshot={}, continueOnPause={}",
+                workflowRunId, user, includeStateSnapshot, continueOnPause);
+        Map<String, Object> params = new HashMap<>();
+        params.put("user", user);
+        if (includeStateSnapshot != null) {
+            params.put("include_state_snapshot", includeStateSnapshot);
+        }
+        if (continueOnPause != null) {
+            params.put("continue_on_pause", continueOnPause);
+        }
+        String url = buildUrlWithParams(WORKFLOW_EVENTS_PATH + "/" + workflowRunId.trim() + "/events", params);
+        executeGetStreamRequest(url, (line) -> processStreamLine(line, callback, WORKFLOW_TERMINAL_EVENTS, (data, eventType) -> {
+            StreamEventDispatcher.dispatchWorkflowEvent(callback, data);
+        }), callback::onException);
     }
 
     /**
